@@ -1,25 +1,94 @@
 import { z } from "zod"
 import type { InvoiceValidationErrors } from "../schemas/invoice.schema"
-import { invoiceSchema } from "../schemas/invoice.schema"
+import { invoiceSchema, invoiceFieldSchema } from "../schemas/invoice.schema"
+import {
+  validateSellerName,
+  validateSellerAddress,
+  validateSellerGSTIN
+} from "./seller-validator"
+import {
+  validateBuyerName,
+  validateBuyerAddress,
+  validateBuyerGSTIN
+} from "./buyer-validator"
+import {
+  validateInvoiceNumber,
+  validateInvoiceDate
+} from "./invoice-validator"
+import {
+  validateItemDescription,
+  validateHSNCode,
+  validateQuantity,
+  validateRate
+} from "./item-validator"
+import {
+  validateCGST,
+  validateSGST,
+  validateIGST
+} from "./tax-validator"
 
 export class FieldValidator {
   /**
    * Validate a single field
    */
   static validateField(fieldName: string, value: any): string | null {
-    try {
-      // Since invoiceSchema has .refine(), it's a ZodEffects type without .shape property
-      const partialData = { [fieldName]: value }
-      const result = invoiceSchema.partial().safeParse(partialData)
-
-      if (!result.success) {
-        const fieldError = result.error.errors.find((err) => err.path[0] === fieldName)
-        return fieldError?.message || "Invalid value"
-      }
-      return null
-    } catch (error) {
-      console.error("[v0] Field validation error:", error)
-      return "Validation error"
+    // Route to appropriate validator based on field name
+    switch (fieldName) {
+      // Seller fields
+      case "sellerName":
+        return validateSellerName(value)
+      case "sellerAddress":
+        return validateSellerAddress(value)
+      case "sellerGSTIN":
+        return validateSellerGSTIN(value)
+        
+      // Buyer fields
+      case "buyerName":
+        return validateBuyerName(value)
+      case "buyerAddress":
+        return validateBuyerAddress(value)
+      case "buyerGSTIN":
+        return validateBuyerGSTIN(value)
+        
+      // Invoice fields
+      case "invoiceNumber":
+        return validateInvoiceNumber(value)
+      case "invoiceDate":
+        return validateInvoiceDate(value)
+        
+      // Item fields
+      case "itemDescription":
+        return validateItemDescription(value)
+      case "hsnCode":
+        return validateHSNCode(value)
+      case "quantity":
+        return validateQuantity(value)
+      case "rate":
+        return validateRate(value)
+        
+      // Tax fields
+      case "cgst":
+        return validateCGST(value)
+      case "sgst":
+        return validateSGST(value)
+      case "igst":
+        return validateIGST(value)
+        
+      default:
+        // Fallback to original validation for unknown fields
+        try {
+          const partialData = { [fieldName]: value }
+          const result = invoiceFieldSchema.safeParse(partialData)
+          
+          if (!result.success) {
+            const fieldError = result.error.errors.find((err: z.ZodIssue) => err.path[0] === fieldName)
+            return fieldError?.message || "Invalid value"
+          }
+          return null
+        } catch (error) {
+          console.error("[v0] Field validation error:", error)
+          return "Validation error"
+        }
     }
   }
 
