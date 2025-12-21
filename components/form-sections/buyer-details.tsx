@@ -36,9 +36,9 @@ export function BuyerDetails({
   return (
     <div
       className={`
-        relative p-6 rounded-xl border-2 transition-all duration-500 ease-out
+        relative p-6 rounded-xl border transition-all duration-500 ease-out
         ${isCompleted
-          ? 'border-green-500/50 bg-gradient-to-br from-green-50/50 to-transparent dark:from-green-950/20 shadow-lg shadow-green-500/10'
+          ? 'border-green-400/40 bg-gradient-to-br from-green-50/30 to-transparent dark:from-green-950/10 shadow-md shadow-green-500/5'
           : 'border-border bg-card hover:border-primary/30 hover:shadow-md'
         }
       `}

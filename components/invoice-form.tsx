@@ -433,7 +433,7 @@ export function InvoiceForm() {
                 </p>
               )}
               <p className="text-xs text-center text-muted-foreground">
-                Secure payment via Razorpay. Your invoice generates instantly after payment confirmation.
+                Secure payment via Razorpay. Invoice generated instantly after payment.
               </p>
               <p className="text-xs text-center text-muted-foreground italic">
                 Based on GST Rule 46 invoice requirements for services.

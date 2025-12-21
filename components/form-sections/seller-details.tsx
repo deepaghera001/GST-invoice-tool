@@ -32,11 +32,11 @@ export function SellerDetails({
     suggestions && formData.sellerGSTIN.length === 15 ? suggestions.analyzeGSTIN(formData.sellerGSTIN) : null
 
   return (
-    <div 
+    <div
       className={`
-        relative p-6 rounded-xl border-2 transition-all duration-500 ease-out
-        ${isCompleted 
-          ? 'border-green-500/50 bg-gradient-to-br from-green-50/50 to-transparent dark:from-green-950/20 shadow-lg shadow-green-500/10' 
+        relative p-6 rounded-xl border transition-all duration-500 ease-out
+        ${isCompleted
+          ? 'border-green-400/40 bg-gradient-to-br from-green-50/30 to-transparent dark:from-green-950/10 shadow-md shadow-green-500/5'
           : 'border-border bg-card hover:border-primary/30 hover:shadow-md'
         }
       `}
@@ -60,8 +60,8 @@ export function SellerDetails({
             <div className="flex items-center gap-3">
               <div className={`
                 flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg transition-all duration-300
-                ${isCompleted 
-                  ? 'bg-green-500 text-white shadow-lg shadow-green-500/30' 
+                ${isCompleted
+                  ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
                   : 'bg-primary/10 text-primary'
                 }
               `}>
@@ -79,16 +79,14 @@ export function SellerDetails({
 
           {/* Progress bar */}
           <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div 
-              className={`h-full transition-all duration-700 ease-out ${
-                isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-primary/30'
-              }`}
-              style={{ 
-                width: isCompleted ? '100%' : `${
-                  (formData.sellerName.trim().length >= 2 ? 33 : 0) +
+            <div
+              className={`h-full transition-all duration-700 ease-out ${isCompleted ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-primary/30'
+                }`}
+              style={{
+                width: isCompleted ? '100%' : `${(formData.sellerName.trim().length >= 2 ? 33 : 0) +
                   (formData.sellerAddress.trim().length >= 10 ? 33 : 0) +
                   (gstinAnalysis?.isValid ? 34 : 0)
-                }%` 
+                  }%`
               }}
             />
           </div>
