@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { InvoiceData, InvoiceValidationErrors } from "@/lib/types"
 import type { useSuggestions } from "@/hooks/use-suggestions"
-import { Search } from "lucide-react"
+import { Search, Check } from "lucide-react"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
@@ -21,6 +21,7 @@ interface ItemDetailsProps {
   shouldShowError?: (fieldName: string) => boolean
   suggestions?: ReturnType<typeof useSuggestions>
   setFormData?: React.Dispatch<React.SetStateAction<InvoiceData>>
+  isCompleted?: boolean
 }
 
 export function ItemDetails({
@@ -31,6 +32,7 @@ export function ItemDetails({
   shouldShowError,
   suggestions,
   setFormData,
+  isCompleted,
 }: ItemDetailsProps) {
   const [hsnSearchOpen, setHsnSearchOpen] = useState(false)
   const [hsnSearchQuery, setHsnSearchQuery] = useState("")
@@ -61,19 +63,26 @@ export function ItemDetails({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-1">Item Details</h3>
             <p className="text-sm text-muted-foreground">Service or product information</p>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            Step 4 of 4
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              Step 4 of 4
+            </Badge>
+            {isCompleted && (
+              <Badge variant="secondary" className="text-xs p-1">
+                <Check className="h-3 w-3" />
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         <FormField
           label="Description"
           htmlFor="itemDescription"
@@ -91,7 +100,7 @@ export function ItemDetails({
           />
         </FormField>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           <FormField
             label="SAC Code"
             htmlFor="hsnCode"

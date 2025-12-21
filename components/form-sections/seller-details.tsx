@@ -7,7 +7,7 @@ import { FormField } from "@/components/ui/form-field"
 import { Badge } from "@/components/ui/badge"
 import type { InvoiceData, InvoiceValidationErrors } from "@/lib/types"
 import type { useSuggestions } from "@/hooks/use-suggestions"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Check } from "lucide-react"
 
 interface SellerDetailsProps {
   formData: InvoiceData
@@ -16,6 +16,7 @@ interface SellerDetailsProps {
   errors?: InvoiceValidationErrors
   shouldShowError?: (fieldName: string) => boolean
   suggestions?: ReturnType<typeof useSuggestions>
+  isCompleted?: boolean
 }
 
 export function SellerDetails({
@@ -25,24 +26,32 @@ export function SellerDetails({
   errors,
   shouldShowError,
   suggestions,
+  isCompleted,
 }: SellerDetailsProps) {
   const gstinAnalysis =
     suggestions && formData.sellerGSTIN.length === 15 ? suggestions.analyzeGSTIN(formData.sellerGSTIN) : null
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-1">Seller Details</h3>
             <p className="text-sm text-muted-foreground">Your business information</p>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            Step 1 of 4
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              Step 1 of 4
+            </Badge>
+            {isCompleted && (
+              <Badge variant="secondary" className="text-xs p-1">
+                <Check className="h-3 w-3" />
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <FormField
           label="Business Name"
           htmlFor="sellerName"

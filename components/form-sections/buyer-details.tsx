@@ -7,7 +7,7 @@ import { FormField } from "@/components/ui/form-field"
 import { Badge } from "@/components/ui/badge"
 import type { InvoiceData, InvoiceValidationErrors } from "@/lib/types"
 import type { useSuggestions } from "@/hooks/use-suggestions"
-import { Sparkles } from "lucide-react"
+import { Sparkles, Check } from "lucide-react"
 
 interface BuyerDetailsProps {
   formData: InvoiceData
@@ -16,28 +16,44 @@ interface BuyerDetailsProps {
   errors?: InvoiceValidationErrors
   shouldShowError?: (fieldName: string) => boolean
   suggestions?: ReturnType<typeof useSuggestions>
+  isCompleted?: boolean
 }
 
-export function BuyerDetails({ formData, onChange, onBlur, errors, shouldShowError, suggestions }: BuyerDetailsProps) {
+export function BuyerDetails({ 
+  formData, 
+  onChange, 
+  onBlur, 
+  errors, 
+  shouldShowError, 
+  suggestions,
+  isCompleted
+}: BuyerDetailsProps) {
   const gstinAnalysis =
     suggestions && formData.buyerGSTIN && formData.buyerGSTIN.length === 15
       ? suggestions.analyzeGSTIN(formData.buyerGSTIN)
       : null
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-1">Buyer Details</h3>
             <p className="text-sm text-muted-foreground">Customer information</p>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            Step 2 of 4
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              Step 2 of 4
+            </Badge>
+            {isCompleted && (
+              <Badge variant="secondary" className="text-xs p-1">
+                <Check className="h-3 w-3" />
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <FormField
           label="Customer Name"
           htmlFor="buyerName"

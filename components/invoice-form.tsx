@@ -313,8 +313,8 @@ export function InvoiceForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-6 p-6 border border-border rounded-xl bg-card shadow-sm">
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-6 p-6 border border-border rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="text-center">
                 <h3 className="text-xl font-bold text-foreground mb-2">Pricing</h3>
                 <p className="text-sm text-muted-foreground">One invoice. One price.</p>
@@ -353,55 +353,74 @@ export function InvoiceForm() {
 
             <Separator />
 
-            <SellerDetails
-              formData={formData}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              errors={errors}
-              shouldShowError={shouldShowError}
-              suggestions={suggestions}
-            />
+            <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-75">
+              <SellerDetails
+                formData={formData}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                errors={errors}
+                shouldShowError={shouldShowError}
+                suggestions={suggestions}
+                isCompleted={formData.sellerName.trim().length >= 2 && formData.sellerAddress.trim().length >= 10 && gstinRegex.test(formData.sellerGSTIN)}
+              />
+            </div>
             <Separator />
 
-            <BuyerDetails
-              formData={formData}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              errors={errors}
-              shouldShowError={shouldShowError}
-              suggestions={suggestions}
-            />
+            <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-100">
+              <BuyerDetails
+                formData={formData}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                errors={errors}
+                shouldShowError={shouldShowError}
+                suggestions={suggestions}
+                isCompleted={formData.buyerName.trim().length >= 2 && formData.buyerAddress.trim().length >= 10}
+              />
+            </div>
             <Separator />
 
-            <InvoiceDetails
-              formData={formData}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              errors={errors}
-              shouldShowError={shouldShowError}
-              suggestions={suggestions}
-            />
+            <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-150">
+              <InvoiceDetails
+                formData={formData}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                errors={errors}
+                shouldShowError={shouldShowError}
+                suggestions={suggestions}
+                isCompleted={formData.invoiceNumber.trim().length >= 1 && formData.invoiceDate.length > 0}
+              />
+            </div>
             <Separator />
 
-            <ItemDetails
-              formData={formData}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              errors={errors}
-              shouldShowError={shouldShowError}
-              suggestions={suggestions}
-              setFormData={setFormData}
-            />
+            <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-200">
+              <ItemDetails
+                formData={formData}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                errors={errors}
+                shouldShowError={shouldShowError}
+                suggestions={suggestions}
+                setFormData={setFormData}
+                isCompleted={formData.itemDescription.trim().length >= 3 && Number.parseFloat(formData.quantity) > 0 && Number.parseFloat(formData.rate) > 0}
+              />
+            </div>
             <Separator />
 
-            <TaxDetails formData={formData} onChange={handleChange} setFormData={setFormData} />
+            <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-300">
+              <TaxDetails 
+                formData={formData} 
+                onChange={handleChange} 
+                setFormData={setFormData} 
+                isCompleted={true} // Tax details are always considered complete since they're auto-calculated
+              />
+            </div>
 
-            <div className="flex flex-col gap-3 pt-4">
+            <div className="flex flex-col gap-3 pt-4 animate-in fade-in slide-in-from-top-2 duration-200 delay-400">
               <div className="text-center py-2">
                 <p className="text-sm font-medium text-primary">Avoid GST mistakes in 2 minutes</p>
               </div>
 
-              <Button type="submit" size="lg" disabled={isProcessing || !canSubmit} className="w-full">
+              <Button type="submit" size="lg" disabled={isProcessing || !canSubmit} className="w-full text-base">
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

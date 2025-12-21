@@ -49,30 +49,42 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
       </CardHeader>
       <CardContent className="p-6 space-y-6">
         {/* Invoice Header */}
-        <div className="space-y-1">
+        <div className="space-y-1 animate-in fade-in duration-200">
           <h2 className="text-2xl font-bold text-foreground">TAX INVOICE</h2>
           {formData.invoiceNumber && (
-            <p className="text-sm text-muted-foreground">Invoice #: {formData.invoiceNumber}</p>
+            <p className="text-sm text-muted-foreground animate-in fade-in duration-200">
+              Invoice #: {formData.invoiceNumber}
+            </p>
           )}
           {formData.invoiceDate && (
-            <p className="text-sm text-muted-foreground">Date: {formatDate(formData.invoiceDate)}</p>
+            <p className="text-sm text-muted-foreground animate-in fade-in duration-200">
+              Date: {formatDate(formData.invoiceDate)}
+            </p>
           )}
         </div>
 
         <Separator />
 
         {/* Seller Details */}
-        <div className="space-y-2">
+        <div className="space-y-2 animate-in fade-in duration-200 delay-75">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase">From</h3>
           <div className="space-y-1">
-            <p className="font-semibold text-foreground">{formData.sellerName || "Your Business Name"}</p>
+            <p className="font-semibold text-foreground animate-in fade-in duration-200">
+              {formData.sellerName || "Your Business Name"}
+            </p>
             {formData.sellerAddress && (
-              <p className="text-sm text-muted-foreground whitespace-pre-line">{formData.sellerAddress}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-line animate-in fade-in duration-200">
+                {formData.sellerAddress}
+              </p>
             )}
             {isSellerGSTINValid && formData.sellerGSTIN ? (
-              <p className="text-sm text-muted-foreground">GSTIN: {formData.sellerGSTIN}</p>
+              <p className="text-sm text-muted-foreground animate-in fade-in duration-200">
+                GSTIN: {formData.sellerGSTIN}
+              </p>
             ) : formData.sellerGSTIN && !isSellerGSTINValid ? (
-              <p className="text-sm text-destructive">GSTIN: — Invalid —</p>
+              <p className="text-sm text-destructive animate-in fade-in duration-200">
+                GSTIN: — Invalid —
+              </p>
             ) : null}
           </div>
         </div>
@@ -80,20 +92,30 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
         <Separator />
 
         {/* Buyer Details */}
-        <div className="space-y-2">
+        <div className="space-y-2 animate-in fade-in duration-200 delay-100">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase">Bill To</h3>
           <div className="space-y-1">
-            <p className="font-semibold text-foreground">{formData.buyerName || "Customer Name"}</p>
+            <p className="font-semibold text-foreground animate-in fade-in duration-200">
+              {formData.buyerName || "Customer Name"}
+            </p>
             {formData.buyerAddress && (
-              <p className="text-sm text-muted-foreground whitespace-pre-line">{formData.buyerAddress}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-line animate-in fade-in duration-200">
+                {formData.buyerAddress}
+              </p>
             )}
             {isBuyerGSTINValid && formData.buyerGSTIN ? (
-              <p className="text-sm text-muted-foreground">GSTIN: {formData.buyerGSTIN}</p>
+              <p className="text-sm text-muted-foreground animate-in fade-in duration-200">
+                GSTIN: {formData.buyerGSTIN}
+              </p>
             ) : formData.buyerGSTIN && !isBuyerGSTINValid ? (
-              <p className="text-sm text-destructive">GSTIN: — Invalid —</p>
+              <p className="text-sm text-destructive animate-in fade-in duration-200">
+                GSTIN: — Invalid —
+              </p>
             ) : null}
             {placeOfSupply !== "Not specified yet" && (
-              <p className="text-sm text-muted-foreground">Place of Supply: {placeOfSupply}</p>
+              <p className="text-sm text-muted-foreground animate-in fade-in duration-200">
+                Place of Supply: {placeOfSupply}
+              </p>
             )}
           </div>
         </div>
@@ -101,7 +123,7 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
         <Separator />
 
         {/* Items Table */}
-        <div className="space-y-3">
+        <div className="space-y-3 animate-in fade-in duration-200 delay-150">
           <h3 className="text-sm font-semibold text-muted-foreground uppercase">Items</h3>
           <div className="border border-border rounded-md overflow-hidden">
             <table className="w-full text-sm">
@@ -117,11 +139,11 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
               <tbody>
                 <tr className="border-t border-border">
                   <td className="p-2">
-                    <p className="font-medium text-foreground">
+                    <p className="font-medium text-foreground animate-in fade-in duration-200">
                       {formData.itemDescription || "Service/Product Description"}
                     </p>
                   </td>
-                  <td className="text-right p-2 text-foreground">
+                  <td className="text-right p-2 text-foreground animate-in fade-in duration-200">
                     {isSACValid && formData.hsnCode ? (
                       <span>{formData.hsnCode}</span>
                     ) : formData.hsnCode && !isSACValid ? (
@@ -130,9 +152,15 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
                       <span>-</span>
                     )}
                   </td>
-                  <td className="text-right p-2 text-foreground">{formData.quantity || "-"}</td>
-                  <td className="text-right p-2 text-foreground">{formatCurrency(Number(formData.rate) || 0)}</td>
-                  <td className="text-right p-2 text-foreground">{formatCurrency(totals.subtotal)}</td>
+                  <td className="text-right p-2 text-foreground animate-in fade-in duration-200">
+                    {formData.quantity || "-"}
+                  </td>
+                  <td className="text-right p-2 text-foreground animate-in fade-in duration-200">
+                    {formatCurrency(Number(formData.rate) || 0)}
+                  </td>
+                  <td className="text-right p-2 text-foreground animate-in fade-in duration-200">
+                    {formatCurrency(totals.subtotal)}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -140,37 +168,47 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
         </div>
 
         {/* Totals */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
+        <div className="space-y-2 animate-in fade-in duration-200 delay-200">
+          <div className="flex justify-between text-sm animate-in fade-in duration-200">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-medium text-foreground">{formatCurrency(totals.subtotal)}</span>
+            <span className="font-medium text-foreground">
+              {formatCurrency(totals.subtotal)}
+            </span>
           </div>
           {totals.isInterState && formData.igst ? (
-            <div className="flex justify-between text-sm">
+            <div className="flex justify-between text-sm animate-in fade-in duration-200">
               <span className="text-muted-foreground">IGST ({formData.igst || 0}%)</span>
-              <span className="font-medium text-foreground">{formatCurrency(totals.igstAmount)}</span>
+              <span className="font-medium text-foreground">
+                {formatCurrency(totals.igstAmount)}
+              </span>
             </div>
           ) : (
             <>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm animate-in fade-in duration-200">
                 <span className="text-muted-foreground">CGST ({formData.cgst || 0}%)</span>
-                <span className="font-medium text-foreground">{formatCurrency(totals.cgstAmount)}</span>
+                <span className="font-medium text-foreground">
+                  {formatCurrency(totals.cgstAmount)}
+                </span>
               </div>
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm animate-in fade-in duration-200">
                 <span className="text-muted-foreground">SGST ({formData.sgst || 0}%)</span>
-                <span className="font-medium text-foreground">{formatCurrency(totals.sgstAmount)}</span>
+                <span className="font-medium text-foreground">
+                  {formatCurrency(totals.sgstAmount)}
+                </span>
               </div>
             </>
           )}
           <Separator />
-          <div className="flex justify-between text-base font-bold">
+          <div className="flex justify-between text-base font-bold animate-in fade-in duration-200">
             <span className="text-foreground">Total</span>
-            <span className="text-primary">{formatCurrency(totals.total)}</span>
+            <span className="text-primary">
+              {formatCurrency(totals.total)}
+            </span>
           </div>
         </div>
         
         {/* Amount in Words */}
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground animate-in fade-in duration-200 delay-250">
           Amount in words: {numberToWords(totals.total)} Rupees Only
         </div>
       </CardContent>

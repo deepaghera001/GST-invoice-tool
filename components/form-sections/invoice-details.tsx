@@ -7,7 +7,7 @@ import { FormField } from "@/components/ui/form-field"
 import { Button } from "@/components/ui/button"
 import type { InvoiceData, InvoiceValidationErrors } from "@/lib/types"
 import type { useSuggestions } from "@/hooks/use-suggestions"
-import { Wand2 } from "lucide-react"
+import { Wand2, Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 interface InvoiceDetailsProps {
@@ -17,6 +17,7 @@ interface InvoiceDetailsProps {
   errors?: InvoiceValidationErrors
   shouldShowError?: (fieldName: string) => boolean
   suggestions?: ReturnType<typeof useSuggestions>
+  isCompleted?: boolean
 }
 
 export function InvoiceDetails({
@@ -26,6 +27,7 @@ export function InvoiceDetails({
   errors,
   shouldShowError,
   suggestions,
+  isCompleted,
 }: InvoiceDetailsProps) {
   const [showTemplates, setShowTemplates] = useState(false)
 
@@ -40,19 +42,26 @@ export function InvoiceDetails({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-1">Invoice Details</h3>
             <p className="text-sm text-muted-foreground">Invoice number and date</p>
           </div>
-          <Badge variant="secondary" className="text-xs">
-            Step 3 of 4
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="text-xs">
+              Step 3 of 4
+            </Badge>
+            {isCompleted && (
+              <Badge variant="secondary" className="text-xs p-1">
+                <Check className="h-3 w-3" />
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-2">
         <FormField
           label="Invoice Number"
           htmlFor="invoiceNumber"

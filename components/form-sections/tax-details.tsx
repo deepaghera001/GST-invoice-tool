@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Info } from "lucide-react"
+import { Info, Check } from "lucide-react"
 
 interface TaxDetailsProps {
   formData: InvoiceData
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   setFormData?: React.Dispatch<React.SetStateAction<InvoiceData>>
+  isCompleted?: boolean
 }
 
 function getStateCodeFromGSTIN(gstin: string): string | null {
@@ -20,7 +21,7 @@ function getStateCodeFromGSTIN(gstin: string): string | null {
   return gstin.substring(0, 2)
 }
 
-export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps) {
+export function TaxDetails({ formData, onChange, setFormData, isCompleted }: TaxDetailsProps) {
   const sellerState = getStateCodeFromGSTIN(formData.sellerGSTIN)
   const buyerState = getStateCodeFromGSTIN(formData.buyerGSTIN)
   // If buyer GSTIN is missing, use place of supply state if available
@@ -74,16 +75,21 @@ export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps)
   const isValidGST = validRates.includes(totalGST)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-foreground mb-1">Tax Details</h3>
           <p className="text-sm text-muted-foreground">GST rates for the invoice</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <Badge variant="secondary" className="text-xs">
             Final Step
           </Badge>
+          {isCompleted && (
+            <Badge variant="secondary" className="text-xs p-1">
+              <Check className="h-3 w-3" />
+            </Badge>
+          )}
           {totalGST > 0 && (
             <Badge variant={isValidGST ? "secondary" : "destructive"} className="text-xs">
               Total GST: {totalGST}%
@@ -101,12 +107,14 @@ export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps)
           <Info className="h-4 w-4 text-muted-foreground mt-0.5" />
           <div className="text-sm">
             <p className="font-medium text-foreground">
-              {isInterState ? "Inter-state transaction detected" : "Intra-state transaction"}
+              {isInterState 
+                ? "We detected an inter-state transaction and applied IGST automatically." 
+                : "We detected an intra-state transaction and applied CGST/SGST automatically."}
             </p>
             <p className="text-xs text-muted-foreground">
               {isInterState
-                ? `Seller state: ${sellerState}, Buyer state: ${buyerState} → Use IGST`
-                : `Same state (${sellerState}) → Use CGST + SGST`}
+                ? `Seller state: ${sellerState}, Buyer state: ${buyerState}`
+                : `Same state (${sellerState})`}
             </p>
           </div>
         </div>
@@ -149,7 +157,7 @@ export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps)
           <p className="text-xs text-muted-foreground">Integrated GST (for inter-state transactions)</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="cgst">CGST (%) - Read only</Label>
             <Input
