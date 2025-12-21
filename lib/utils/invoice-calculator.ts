@@ -11,7 +11,12 @@ export function calculateInvoiceTotals(formData: InvoiceData): InvoiceTotals {
 
   const sellerState = getStateCodeFromGSTIN(formData.sellerGSTIN)
   const buyerState = getStateCodeFromGSTIN(formData.buyerGSTIN)
-  const isInterState = buyerState ? sellerState !== buyerState : false
+  // If buyer GSTIN is missing, use place of supply state if available
+  const isInterState = buyerState 
+    ? sellerState !== buyerState 
+    : formData.placeOfSupplyState 
+      ? sellerState !== formData.placeOfSupplyState
+      : false // Default to intra-state when both buyer GSTIN and place of supply are missing
 
   // Calculate in paise to avoid floating point issues
   const subtotalPaise = Math.round(quantity * rate * 100)
@@ -22,12 +27,12 @@ export function calculateInvoiceTotals(formData: InvoiceData): InvoiceTotals {
   let igstAmount = 0
 
   if (isInterState && formData.igst) {
-    const igst = Number.parseInt(formData.igst, 10) || 0
+    const igst = Number.parseFloat(formData.igst) || 0
     const igstPaise = Math.round((subtotalPaise * igst) / 100)
     igstAmount = igstPaise / 100
   } else {
-    const cgst = Number.parseInt(formData.cgst, 10) || 0
-    const sgst = Number.parseInt(formData.sgst, 10) || 0
+    const cgst = Number.parseFloat(formData.cgst) || 0
+    const sgst = Number.parseFloat(formData.sgst) || 0
     const cgstPaise = Math.round((subtotalPaise * cgst) / 100)
     const sgstPaise = Math.round((subtotalPaise * sgst) / 100)
     cgstAmount = cgstPaise / 100

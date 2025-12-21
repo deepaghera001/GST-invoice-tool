@@ -69,25 +69,25 @@ const baseInvoiceSchema = z.object({
 
   cgst: z
     .string()
-    .regex(/^\d+$/, "CGST must be a whole number")
+    .regex(/^\d+(\.\d+)?$/, "CGST must be a valid number")
     .refine((val) => {
-      const num = Number.parseInt(val, 10)
+      const num = Number.parseFloat(val)
       return num >= 0 && num <= 14
     }, "CGST must be between 0% and 14%"),
 
   sgst: z
     .string()
-    .regex(/^\d+$/, "SGST must be a whole number")
+    .regex(/^\d+(\.\d+)?$/, "SGST must be a valid number")
     .refine((val) => {
-      const num = Number.parseInt(val, 10)
+      const num = Number.parseFloat(val)
       return num >= 0 && num <= 14
     }, "SGST must be between 0% and 14%"),
 
   igst: z
     .string()
-    .regex(/^\d+$/, "IGST must be a whole number")
+    .regex(/^\d+(\.\d+)?$/, "IGST must be a valid number")
     .refine((val) => {
-      const num = Number.parseInt(val, 10)
+      const num = Number.parseFloat(val)
       return num >= 0 && num <= 28
     }, "IGST must be between 0% and 28%")
     .optional()
@@ -99,22 +99,23 @@ export const invoiceFieldSchema = baseInvoiceSchema.partial()
 // Export the full schema with cross-field validations for form validation
 export const invoiceSchema = baseInvoiceSchema.refine(
   (data) => {
-    const cgst = Number.parseInt(data.cgst, 10) || 0
-    const sgst = Number.parseInt(data.sgst, 10) || 0
-    const igst = Number.parseInt(data.igst || "0", 10) || 0
+    const cgst = Number.parseFloat(data.cgst) || 0
+    const sgst = Number.parseFloat(data.sgst) || 0
+    const igst = Number.parseFloat(data.igst || "0") || 0
 
     if (igst > 0 && (cgst > 0 || sgst > 0)) {
       return false
     }
 
     const validRates = [0, 5, 12, 18, 28]
+    const validDecimalRates = [0, 2.5, 5, 6, 9, 12, 14, 18, 28];
 
     if (igst > 0) {
-      return validRates.includes(igst)
+      return validDecimalRates.includes(igst);
     }
 
-    const total = cgst + sgst
-    return validRates.includes(total) && cgst === sgst
+    const total = parseFloat((cgst + sgst).toFixed(2));
+    return validDecimalRates.includes(total) && parseFloat(cgst.toFixed(2)) === parseFloat(sgst.toFixed(2));
   },
   {
     message: "GST must be 0%, 5%, 12%, 18%, or 28%. For intra-state: CGST = SGST. For inter-state: use IGST only.",

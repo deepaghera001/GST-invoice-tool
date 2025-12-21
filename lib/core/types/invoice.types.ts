@@ -11,6 +11,9 @@ export interface InvoiceData extends BaseDocumentData {
   buyerAddress: string
   buyerGSTIN: string
 
+  // Place of Supply (for cases where buyer GSTIN is missing)
+  placeOfSupplyState?: string
+
   // Invoice Details
   invoiceNumber: string
   invoiceDate: string

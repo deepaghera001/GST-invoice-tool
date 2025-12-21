@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect } from "react"
-import type { InvoiceData } from "@/lib/types"
+import type { InvoiceData } from "@/lib/core/types"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
@@ -23,11 +23,16 @@ function getStateCodeFromGSTIN(gstin: string): string | null {
 export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps) {
   const sellerState = getStateCodeFromGSTIN(formData.sellerGSTIN)
   const buyerState = getStateCodeFromGSTIN(formData.buyerGSTIN)
-  const isInterState = buyerState ? sellerState !== buyerState : false
+  // If buyer GSTIN is missing, use place of supply state if available
+  const isInterState = buyerState 
+    ? sellerState !== buyerState 
+    : formData.placeOfSupplyState 
+      ? sellerState !== formData.placeOfSupplyState
+      : false // Default to intra-state when both buyer GSTIN and place of supply are missing
 
   const totalGST = isInterState
-    ? Number.parseInt(formData.igst || "0", 10) || 0
-    : (Number.parseInt(formData.cgst, 10) || 0) + (Number.parseInt(formData.sgst, 10) || 0)
+    ? Number.parseFloat(formData.igst || "0") || 0
+    : (Number.parseFloat(formData.cgst) || 0) + (Number.parseFloat(formData.sgst) || 0)
 
   const gstPresets = [
     { rate: 0, label: "0%" },
@@ -43,7 +48,7 @@ export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps)
     if (isInterState) {
       setFormData((prev) => ({ ...prev, igst: rate.toString(), cgst: "0", sgst: "0" }))
     } else {
-      const half = Math.floor(rate / 2).toString()
+      const half = (rate / 2).toString()
       setFormData((prev) => ({ ...prev, cgst: half, sgst: half, igst: "0" }))
     }
   }
@@ -52,14 +57,14 @@ export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps)
     if (!setFormData) return
 
     if (isInterState) {
-      const currentTotal = (Number.parseInt(formData.cgst, 10) || 0) + (Number.parseInt(formData.sgst, 10) || 0)
+      const currentTotal = (Number.parseFloat(formData.cgst) || 0) + (Number.parseFloat(formData.sgst) || 0)
       if (currentTotal > 0) {
         setFormData((prev) => ({ ...prev, igst: currentTotal.toString(), cgst: "0", sgst: "0" }))
       }
     } else {
-      const currentIGST = Number.parseInt(formData.igst || "0", 10) || 0
+      const currentIGST = Number.parseFloat(formData.igst || "0") || 0
       if (currentIGST > 0) {
-        const half = Math.floor(currentIGST / 2).toString()
+        const half = (currentIGST / 2).toString()
         setFormData((prev) => ({ ...prev, cgst: half, sgst: half, igst: "0" }))
       }
     }

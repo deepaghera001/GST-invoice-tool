@@ -94,6 +94,28 @@ export function BuyerDetails({ formData, onChange, onBlur, errors, shouldShowErr
             rows={2}
           />
         </FormField>
+
+        {!formData.buyerGSTIN && (
+          <FormField
+            label="Place of Supply State Code"
+            htmlFor="placeOfSupplyState"
+            hint="First 2 digits of state code where service is supplied"
+            className="md:col-span-2"
+          >
+            <Input
+              id="placeOfSupplyState"
+              name="placeOfSupplyState"
+              value={formData.placeOfSupplyState || ""}
+              onChange={onChange}
+              onBlur={() => onBlur?.("placeOfSupplyState", formData.placeOfSupplyState)}
+              placeholder="29 (for Karnataka)"
+              maxLength={2}
+            />
+            <p className="text-xs text-muted-foreground mt-1">
+              Required when buyer GSTIN is missing to determine tax type (inter-state vs intra-state)
+            </p>
+          </FormField>
+        )}
       </div>
     </div>
   )
