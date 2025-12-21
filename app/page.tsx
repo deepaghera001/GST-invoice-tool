@@ -35,7 +35,7 @@ export default function HomePage() {
             </h2>
 
             <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
-              Create compliant, professional invoices instantly. Format verified with Indian GST rules (2025). Perfect
+              Create compliant, professional invoices instantly. Designed as per Indian GST invoice rules. Perfect
               for freelancers, consultants, and service providers. Starting at just ₹25 per invoice with instant
               download.
             </p>
@@ -55,8 +55,8 @@ export default function HomePage() {
                   <FileText className="h-5 w-5 text-primary" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-semibold text-foreground">Verified Format</p>
-                  <p className="text-xs text-muted-foreground">GST Portal Ready</p>
+                  <p className="text-sm font-semibold text-foreground">Compliant Format</p>
+                  <p className="text-xs text-muted-foreground">GST-compliant format</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">

@@ -1,5 +1,6 @@
 import { jsPDF } from "jspdf"
 import "jspdf-autotable"
+import { getStateFromGSTIN } from "@/lib/suggestions/data/gstin-states"
 
 interface InvoiceData {
   sellerName: string
@@ -32,6 +33,11 @@ export async function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {
   const sellerState = data.sellerGSTIN.substring(0, 2)
   const buyerState = data.buyerGSTIN ? data.buyerGSTIN.substring(0, 2) : sellerState
   const isInterState = buyerState !== sellerState && data.buyerGSTIN
+
+  // Validate GSTINs
+  const gstinRegex = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
+  const isSellerGSTINValid = gstinRegex.test(data.sellerGSTIN)
+  const isBuyerGSTINValid = !data.buyerGSTIN || gstinRegex.test(data.buyerGSTIN)
 
   const subtotal = quantity * rate
 
@@ -71,7 +77,11 @@ export async function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {
     const addressLines = doc.splitTextToSize(data.sellerAddress, 80)
     doc.text(addressLines, 20, 61)
   }
-  doc.text(`GSTIN: ${data.sellerGSTIN}`, 20, 71)
+  if (isSellerGSTINValid) {
+    doc.text(`GSTIN: ${data.sellerGSTIN}`, 20, 71)
+  } else {
+    doc.text(`GSTIN: — Invalid —`, 20, 71)
+  }
   if (data.sellerPAN) {
     doc.text(`PAN: ${data.sellerPAN}`, 20, 76)
   }
@@ -88,9 +98,15 @@ export async function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {
     const addressLines = doc.splitTextToSize(data.buyerAddress, 70)
     doc.text(addressLines, 120, 61)
   }
-  if (data.buyerGSTIN) {
+  // Only show buyer GSTIN if it's valid
+  if (data.buyerGSTIN && isBuyerGSTINValid) {
     doc.text(`GSTIN: ${data.buyerGSTIN}`, 120, 71)
   }
+
+  // Place of Supply (as per GST Rule 46)
+  const placeOfSupply = getStateFromGSTIN(data.buyerGSTIN || data.sellerGSTIN) || 
+                       (isInterState ? "Other Territory" : getStateFromGSTIN(data.sellerGSTIN) || "Unknown")
+  doc.text(`Place of Supply: ${placeOfSupply}`, 120, 76)
 
   // Items Table
   const tableStartY = 95

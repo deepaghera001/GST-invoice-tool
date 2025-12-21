@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { FileText } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/invoice-utils"
+import { getStateFromGSTIN } from "@/lib/suggestions/data/gstin-states"
 
 interface InvoicePreviewProps {
   formData: InvoiceData
@@ -19,6 +20,13 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
   const isSellerGSTINValid = gstinRegex.test(formData.sellerGSTIN)
   const isBuyerGSTINValid = !formData.buyerGSTIN || gstinRegex.test(formData.buyerGSTIN)
   const isSACValid = !formData.hsnCode || sacRegex.test(formData.hsnCode)
+  
+  // Determine place of supply
+  const sellerStateCode = formData.sellerGSTIN.substring(0, 2)
+  const buyerStateCode = formData.buyerGSTIN ? formData.buyerGSTIN.substring(0, 2) : sellerStateCode
+  const isInterState = buyerStateCode !== sellerStateCode && formData.buyerGSTIN
+  const placeOfSupply = getStateFromGSTIN(formData.buyerGSTIN || formData.sellerGSTIN) || 
+                       (isInterState ? "Other Territory" : getStateFromGSTIN(formData.sellerGSTIN) || "Unknown")
 
   return (
     <Card className="sticky top-4">
@@ -73,6 +81,7 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
             ) : formData.buyerGSTIN && !isBuyerGSTINValid ? (
               <p className="text-sm text-destructive">GSTIN: — Invalid —</p>
             ) : null}
+            <p className="text-sm text-muted-foreground">Place of Supply: {placeOfSupply}</p>
           </div>
         </div>
 

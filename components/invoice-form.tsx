@@ -263,6 +263,7 @@ export function InvoiceForm() {
               onBlur={handleBlur}
               errors={errors}
               shouldShowError={shouldShowError}
+              suggestions={suggestions}
             />
             <Separator />
 
@@ -316,7 +317,7 @@ export function InvoiceForm() {
                 Secure payment via Razorpay. Your invoice generates instantly after payment confirmation.
               </p>
               <p className="text-xs text-center text-muted-foreground italic">
-                Based on standard GST invoice requirements for services.
+                Based on GST Rule 46 invoice requirements for services.
               </p>
             </div>
           </form>

@@ -72,6 +72,9 @@ export function BuyerDetails({ formData, onChange, onBlur, errors, shouldShowErr
           {formData.buyerGSTIN && formData.buyerGSTIN.length === 15 && !gstinAnalysis?.isValid && (
             <p className="text-xs text-destructive mt-1">Invalid GSTIN format - Please check and re-enter</p>
           )}
+          {!formData.buyerGSTIN && (
+            <p className="text-xs text-muted-foreground mt-1">Buyer GSTIN is optional. Invoice will be generated without it.</p>
+          )}
         </FormField>
 
         <FormField
