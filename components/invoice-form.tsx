@@ -69,14 +69,14 @@ export function InvoiceForm() {
       sgst: "9",
       igst: "0",
     }
-    
+
     setFormData(testData)
-    
+
     // Validate all fields to show success states
     Object.entries(testData).forEach(([field, value]) => {
       validateField(field, value)
     })
-    
+
     toast({
       title: "Test Data Loaded",
       description: "Form filled with sample data for testing",
@@ -300,8 +300,8 @@ export function InvoiceForm() {
                   <h3 className="font-semibold text-foreground">Development Mode</h3>
                   <p className="text-sm text-muted-foreground">Quick test with sample data</p>
                 </div>
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={fillTestData}
                   variant="secondary"
                   size="sm"
@@ -313,7 +313,7 @@ export function InvoiceForm() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-6 p-6 border border-border rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="text-center">
                 <h3 className="text-xl font-bold text-foreground mb-2">Pricing</h3>
@@ -351,8 +351,6 @@ export function InvoiceForm() {
               </div>
             </div>
 
-            <Separator />
-
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-75">
               <SellerDetails
                 formData={formData}
@@ -364,7 +362,6 @@ export function InvoiceForm() {
                 isCompleted={formData.sellerName.trim().length >= 2 && formData.sellerAddress.trim().length >= 10 && gstinRegex.test(formData.sellerGSTIN)}
               />
             </div>
-            <Separator />
 
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-100">
               <BuyerDetails
@@ -377,7 +374,6 @@ export function InvoiceForm() {
                 isCompleted={formData.buyerName.trim().length >= 2 && formData.buyerAddress.trim().length >= 10}
               />
             </div>
-            <Separator />
 
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-150">
               <InvoiceDetails
@@ -390,7 +386,6 @@ export function InvoiceForm() {
                 isCompleted={formData.invoiceNumber.trim().length >= 1 && formData.invoiceDate.length > 0}
               />
             </div>
-            <Separator />
 
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-200">
               <ItemDetails
@@ -404,13 +399,12 @@ export function InvoiceForm() {
                 isCompleted={formData.itemDescription.trim().length >= 3 && Number.parseFloat(formData.quantity) > 0 && Number.parseFloat(formData.rate) > 0}
               />
             </div>
-            <Separator />
 
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-300">
-              <TaxDetails 
-                formData={formData} 
-                onChange={handleChange} 
-                setFormData={setFormData} 
+              <TaxDetails
+                formData={formData}
+                onChange={handleChange}
+                setFormData={setFormData}
                 isCompleted={true} // Tax details are always considered complete since they're auto-calculated
               />
             </div>
