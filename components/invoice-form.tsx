@@ -288,7 +288,7 @@ export function InvoiceForm() {
           <div className="space-y-2">
             <h2 className="text-3xl font-bold text-foreground text-balance">Create Your Invoice</h2>
             <p className="text-muted-foreground text-pretty">
-              Fill in the details below to generate a professional GST-compliant invoice. Preview updates in real-time.
+              Fill in the details below to generate a professional GST-compliant invoice (standard domestic). Preview updates in real-time.
             </p>
           </div>
 

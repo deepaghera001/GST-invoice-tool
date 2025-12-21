@@ -1,10 +1,10 @@
 # InvoiceGen - Professional PDF Generation Tool
 
-A modular, extensible PDF generation web app for Indian freelancers and small businesses. Generate GST-compliant invoices with secure payment integration, smart validation, and intelligent suggestions.
+A modular, extensible PDF generation web app for Indian freelancers and small businesses. Generate GST-compliant invoices (standard domestic) with secure payment integration, smart validation, and intelligent suggestions.
 
 ## Features
 
-- 🧾 GST-compliant invoice generation
+- 🧾 GST-compliant invoice generation (standard domestic invoices)
 - ✅ Real-time field validation with helpful error messages
 - 🤖 Smart suggestions (HSN codes, GSTIN analysis, auto-fill)
 - 💳 Integrated Razorpay payment (₹99 per document)
@@ -310,7 +310,7 @@ Add these in Project Settings → Environment Variables:
 ## Roadmap
 
 ### Current Features ✅
-- GST-compliant invoice generation
+- GST-compliant invoice generation (standard domestic invoices)
 - Real-time validation
 - Smart suggestions and auto-fill
 - Secure payment integration

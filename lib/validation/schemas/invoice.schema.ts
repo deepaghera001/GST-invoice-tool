@@ -118,7 +118,7 @@ export const invoiceSchema = baseInvoiceSchema.refine(
     return validDecimalRates.includes(total) && parseFloat(cgst.toFixed(2)) === parseFloat(sgst.toFixed(2));
   },
   {
-    message: "GST must be 0%, 5%, 12%, 18%, or 28%. For intra-state: CGST = SGST. For inter-state: use IGST only.",
+    message: "GST must be from supported slabs: 0%, 5%, 12%, 18%, or 28% (automatically split into CGST/SGST where applicable). For intra-state: CGST = SGST. For inter-state: use IGST only.",
     path: ["cgst"],
   },
 )

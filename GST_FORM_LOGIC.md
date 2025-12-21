@@ -14,12 +14,17 @@ The system automatically determines whether to show IGST (Integrated GST) or CGS
 ```mermaid
 graph TD
     A[User enters seller and buyer GSTIN] --> B[Extract state codes]
-    B --> C{Are both GSTINs valid?}
-    C -->|No| D[Assume intra-state<br/>Show CGST/SGST]
-    C -->|Yes| E[Compare state codes]
-    E --> F{States match?}
-    F -->|Yes| G[Intra-state transaction<br/>Show CGST/SGST]
-    F -->|No| H[Inter-state transaction<br/>Show IGST]
+    B --> C{Buyer GSTIN valid?}
+    C -->|Yes| D[Compare buyer vs seller states]
+    C -->|No| E{Place of supply provided?}
+    E -->|Yes| F[Compare seller vs place of supply]
+    E -->|No| G[Assume intra-state<br/>Show CGST/SGST]
+    D --> H{States match?}
+    F --> I{States match?}
+    H -->|Yes| J[Intra-state transaction<br/>Show CGST/SGST]
+    H -->|No| K[Inter-state transaction<br/>Show IGST]
+    I -->|Yes| J
+    I -->|No| K
 ```
 
 ## Detailed Implementation
@@ -120,7 +125,7 @@ useEffect(() => {
 
 ### Cross-Field Validation:
 1. Cannot have IGST > 0 AND (CGST > 0 OR SGST > 0)
-2. Valid GST rates: 0%, 5%, 12%, 18%, 28%
+2. Valid GST slabs supported: 0%, 5%, 12%, 18%, 28% (Automatically split into CGST/SGST where applicable)
 3. For intra-state: CGST must equal SGST
 4. For inter-state: Only IGST should be present
 
@@ -211,5 +216,6 @@ if (totals.isInterState) {
 4. **Only standard GST rates are allowed** (0%, 5%, 12%, 18%, 28%)
 5. **Equal splitting** for CGST/SGST ensures compliance with GST rules
 6. **Place of supply handling** - When buyer GSTIN is missing, place of supply state is used to determine transaction type
+7. **Invalid seller GSTIN handling** - If seller GSTIN is invalid, the system defaults to intra-state transaction
 
 This logic ensures that the correct tax fields are displayed and calculated according to Indian GST regulations while providing a smooth user experience.

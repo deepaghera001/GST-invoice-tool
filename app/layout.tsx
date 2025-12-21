@@ -11,7 +11,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "InvoiceGen - Professional GST Invoice Generator",
   description:
-    "Generate GST-compliant invoices instantly for Indian freelancers and businesses. Fast, secure, and professional.",
+    "Generate GST-compliant invoices (standard domestic) instantly for Indian freelancers and businesses. Fast, secure, and professional.",
   generator: "v0.app",
   icons: {
     icon: [

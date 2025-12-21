@@ -1,7 +1,7 @@
 {
   "id": "gst-invoice",
   "name": "GST Invoice",
-  "description": "Professional GST-compliant invoice for Indian businesses",
+  "description": "Professional GST-compliant invoice (standard domestic) for Indian businesses",
   "version": "1.0",
   "price": 99,
   "fields": {

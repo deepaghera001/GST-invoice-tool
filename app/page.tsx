@@ -56,7 +56,7 @@ export default function HomePage() {
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-semibold text-foreground">Compliant Format</p>
-                  <p className="text-xs text-muted-foreground">GST-compliant format</p>
+                  <p className="text-xs text-muted-foreground">GST-compliant format (standard domestic invoices)</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">

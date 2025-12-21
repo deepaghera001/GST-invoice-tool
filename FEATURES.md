@@ -102,7 +102,7 @@ Modular payment provider system.
 Modular PDF generation system.
 
 **Features**:
-- GST-compliant format
+- GST-compliant format (standard domestic invoices)
 - Company logo support
 - Professional layout
 - Easy to customize

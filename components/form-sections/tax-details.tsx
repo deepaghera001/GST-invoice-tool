@@ -120,8 +120,8 @@ export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps)
         </div>
         <p className="text-xs text-muted-foreground">
           {isInterState
-            ? "Standard Indian GST rates - Applied as IGST"
-            : "Standard Indian GST rates - Auto-splits into CGST/SGST"}
+            ? "Supported GST slabs: 0%, 5%, 12%, 18%, 28% - Applied as IGST"
+            : "Supported GST slabs: 0%, 5%, 12%, 18%, 28% - Auto-splits into CGST/SGST"}
         </p>
       </div>
 
