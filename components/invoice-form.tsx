@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
-import { Loader2, Download } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Download, Check, Shield } from "lucide-react"
 import { SellerDetails } from "@/components/form-sections/seller-details"
 import { BuyerDetails } from "@/components/form-sections/buyer-details"
 import { InvoiceDetails } from "@/components/form-sections/invoice-details"
@@ -26,7 +27,6 @@ const gstinRegex = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
 export function InvoiceForm() {
   const { toast } = useToast()
   const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedPlan, setSelectedPlan] = useState<"quick" | "detailed">("detailed")
   const { errors, validateField, validateForm, markFieldTouched, shouldShowError } = useFormValidation()
   const suggestions = useSuggestions()
 
@@ -197,7 +197,7 @@ export function InvoiceForm() {
 
     // Production mode - proceed with payment
     try {
-      const amount = selectedPlan === "quick" ? 25 : 99
+      const amount = 99
       const orderResult = await createPaymentOrder(amount, "razorpay")
 
       if (!orderResult.success || !orderResult.data) {
@@ -211,7 +211,7 @@ export function InvoiceForm() {
         amount: orderAmount,
         currency,
         name: "InvoiceGen",
-        description: selectedPlan === "quick" ? "Quick Invoice PDF" : "Detailed GST Invoice PDF",
+        description: "Detailed GST Invoice PDF",
         order_id: orderId,
         handler: async (response: any) => {
           try {
@@ -314,42 +314,41 @@ export function InvoiceForm() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-4 p-4 border border-border rounded-lg bg-card">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-1">Choose Your Plan</h3>
-                <p className="text-sm text-muted-foreground">Select the invoice type that fits your needs</p>
+            <div className="space-y-6 p-6 border border-border rounded-xl bg-card shadow-sm">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-foreground mb-2">Pricing</h3>
+                <p className="text-sm text-muted-foreground">One invoice. One price.</p>
               </div>
 
-              <RadioGroup
-                value={selectedPlan}
-                onValueChange={(value) => setSelectedPlan(value as "quick" | "detailed")}
-              >
-                <div className="flex items-start space-x-3 p-3 border border-border rounded-lg hover:border-primary transition-colors cursor-pointer">
-                  <RadioGroupItem value="quick" id="quick" className="mt-1" />
-                  <Label htmlFor="quick" className="cursor-pointer flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-foreground">Quick Invoice</span>
-                      <span className="text-lg font-bold text-primary">₹25</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">Basic invoice format for simple transactions</p>
-                  </Label>
+              <div className="text-center p-8 bg-muted/50 rounded-lg border border-border">
+                <div className="mb-2">
+                  <span className="text-4xl font-bold text-primary">₹99</span>
+                  <span className="text-lg text-muted-foreground ml-2">per invoice</span>
                 </div>
-
-                <div className="flex items-start space-x-3 p-3 border border-primary rounded-lg bg-primary/5 cursor-pointer">
-                  <RadioGroupItem value="detailed" id="detailed" className="mt-1" />
-                  <Label htmlFor="detailed" className="cursor-pointer flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-semibold text-foreground">Detailed GST Invoice</span>
-                      <span className="text-lg font-bold text-primary">₹99</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground">CA-ready format with complete GST compliance</p>
-                  </Label>
+                <p className="text-sm text-muted-foreground mb-4">One-time payment. No subscription. Instant download.</p>
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
+                    <span>GST-compliant format (standard domestic invoices)</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
+                    <span>Professional PDF</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
+                    <span>Secure payment</span>
+                  </div>
                 </div>
-              </RadioGroup>
+              </div>
+              <input type="hidden" name="plan" value="detailed" />
 
-              <p className="text-xs text-center text-muted-foreground pt-2">
-                Cheaper than a CA call. Faster than Word. Safer than free tools.
-              </p>
+              <div className="text-center pt-2">
+                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                  <span className="h-4 w-4 flex items-center justify-center">🔒</span>
+                  Secure payment via Razorpay • Instant PDF generation
+                </p>
+              </div>
             </div>
 
             <Separator />
@@ -411,7 +410,7 @@ export function InvoiceForm() {
                 ) : (
                   <>
                     <Download className="mr-2 h-4 w-4" />
-                    Pay ₹{selectedPlan === "quick" ? "25" : "99"} & Download PDF
+                    Pay ₹99 & Download PDF
                   </>
                 )}
               </Button>

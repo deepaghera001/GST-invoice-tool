@@ -36,8 +36,7 @@ export default function HomePage() {
 
             <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
               Create compliant, professional invoices instantly. Designed as per Indian GST invoice rules. Perfect
-              for freelancers, consultants, and service providers. Starting at just ₹25 per invoice with instant
-              download.
+              for freelancers, consultants, and service providers. ₹99 per invoice. One-time payment. Instant download.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-8 pt-4">
