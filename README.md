@@ -34,14 +34,26 @@ A modular, extensible PDF generation web app for Indian freelancers and small bu
 
 In v0, add these environment variables in the **Vars** section of the in-chat sidebar:
 
-```env
+``env
 # Razorpay Credentials
 RAZORPAY_KEY_ID=your_key_id_here
 RAZORPAY_KEY_SECRET=your_key_secret_here
 NEXT_PUBLIC_RAZORPAY_KEY_ID=your_key_id_here
 ```
 
-For local development, create a `.env.local` file with the same variables.
+For local development, create a `.env.local` file with the same variables:
+
+```env
+# Razorpay Configuration (required for production)
+RAZORPAY_KEY_ID=your_razorpay_key_id_here
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret_here
+NEXT_PUBLIC_RAZORPAY_KEY_ID=your_razorpay_key_id_here
+
+# Development Settings
+NODE_ENV=development
+```
+
+**Note**: For development and testing, payment integration is disabled by default. You can generate PDFs without setting up Razorpay keys. For production deployment, you must configure the Razorpay credentials.
 
 ### Installation
 

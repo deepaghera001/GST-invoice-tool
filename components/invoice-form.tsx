@@ -1,25 +1,26 @@
 "use client"
 
 import type React from "react"
-import { useState, useMemo } from "react"
-import type { InvoiceData } from "@/lib/types"
-import { calculateInvoiceTotals } from "@/lib/invoice-utils"
-import { Button } from "@/components/ui/button"
+import { useState, useCallback, useMemo } from "react"
 import { useToast } from "@/hooks/use-toast"
+import { Button } from "@/components/ui/button"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Separator } from "@/components/ui/separator"
 import { Loader2, Download } from "lucide-react"
-import { InvoicePreview } from "@/components/invoice-preview"
 import { SellerDetails } from "@/components/form-sections/seller-details"
 import { BuyerDetails } from "@/components/form-sections/buyer-details"
 import { InvoiceDetails } from "@/components/form-sections/invoice-details"
 import { ItemDetails } from "@/components/form-sections/item-details"
 import { TaxDetails } from "@/components/form-sections/tax-details"
-import { Separator } from "@/components/ui/separator"
-import { createPaymentOrder } from "@/lib/actions/payment-actions"
-import { useFormValidation } from "@/hooks/use-form-validation"
+import { InvoicePreview } from "@/components/invoice-preview"
 import { useSuggestions } from "@/hooks/use-suggestions"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
+import { useFormValidation } from "@/hooks/use-form-validation"
+import { calculateInvoiceTotals } from "@/lib/utils/invoice-calculator"
+import type { InvoiceData } from "@/lib/types"
+import { createPaymentOrder } from "@/lib/actions/payment-actions"
 
+// Define GSTIN regex directly since it's not exported from validation module
 const gstinRegex = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
 
 export function InvoiceForm() {
@@ -46,6 +47,39 @@ export function InvoiceForm() {
     sgst: "9",
     igst: "0",
   })
+
+  // Test data for development
+  const fillTestData = useCallback(() => {
+    const testData: InvoiceData = {
+      sellerName: "ABC Software Solutions Pvt Ltd",
+      sellerAddress: "123 Tech Park, Bangalore, Karnataka 560001",
+      sellerGSTIN: "29ABCDE1234F1Z5",
+      buyerName: "XYZ Corporation",
+      buyerAddress: "456 Business Center, Mumbai, Maharashtra 400001",
+      buyerGSTIN: "27XYZWV9876F1Z3",
+      invoiceNumber: "INV-2025-001",
+      invoiceDate: new Date().toISOString().split("T")[0],
+      itemDescription: "Software Development Services - Custom Web Application Development",
+      hsnCode: "998314",
+      quantity: "10",
+      rate: "15000",
+      cgst: "9",
+      sgst: "9",
+      igst: "0",
+    }
+    
+    setFormData(testData)
+    
+    // Validate all fields to show success states
+    Object.entries(testData).forEach(([field, value]) => {
+      validateField(field, value)
+    })
+    
+    toast({
+      title: "Test Data Loaded",
+      description: "Form filled with sample data for testing",
+    })
+  }, [validateField, toast])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -110,6 +144,56 @@ export function InvoiceForm() {
 
     setIsProcessing(true)
 
+    // Check if we're in development mode
+    const isDevelopment = process.env.NODE_ENV === 'development'
+
+    if (isDevelopment) {
+      // In development mode, generate PDF directly without payment
+      try {
+        console.log("[DEV] Sending invoice data to API:", formData);
+        const pdfResponse = await fetch("/api/generate-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            invoiceData: formData,
+            skipPayment: true, // Flag to indicate no payment verification needed
+          }),
+        })
+
+        if (!pdfResponse.ok) {
+          const errorText = await pdfResponse.text();
+          console.error("[DEV] PDF generation API error response:", errorText);
+          throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
+        }
+
+        const blob = await pdfResponse.blob()
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement("a")
+        a.href = url
+        a.download = `invoice-${formData.invoiceNumber}.pdf`
+        document.body.appendChild(a)
+        a.click()
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+
+        toast({
+          title: "Success!",
+          description: "Your invoice has been generated and downloaded (development mode)",
+        })
+      } catch (error) {
+        console.error("[DEV] PDF generation error:", error);
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to generate PDF. Please try again.",
+          variant: "destructive",
+        })
+      } finally {
+        setIsProcessing(false)
+      }
+      return
+    }
+
+    // Production mode - proceed with payment
     try {
       const amount = selectedPlan === "quick" ? 25 : 99
       const orderResult = await createPaymentOrder(amount, "razorpay")
@@ -205,6 +289,27 @@ export function InvoiceForm() {
               Fill in the details below to generate a professional GST-compliant invoice. Preview updates in real-time.
             </p>
           </div>
+
+          {/* Test Button for Development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="p-4 border border-border rounded-lg bg-muted/50">
+              <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-foreground">Development Mode</h3>
+                  <p className="text-sm text-muted-foreground">Quick test with sample data</p>
+                </div>
+                <Button 
+                  type="button" 
+                  onClick={fillTestData}
+                  variant="secondary"
+                  size="sm"
+                  className="whitespace-nowrap"
+                >
+                  Fill Test Data
+                </Button>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4 p-4 border border-border rounded-lg bg-card">

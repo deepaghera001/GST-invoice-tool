@@ -7,6 +7,38 @@
 3. Run `npm run dev`
 4. Open http://localhost:3000
 
+## Environment Setup
+
+### Development Mode
+
+This application supports two modes of operation:
+
+1. **Development Mode** (`NODE_ENV=development`):
+   - Payment integration is bypassed
+   - PDFs can be generated directly without payment processing
+   - Ideal for local development and testing
+
+2. **Production Mode** (`NODE_ENV=production`):
+   - Full payment integration with Razorpay
+   - Requires valid Razorpay credentials
+   - Used in production deployments
+
+### Environment Variables
+
+Create a `.env.local` file in the project root with the following variables:
+
+```env
+# Razorpay Configuration (required for production)
+RAZORPAY_KEY_ID=your_razorpay_key_id_here
+RAZORPAY_KEY_SECRET=your_razorpay_key_secret_here
+NEXT_PUBLIC_RAZORPAY_KEY_ID=your_razorpay_key_id_here
+
+# Development Settings
+NODE_ENV=development
+```
+
+**Note**: For development, you don't need to configure the Razorpay keys. The application will work in development mode by default.
+
 ## Development Workflow
 
 ### 1. Understanding the Codebase
@@ -197,103 +229,4 @@ import { Button } from '@/components/ui/button'
 interface Props {
   // ...
 }
-
-// 3. Constants
-const MAX_ITEMS = 10
-
-// 4. Component/Function
-export function Component({ }: Props) {
-  // ...
-}
 ```
-
-## Common Tasks
-
-### Adding a New Payment Provider
-
-See [lib/services/payment/README.md](./lib/services/payment/README.md)
-
-### Adding a New Document Type
-
-See [lib/services/generators/README.md](./lib/services/generators/README.md)
-
-### Updating Validation Rules
-
-See [lib/validation/README.md](./lib/validation/README.md)
-
-### Adding Reference Data
-
-See [lib/suggestions/README.md](./lib/suggestions/README.md)
-
-## Debugging
-
-### Validation Issues
-
-```typescript
-// Add console logs in validator
-console.log('[v0] Validating field:', fieldName, value)
-const error = FieldValidator.validateField(fieldName, value)
-console.log('[v0] Validation result:', error)
-```
-
-### Suggestion Issues
-
-```typescript
-// Add console logs in provider
-console.log('[v0] Searching HSN codes:', query)
-const results = searchHSNCodes(query)
-console.log('[v0] Found results:', results.length)
-```
-
-### Payment Issues
-
-Check:
-1. Environment variables are set correctly
-2. Razorpay script loads (check network tab)
-3. Server action returns valid order data
-4. Payment verification succeeds on server
-
-## Performance Tips
-
-1. **Debounce Search**: Use debounce for suggestion searches
-2. **Memoize Calculations**: Use `useMemo` for expensive calculations
-3. **Lazy Load**: Lazy load heavy components if needed
-4. **Optimize Validation**: Validate only changed fields
-
-## Best Practices
-
-### Validation
-
-- Always validate on both client and server
-- Show errors only after field interaction
-- Provide clear, actionable error messages
-- Use success indicators for positive feedback
-
-### Suggestions
-
-- Limit results to 10-20 items
-- Show loading states during search
-- Include helpful metadata
-- Auto-fill related fields when possible
-
-### Components
-
-- Keep components under 300 lines
-- Extract reusable logic to hooks
-- Use composition over complex props
-- Separate business logic from UI
-
-### Security
-
-- Never expose secrets to client
-- Validate all inputs on server
-- Use parameterized queries
-- Implement rate limiting for APIs
-
-## Resources
-
-- [Next.js Docs](https://nextjs.org/docs)
-- [Zod Documentation](https://zod.dev/)
-- [Radix UI](https://www.radix-ui.com/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [Razorpay Docs](https://razorpay.com/docs/)
