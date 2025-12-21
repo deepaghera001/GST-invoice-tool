@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { FileText } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/utils/formatters"
-import { getStateFromGSTIN } from "@/lib/suggestions/data/gstin-states"
+import { getStateFromGSTIN, gstinStates } from "@/lib/suggestions/data/gstin-states"
 
 interface InvoicePreviewProps {
   formData: InvoiceData
@@ -23,10 +23,21 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
   
   // Determine place of supply
   const sellerStateCode = formData.sellerGSTIN.substring(0, 2)
-  const buyerStateCode = formData.buyerGSTIN ? formData.buyerGSTIN.substring(0, 2) : sellerStateCode
-  const isInterState = buyerStateCode !== sellerStateCode && formData.buyerGSTIN
-  const placeOfSupply = getStateFromGSTIN(formData.buyerGSTIN || formData.sellerGSTIN) || 
-                       (isInterState ? "Other Territory" : getStateFromGSTIN(formData.sellerGSTIN) || "Unknown")
+  const buyerStateCode = formData.buyerGSTIN ? formData.buyerGSTIN.substring(0, 2) : formData.placeOfSupplyState || sellerStateCode
+  const isInterState = buyerStateCode !== sellerStateCode && (formData.buyerGSTIN || formData.placeOfSupplyState)
+  
+  // Get place of supply name
+  let placeOfSupply = "Not specified yet"
+  if (formData.buyerGSTIN) {
+    placeOfSupply = getStateFromGSTIN(formData.buyerGSTIN) || "Not specified yet"
+  } else if (formData.placeOfSupplyState) {
+    const state = gstinStates.find((s) => s.code === formData.placeOfSupplyState)
+    placeOfSupply = state ? state.name : "Not specified yet"
+  } else if (isInterState) {
+    placeOfSupply = "Other Territory"
+  } else if (formData.sellerGSTIN) {
+    placeOfSupply = getStateFromGSTIN(formData.sellerGSTIN) || "Not specified yet"
+  }
 
   return (
     <Card className="sticky top-4">
@@ -81,7 +92,9 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
             ) : formData.buyerGSTIN && !isBuyerGSTINValid ? (
               <p className="text-sm text-destructive">GSTIN: — Invalid —</p>
             ) : null}
-            <p className="text-sm text-muted-foreground">Place of Supply: {placeOfSupply}</p>
+            {placeOfSupply !== "Not specified yet" && (
+              <p className="text-sm text-muted-foreground">Place of Supply: {placeOfSupply}</p>
+            )}
           </div>
         </div>
 

@@ -34,9 +34,12 @@ export default function HomePage() {
               GST Invoice Generator for Indian Freelancers & Consultants
             </h2>
 
-            <p className="text-lg text-muted-foreground text-pretty max-w-2xl mx-auto">
-              Create compliant, professional invoices instantly. Designed as per Indian GST invoice rules. Perfect
-              for freelancers, consultants, and service providers. ₹99 per invoice. One-time payment. Instant download.
+            <p className="text-lg font-semibold text-foreground">
+              ₹99 per invoice • No subscription • Instant PDF
+            </p>
+
+            <p className="text-sm text-muted-foreground text-pretty max-w-2xl mx-auto">
+              GST-compliant format (standard domestic invoices)
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-8 pt-4">
@@ -89,6 +92,11 @@ export default function HomePage() {
               <Shield className="h-4 w-4" />
               <span>Secure & Compliant</span>
             </div>
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-xs text-muted-foreground">
+              No data stored after invoice generation.
+            </p>
           </div>
         </div>
       </footer>

@@ -410,7 +410,7 @@ export function InvoiceForm() {
                 ) : (
                   <>
                     <Download className="mr-2 h-4 w-4" />
-                    Pay ₹99 & Download PDF
+                    Pay ₹99 & Download GST Invoice
                   </>
                 )}
               </Button>

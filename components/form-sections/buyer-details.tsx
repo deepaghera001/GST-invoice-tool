@@ -27,8 +27,15 @@ export function BuyerDetails({ formData, onChange, onBlur, errors, shouldShowErr
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-3">Buyer Details</h3>
-        <p className="text-sm text-muted-foreground">Customer information</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Buyer Details</h3>
+            <p className="text-sm text-muted-foreground">Customer information</p>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            Step 2 of 4
+          </Badge>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <FormField
@@ -69,7 +76,7 @@ export function BuyerDetails({ formData, onChange, onBlur, errors, shouldShowErr
               {gstinAnalysis.state}
             </Badge>
           )}
-          {formData.buyerGSTIN && formData.buyerGSTIN.length === 15 && !gstinAnalysis?.isValid && (
+          {formData.buyerGSTIN && formData.buyerGSTIN.length === 15 && !gstinAnalysis?.isValid && shouldShowError?.("buyerGSTIN") && (
             <p className="text-xs text-destructive mt-1">Invalid GSTIN format - Please check and re-enter</p>
           )}
           {!formData.buyerGSTIN && (
@@ -99,7 +106,7 @@ export function BuyerDetails({ formData, onChange, onBlur, errors, shouldShowErr
           <FormField
             label="Place of Supply State Code"
             htmlFor="placeOfSupplyState"
-            hint="First 2 digits of state code where service is supplied"
+            hint="Needed only if your client does NOT have GSTIN"
             className="md:col-span-2"
           >
             <Input
@@ -112,7 +119,7 @@ export function BuyerDetails({ formData, onChange, onBlur, errors, shouldShowErr
               maxLength={2}
             />
             <p className="text-xs text-muted-foreground mt-1">
-              Required when buyer GSTIN is missing to determine tax type (inter-state vs intra-state)
+              Needed only if your client does NOT have GSTIN
             </p>
           </FormField>
         )}

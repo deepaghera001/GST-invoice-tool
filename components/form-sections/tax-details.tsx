@@ -80,11 +80,20 @@ export function TaxDetails({ formData, onChange, setFormData }: TaxDetailsProps)
           <h3 className="text-lg font-semibold text-foreground mb-1">Tax Details</h3>
           <p className="text-sm text-muted-foreground">GST rates for the invoice</p>
         </div>
-        {totalGST > 0 && (
-          <Badge variant={isValidGST ? "secondary" : "destructive"} className="text-sm">
-            Total GST: {totalGST}%
+        <div className="flex gap-2">
+          <Badge variant="secondary" className="text-xs">
+            Final Step
           </Badge>
-        )}
+          {totalGST > 0 && (
+            <Badge variant={isValidGST ? "secondary" : "destructive"} className="text-xs">
+              Total GST: {totalGST}%
+            </Badge>
+          )}
+        </div>
+      </div>
+
+      <div className="text-sm text-muted-foreground text-center py-2 border border-border rounded-lg bg-muted/50">
+        We calculate the correct GST automatically.
       </div>
 
       {buyerState && (

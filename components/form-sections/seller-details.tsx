@@ -32,8 +32,15 @@ export function SellerDetails({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-3">Seller Details</h3>
-        <p className="text-sm text-muted-foreground">Your business information</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Seller Details</h3>
+            <p className="text-sm text-muted-foreground">Your business information</p>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            Step 1 of 4
+          </Badge>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <FormField
@@ -75,7 +82,7 @@ export function SellerDetails({
               {gstinAnalysis.state}
             </Badge>
           )}
-          {formData.sellerGSTIN.length === 15 && !gstinAnalysis?.isValid && (
+          {formData.sellerGSTIN.length === 15 && !gstinAnalysis?.isValid && shouldShowError?.("sellerGSTIN") && (
             <p className="text-xs text-destructive mt-1">Invalid GSTIN format - Please check and re-enter</p>
           )}
         </FormField>

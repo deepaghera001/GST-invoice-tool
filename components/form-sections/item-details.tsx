@@ -63,8 +63,15 @@ export function ItemDetails({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-3">Item Details</h3>
-        <p className="text-sm text-muted-foreground">Product or service information</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Item Details</h3>
+            <p className="text-sm text-muted-foreground">Service or product information</p>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            Step 4 of 4
+          </Badge>
+        </div>
       </div>
       <div className="grid gap-4">
         <FormField

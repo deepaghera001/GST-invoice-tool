@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import type { InvoiceData, InvoiceValidationErrors } from "@/lib/types"
 import type { useSuggestions } from "@/hooks/use-suggestions"
 import { Wand2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 interface InvoiceDetailsProps {
   formData: InvoiceData
@@ -41,8 +42,15 @@ export function InvoiceDetails({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-foreground mb-3">Invoice Details</h3>
-        <p className="text-sm text-muted-foreground">Invoice number and date</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">Invoice Details</h3>
+            <p className="text-sm text-muted-foreground">Invoice number and date</p>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            Step 3 of 4
+          </Badge>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
         <FormField
