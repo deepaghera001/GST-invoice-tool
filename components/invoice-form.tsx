@@ -159,6 +159,7 @@ export function InvoiceForm() {
           body: JSON.stringify({
             invoiceData: formData,
             skipPayment: true, // Flag to indicate no payment verification needed
+            documentType: "html-invoice", // Use HTML-to-PDF generator
           }),
         })
 
@@ -172,7 +173,7 @@ export function InvoiceForm() {
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement("a")
         a.href = url
-        a.download = `invoice-${formData.invoiceNumber}.pdf`
+        a.download = `invoice-${formData.invoiceNumber}-html.pdf`
         document.body.appendChild(a)
         a.click()
         window.URL.revokeObjectURL(url)
@@ -223,6 +224,7 @@ export function InvoiceForm() {
                 orderId: response.razorpay_order_id,
                 signature: response.razorpay_signature,
                 invoiceData: formData,
+                documentType: "html-invoice", // Use HTML-to-PDF generator
               }),
             })
 
@@ -234,7 +236,7 @@ export function InvoiceForm() {
             const url = window.URL.createObjectURL(blob)
             const a = document.createElement("a")
             a.href = url
-            a.download = `invoice-${formData.invoiceNumber}.pdf`
+            a.download = `invoice-${formData.invoiceNumber}-html.pdf`
             document.body.appendChild(a)
             a.click()
             window.URL.revokeObjectURL(url)
@@ -279,6 +281,110 @@ export function InvoiceForm() {
     }
   }
 
+  // Function to test HTML-to-PDF generation with actual DOM capture
+  const handleTestHTMLPDF = async () => {
+    if (process.env.NODE_ENV !== 'development') return;
+
+    setIsProcessing(true);
+    try {
+      console.log("[DEV] Testing HTML-to-PDF generation with actual DOM capture");
+      
+      // Get the HTML content of the preview by serializing the DOM
+      const previewElement = document.querySelector('[data-testid="invoice-preview"]');
+      let htmlContent = '';
+      
+      if (previewElement) {
+        // Clone the element to avoid modifying the original
+        const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+        
+        // Get the outer HTML
+        htmlContent = clonedElement.outerHTML;
+        
+        // Also get the computed styles
+        const styles = Array.from(document.styleSheets)
+          .map(styleSheet => {
+            try {
+              return Array.from(styleSheet.cssRules || [])
+                .map(rule => rule.cssText)
+                .join('\n');
+            } catch (e) {
+              // Skip cross-origin stylesheets
+              return '';
+            }
+          })
+          .join('\n');
+          
+        // Wrap in a complete HTML document with styles
+        htmlContent = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Invoice ${formData.invoiceNumber}</title>
+            <style>
+              ${styles}
+              /* Additional styles to ensure proper rendering */
+              body {
+                margin: 0;
+                padding: 20px;
+                font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+              }
+              .sticky {
+                position: relative;
+              }
+            </style>
+          </head>
+          <body>
+            ${htmlContent}
+          </body>
+          </html>
+        `;
+      }
+
+      const pdfResponse = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          invoiceData: formData,
+          skipPayment: true,
+          documentType: "html-invoice",
+          htmlContent: htmlContent, // Send the actual HTML content with styles
+        }),
+      })
+
+      if (!pdfResponse.ok) {
+        const errorText = await pdfResponse.text();
+        console.error("[DEV] HTML PDF generation API error response:", errorText);
+        throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
+      }
+
+      const blob = await pdfResponse.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `invoice-${formData.invoiceNumber}-dom.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast({
+        title: "Success!",
+        description: "HTML-to-PDF invoice has been generated and downloaded (development mode)",
+      })
+    } catch (error) {
+      console.error("[DEV] HTML PDF generation error:", error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate HTML PDF. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   return (
     <>
       <script src="https://checkout.razorpay.com/v1/checkout.js" async />
@@ -300,15 +406,34 @@ export function InvoiceForm() {
                   <h3 className="font-semibold text-foreground">Development Mode</h3>
                   <p className="text-sm text-muted-foreground">Quick test with sample data</p>
                 </div>
-                <Button
-                  type="button"
-                  onClick={fillTestData}
-                  variant="secondary"
-                  size="sm"
-                  className="whitespace-nowrap"
-                >
-                  Fill Test Data
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={fillTestData}
+                    variant="secondary"
+                    size="sm"
+                    className="whitespace-nowrap"
+                  >
+                    Fill Test Data
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleTestHTMLPDF}
+                    variant="outline"
+                    size="sm"
+                    className="whitespace-nowrap"
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating HTML PDF...
+                      </>
+                    ) : (
+                      "Test HTML PDF"
+                    )}
+                  </Button>
+                </div>
               </div>
             </div>
           )}

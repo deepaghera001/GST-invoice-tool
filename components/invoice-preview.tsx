@@ -40,7 +40,7 @@ export function InvoicePreview({ formData, totals, errors }: InvoicePreviewProps
   }
 
   return (
-    <Card className="sticky top-4">
+    <Card className="sticky top-4" data-testid="invoice-preview">
       <CardHeader className="bg-primary text-primary-foreground">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5" />

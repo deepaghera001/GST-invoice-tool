@@ -1,5 +1,6 @@
 import type { PDFGenerator } from "@/lib/core/types"
 import { InvoicePDFGenerator } from "./invoice-pdf-generator"
+import { DOMHTMLGenerator } from "./dom-html-generator"
 
 export class GeneratorFactory {
   private static generators: PDFGenerator[] = []
@@ -7,6 +8,7 @@ export class GeneratorFactory {
   static {
     // Register default generators
     this.register(new InvoicePDFGenerator())
+    this.register(new DOMHTMLGenerator())
   }
 
   static register(generator: PDFGenerator): void {
