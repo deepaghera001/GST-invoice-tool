@@ -2,9 +2,74 @@ import { type NextRequest, NextResponse } from "next/server"
 import { documentService } from "@/lib/services/document-service"
 import { chromium } from "@playwright/test"
 
+// Define types for our configuration
+interface BrowserLaunchConfig {
+  headless: boolean;
+  args: string[];
+}
+
+interface PDFMargin {
+  top: string;
+  right: string;
+  bottom: string;
+  left: string;
+}
+
+interface PDFGenerationOptions {
+  format?: string;
+  printBackground?: boolean;
+  margin?: PDFMargin;
+  displayHeaderFooter?: boolean;
+  preferCSSPageSize?: boolean;
+}
+
+interface PDFRequestData {
+  paymentId?: string;
+  orderId?: string;
+  signature?: string;
+  invoiceData: any; // TODO: Replace with proper InvoiceData type
+  documentType?: string;
+  skipPayment?: boolean;
+  htmlContent?: string;
+}
+
+// Get browser launch configuration
+function getBrowserLaunchConfig(): BrowserLaunchConfig {
+  return {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process',
+      '--disable-gpu'
+    ]
+  };
+}
+
+// Get PDF generation options
+function getPDFGenerationOptions(): PDFGenerationOptions {
+  return {
+    format: "A4",
+    printBackground: true,
+    margin: {
+      top: "0.4in",
+      right: "0.4in",
+      bottom: "0.4in",
+      left: "0.4in",
+    },
+    displayHeaderFooter: false,
+    preferCSSPageSize: false,
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { paymentId, orderId, signature, invoiceData, documentType = "invoice", skipPayment = false, htmlContent } = await request.json()
+    const requestData: PDFRequestData = await request.json();
+    const { paymentId, orderId, signature, invoiceData, documentType = "invoice", skipPayment = false, htmlContent } = requestData;
     
     console.log("[API] Received PDF generation request:", { paymentId, orderId, signature, documentType, skipPayment });
     console.log("[API] Invoice data:", invoiceData);
@@ -16,19 +81,7 @@ export async function POST(request: NextRequest) {
       console.log("[API] Generating PDF from DOM HTML content");
       
       // Launch browser and generate PDF from the provided HTML content
-      const browser = await chromium.launch({
-        headless: true,
-        args: [
-          '--no-sandbox',
-          '--disable-setuid-sandbox',
-          '--disable-dev-shm-usage',
-          '--disable-accelerated-2d-canvas',
-          '--no-first-run',
-          '--no-zygote',
-          '--single-process',
-          '--disable-gpu'
-        ]
-      })
+      const browser = await chromium.launch(getBrowserLaunchConfig())
 
       try {
         const page = await browser.newPage()
@@ -39,18 +92,7 @@ export async function POST(request: NextRequest) {
         })
         
         // Generate PDF with settings that match the preview
-        pdfBuffer = await page.pdf({
-          format: "A4",
-          printBackground: true,
-          margin: {
-            top: "0.4in",
-            right: "0.4in",
-            bottom: "0.4in",
-            left: "0.4in",
-          },
-          displayHeaderFooter: false,
-          preferCSSPageSize: false,
-        })
+        pdfBuffer = await page.pdf(getPDFGenerationOptions())
         
         console.log("[API] PDF generated from DOM HTML, size:", pdfBuffer.length);
       } finally {

@@ -289,58 +289,11 @@ export function InvoiceForm() {
     try {
       console.log("[DEV] Testing HTML-to-PDF generation with actual DOM capture");
       
-      // Get the HTML content of the preview by serializing the DOM
-      const previewElement = document.querySelector('[data-testid="invoice-preview"]');
-      let htmlContent = '';
+      // Import the DOM capture utilities dynamically to avoid SSR issues
+      const { captureInvoicePreviewHTML } = await import('@/lib/utils/dom-capture-utils');
       
-      if (previewElement) {
-        // Clone the element to avoid modifying the original
-        const clonedElement = previewElement.cloneNode(true) as HTMLElement;
-        
-        // Get the outer HTML
-        htmlContent = clonedElement.outerHTML;
-        
-        // Also get the computed styles
-        const styles = Array.from(document.styleSheets)
-          .map(styleSheet => {
-            try {
-              return Array.from(styleSheet.cssRules || [])
-                .map(rule => rule.cssText)
-                .join('\n');
-            } catch (e) {
-              // Skip cross-origin stylesheets
-              return '';
-            }
-          })
-          .join('\n');
-          
-        // Wrap in a complete HTML document with styles
-        htmlContent = `
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Invoice ${formData.invoiceNumber}</title>
-            <style>
-              ${styles}
-              /* Additional styles to ensure proper rendering */
-              body {
-                margin: 0;
-                padding: 20px;
-                font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-              }
-              .sticky {
-                position: relative;
-              }
-            </style>
-          </head>
-          <body>
-            ${htmlContent}
-          </body>
-          </html>
-        `;
-      }
+      // Capture the HTML content of the invoice preview
+      const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber);
 
       const pdfResponse = await fetch("/api/generate-pdf", {
         method: "POST",
