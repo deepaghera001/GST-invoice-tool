@@ -6,7 +6,7 @@ This guide explains how to extend InvoiceGen with new document types using the m
 
 Adding a new document type involves 3 main steps:
 1. Create a JSON template
-2. Create a PDF generator function
+2. Create a PDF generator class
 3. Update the form component (or create new one)
 
 ## Step 1: Create JSON Template
@@ -55,9 +55,12 @@ Create a new file in `lib/templates/` (e.g., `rent-agreement.json`):
 
 ## Step 2: Create PDF Generator
 
-Add a new function in `lib/pdf-generator.ts`:
+Create a new PDF generator class that extends BasePDFGenerator. Create a new file in `lib/services/generators/` (e.g., `rent-agreement-pdf-generator.ts`):
 
-\`\`\`typescript
+```typescript
+import { BasePDFGenerator } from "./base-pdf-generator"
+import type { GeneratorOptions } from "@/lib/core/types"
+
 interface RentAgreementData {
   landlord: {
     name: string
@@ -75,72 +78,75 @@ interface RentAgreementData {
   }
 }
 
-export async function generateRentAgreementPDF(data: RentAgreementData): Promise<Buffer> {
-  const doc = new jsPDF()
-  
-  // Header
-  doc.setFontSize(22)
-  doc.setFont('helvetica', 'bold')
-  doc.text('RENT AGREEMENT', 105, 20, { align: 'center' })
-  
-  // Landlord Details
-  doc.setFontSize(11)
-  doc.setFont('helvetica', 'bold')
-  doc.text('Landlord Details:', 20, 40)
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.text(data.landlord.name, 20, 46)
-  doc.text(data.landlord.address, 20, 52)
-  
-  // Tenant Details
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(11)
-  doc.text('Tenant Details:', 20, 70)
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.text(data.tenant.name, 20, 76)
-  doc.text(data.tenant.phone, 20, 82)
-  
-  // Terms
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(11)
-  doc.text('Terms & Conditions:', 20, 100)
-  doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.text(`Monthly Rent: ₹${data.terms.rentAmount}`, 20, 106)
-  doc.text(`Security Deposit: ₹${data.terms.deposit}`, 20, 112)
-  doc.text(`Lease Start: ${data.terms.startDate}`, 20, 118)
-  doc.text(`Duration: ${data.terms.duration} months`, 20, 124)
-  
-  return Buffer.from(doc.output('arraybuffer'))
-}
-\`\`\`
+export class RentAgreementPDFGenerator extends BasePDFGenerator<RentAgreementData> {
+  name = "rent-agreement-pdf-generator"
 
-## Step 3: Update API Route
-
-Modify `app/api/generate-pdf/route.ts` to handle the new template:
-
-\`\`\`typescript
-import { generateInvoicePDF } from '@/lib/pdf-generator'
-import { generateRentAgreementPDF } from '@/lib/pdf-generator'
-
-export async function POST(request: NextRequest) {
-  const { paymentId, orderId, signature, invoiceData, templateType } = await request.json()
-  
-  // ... payment verification code ...
-  
-  // Generate PDF based on template type
-  let pdfBuffer: Buffer
-  
-  if (templateType === 'rent-agreement') {
-    pdfBuffer = await generateRentAgreementPDF(invoiceData)
-  } else {
-    pdfBuffer = await generateInvoicePDF(invoiceData)
+  supports(documentType: string): boolean {
+    return documentType === "rent-agreement"
   }
-  
-  // ... return PDF ...
+
+  async generate(data: RentAgreementData, options?: GeneratorOptions): Promise<Buffer> {
+    // For the current system, we recommend using HTML-to-PDF conversion
+    // which captures the HTML preview and converts it to PDF
+    // However, if you prefer direct PDF generation, you can use a library like jsPDF
+    
+    // Example using HTML-to-PDF approach (current default):
+    // The HTML content would be generated from the data
+    // and then converted to PDF via Playwright in the API route
+    
+    // For direct PDF generation (alternative approach):
+    // const { jsPDF } = await import('jspdf')
+    // const doc = new jsPDF()
+    
+    // Header
+    doc.setFontSize(22)
+    doc.setFont('helvetica', 'bold')
+    doc.text('RENT AGREEMENT', 105, 20, { align: 'center' })
+    
+    // Landlord Details
+    doc.setFontSize(11)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Landlord Details:', 20, 40)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.text(data.landlord.name, 20, 46)
+    doc.text(data.landlord.address, 20, 52)
+    
+    // Tenant Details
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('Tenant Details:', 20, 70)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.text(data.tenant.name, 20, 76)
+    doc.text(data.tenant.phone, 20, 82)
+    
+    // Terms
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.text('Terms & Conditions:', 20, 100)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(10)
+    doc.text(`Monthly Rent: ₹${data.terms.rentAmount}`, 20, 106)
+    doc.text(`Security Deposit: ₹${data.terms.deposit}`, 20, 112)
+    doc.text(`Lease Start: ${data.terms.startDate}`, 20, 118)
+    doc.text(`Duration: ${data.terms.duration} months`, 20, 124)
+    
+    // For HTML-to-PDF approach, return the HTML content as string
+    // For direct PDF generation, return as buffer:
+    // return Buffer.from(doc.output('arraybuffer'))
+    
+    // Placeholder return - implement based on your chosen approach
+    return Buffer.from('')
+  }
 }
-\`\`\`
+```
+
+## Step 3: Register the Generator
+
+The new generator will be automatically registered in the GeneratorFactory when you import it. The system will automatically discover and use the new generator based on the document type you specify in the `supports` method.
+
+The main API route (`app/api/generate-pdf/route.ts`) will automatically use the correct generator based on the document type passed in the request.
 
 ## Step 4: Create or Update Form
 
@@ -233,13 +239,15 @@ Here's a complete example for a simple receipt:
 \`\`\`
 
 ### 2. PDF Generator
-\`\`\`typescript
-export async function generateReceiptPDF(data: ReceiptData): Promise<Buffer> {
-  const doc = new jsPDF()
-  doc.setFontSize(20)
-  doc.text('PAYMENT RECEIPT', 105, 20, { align: 'center' })
-  // ... rest of PDF generation
-  return Buffer.from(doc.output('arraybuffer'))
+```typescript
+// This would be part of a class that extends BasePDFGenerator
+async generate(data: ReceiptData, options?: GeneratorOptions): Promise<Buffer> {
+  // Implement based on your chosen approach (HTML-to-PDF or direct PDF generation)
+  // For HTML-to-PDF: generate HTML content and return as Buffer
+  // For direct PDF: use a library like jsPDF
+  
+  // Placeholder implementation
+  return Buffer.from('')
 }
 \`\`\`
 

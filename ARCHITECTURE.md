@@ -67,7 +67,7 @@ lib/
 │   │   └── payment-factory.ts
 │   ├── generators/         # PDF generators
 │   │   ├── base-pdf-generator.ts
-│   │   ├── invoice-pdf-generator.ts
+│   │   ├── dom-html-generator.ts
 │   │   └── generator-factory.ts
 │   └── document-service.ts # Orchestration
 ├── validation/             # Validation system
@@ -214,6 +214,9 @@ PaymentFactory.register('stripe', () => new StripeProvider())
 4. Create generator extending `BasePDFGenerator`
 5. Register in `GeneratorFactory`
 
+The system primarily uses HTML-to-PDF conversion:
+- HTML-to-PDF: Capture HTML preview and convert to PDF via Playwright
+
 Example:
 ```typescript
 // lib/core/types/quotation.types.ts
@@ -228,8 +231,13 @@ export const quotationSchema = z.object({
 
 // lib/services/generators/quotation-pdf-generator.ts
 export class QuotationPDFGenerator extends BasePDFGenerator {
+  supports(documentType: string): boolean {
+    return documentType === "quotation" // Use appropriate document type
+  }
+  
   async generate(data: QuotationData): Promise<Buffer> {
-    // Implementation
+    // For HTML-to-PDF approach, generate HTML content from the data
+    // The HTML will be converted to PDF via Playwright in the API route
   }
 }
 ```

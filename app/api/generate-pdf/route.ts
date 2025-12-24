@@ -69,7 +69,7 @@ function getPDFGenerationOptions(): PDFGenerationOptions {
 export async function POST(request: NextRequest) {
   try {
     const requestData: PDFRequestData = await request.json();
-    const { paymentId, orderId, signature, invoiceData, documentType = "invoice", skipPayment = false, htmlContent } = requestData;
+    const { paymentId, orderId, signature, invoiceData, documentType = "html-invoice", skipPayment = false, htmlContent } = requestData;
     
     console.log("[API] Received PDF generation request:", { paymentId, orderId, signature, documentType, skipPayment });
     console.log("[API] Invoice data:", invoiceData);

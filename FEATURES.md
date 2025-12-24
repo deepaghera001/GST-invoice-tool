@@ -99,7 +99,7 @@ Modular payment provider system.
 
 **Location**: `lib/services/generators/`
 
-Modular PDF generation system.
+Modular PDF generation system using HTML-to-PDF conversion.
 
 **Features**:
 - GST-compliant format (standard domestic invoices)
@@ -107,11 +107,12 @@ Modular PDF generation system.
 - Professional layout
 - Easy to customize
 - Extensible for new document types
+- HTML-to-PDF conversion via Playwright
 
 **Customization**:
 ```typescript
-// lib/services/generators/invoice-pdf-generator.ts
-// Modify layout, colors, fonts, etc.
+// lib/services/generators/dom-html-generator.ts
+// Modify HTML generation and PDF conversion options
 ```
 
 ### 6. Form Sections
