@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     let pdfBuffer: Buffer
 
     // Check if we're generating from DOM HTML content
-    if (documentType === "html-invoice" && htmlContent) {
+    if ((documentType === "html-invoice" || skipPayment) && htmlContent) {
       console.log("[API] Generating PDF from DOM HTML content");
       
       // Launch browser and generate PDF from the provided HTML content
@@ -100,9 +100,9 @@ export async function POST(request: NextRequest) {
         await browser.close()
       }
     } else if (skipPayment) {
-      // In development mode, skip payment verification and generate PDF directly
-      console.log("[API] Skipping payment verification, generating document directly");
-      pdfBuffer = await documentService.generateDocument(invoiceData, documentType)
+      // In development mode with skipPayment but no htmlContent - this is an error
+      console.error("[API] Error: skipPayment requires htmlContent to be provided");
+      throw new Error("Cannot generate PDF in development mode without HTML content. Please provide htmlContent in the request.");
     } else {
       // Production mode - verify payment before generating PDF
       console.log("[API] Verifying payment before generating document");
