@@ -5,9 +5,10 @@ import { useEffect } from "react"
 import type { InvoiceData } from "@/lib/invoice"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Info, Check } from "lucide-react"
+import { Info } from "lucide-react"
+import { Percent } from "lucide-react"
+import { Card } from "@/components/ui/card"
 
 interface TaxDetailsProps {
   formData: InvoiceData
@@ -24,12 +25,11 @@ function getStateCodeFromGSTIN(gstin: string): string | null {
 export function TaxDetails({ formData, onChange, setFormData, isCompleted }: TaxDetailsProps) {
   const sellerState = getStateCodeFromGSTIN(formData.sellerGSTIN)
   const buyerState = getStateCodeFromGSTIN(formData.buyerGSTIN)
-  // If buyer GSTIN is missing, use place of supply state if available
   const isInterState = buyerState
     ? sellerState !== buyerState
     : formData.placeOfSupplyState
       ? sellerState !== formData.placeOfSupplyState
-      : false // Default to intra-state when both buyer GSTIN and place of supply are missing
+      : false
 
   const totalGST = isInterState
     ? Number.parseFloat(formData.igst || "0") || 0
@@ -75,7 +75,7 @@ export function TaxDetails({ formData, onChange, setFormData, isCompleted }: Tax
   const isValidGST = validRates.includes(totalGST)
 
   return (
-    <div
+    <Card
       className={`
         relative p-6 rounded-xl border transition-all duration-500 ease-out
         ${isCompleted
@@ -84,55 +84,21 @@ export function TaxDetails({ formData, onChange, setFormData, isCompleted }: Tax
         }
       `}
     >
-      {/* Completion celebration effect */}
-      {isCompleted && (
-        <div className="absolute -top-2 -right-2 animate-in zoom-in duration-500">
-          <div className="relative">
-            <div className="absolute inset-0 bg-green-500 rounded-full blur-md opacity-50 animate-pulse"></div>
-            <Badge className="relative bg-green-500 text-white border-0 px-3 py-1.5">
-              <Check className="h-4 w-4 mr-1" />
-              Complete
-            </Badge>
-          </div>
-        </div>
-      )}
-
       <div className="space-y-5">
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className={`
-                flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg transition-all duration-300
-                ${isCompleted
-                  ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
-                  : 'bg-primary/10 text-primary'
-                }
-              `}>
-                {isCompleted ? <Check className="h-5 w-5" /> : '5'}
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground mb-0.5">Tax Details</h3>
-                <p className="text-sm text-muted-foreground">GST rates for the invoice</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-xs font-medium">
-                Final Step
-              </Badge>
-              {totalGST > 0 && (
-                <Badge variant={isValidGST ? "secondary" : "destructive"} className="text-xs">
-                  Total GST: {totalGST}%
-                </Badge>
-              )}
-            </div>
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <div className={`
+            flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg transition-all duration-300
+            ${isCompleted
+              ? 'bg-green-500 text-white shadow-lg shadow-green-500/30'
+              : 'bg-primary/10 text-primary'
+            }
+          `}>
+            <Percent className="h-5 w-5" />
           </div>
-
-          {/* Progress bar - always 100% since tax is auto-calculated */}
-          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full transition-all duration-700 ease-out bg-gradient-to-r from-green-500 to-emerald-500"
-              style={{ width: '100%' }}
-            />
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-0.5">Tax Details</h3>
+            <p className="text-sm text-muted-foreground">GST rates for the invoice</p>
           </div>
         </div>
 
@@ -233,6 +199,6 @@ export function TaxDetails({ formData, onChange, setFormData, isCompleted }: Tax
           </p>
         )}
       </div>
-    </div>
+    </Card>
   )
 }
