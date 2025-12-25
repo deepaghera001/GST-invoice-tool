@@ -1,3 +1,8 @@
+/**
+ * Common HSN/SAC Codes with GST Rates
+ * Used for HSN code search and GST rate auto-population
+ */
+
 export interface HSNCode {
   code: string
   description: string

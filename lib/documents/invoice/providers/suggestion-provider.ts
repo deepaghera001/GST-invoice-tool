@@ -1,3 +1,8 @@
+/**
+ * Suggestion Provider
+ * Provides HSN, GSTIN, and invoice-related suggestions
+ */
+
 import { searchHSNCodes, getGSTRateForHSN } from "../data/common-hsn-codes"
 import { gstinStates, getStateFromGSTIN } from "../data/gstin-states"
 import { invoiceTemplates, generateInvoiceNumber } from "../data/invoice-templates"

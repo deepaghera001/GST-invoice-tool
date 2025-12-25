@@ -1,3 +1,8 @@
+/**
+ * GSTIN State Codes and Lookup
+ * Maps state codes to state names for GST identification
+ */
+
 export const gstinStates = [
   { code: "01", name: "Jammu and Kashmir" },
   { code: "02", name: "Himachal Pradesh" },

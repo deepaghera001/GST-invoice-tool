@@ -1,2 +1,6 @@
-// Re-export from document-specific module
-export type { InvoiceData, InvoiceTotals, InvoiceValidationErrors } from "@/lib/documents/invoice"
+/**
+ * Central type exports
+ * Re-exported from document-specific modules for convenience
+ */
+
+export type { InvoiceData, InvoiceTotals, InvoiceValidationErrors, InvoiceCalculatedData } from "@/lib/documents/invoice"

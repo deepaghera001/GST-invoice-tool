@@ -29,3 +29,7 @@ export {
   MIN_VALUES,
   TAX_RANGES,
 } from "./constants"
+
+// Data & Providers
+export { SuggestionProvider, type Suggestion } from "./providers"
+export * from "./data"

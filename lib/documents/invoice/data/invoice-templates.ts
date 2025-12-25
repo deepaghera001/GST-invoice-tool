@@ -1,3 +1,8 @@
+/**
+ * Invoice Templates and Number Generation
+ * Templates for different invoice types and number generation logic
+ */
+
 export interface InvoiceTemplate {
   id: string
   name: string

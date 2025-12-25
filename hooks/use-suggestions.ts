@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useCallback, useMemo } from "react"
-import { SuggestionProvider, type Suggestion } from "@/lib/suggestions"
+import { SuggestionProvider, type Suggestion } from "@/lib/documents/invoice/providers"
 
 export function useSuggestions() {
   const [hsnSuggestions, setHsnSuggestions] = useState<Suggestion[]>([])

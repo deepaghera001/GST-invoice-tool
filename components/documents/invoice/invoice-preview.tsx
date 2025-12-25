@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { FileText } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/utils/formatters"
-import { getStateFromGSTIN, gstinStates } from "@/lib/suggestions/data/gstin-states"
+import { getStateFromGSTIN, gstinStates } from "@/lib/documents/invoice/data/gstin-states"
 import { GSTIN_REGEX, SAC_REGEX } from "@/lib/documents/invoice"
 
 interface InvoicePreviewProps {

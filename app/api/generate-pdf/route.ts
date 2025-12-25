@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { documentService } from "@/lib/services/document-service"
 import { chromium } from "@playwright/test"
+import type { InvoiceData } from "@/lib/documents/invoice"
 
 // Define types for our configuration
 interface BrowserLaunchConfig {
@@ -27,7 +28,7 @@ interface PDFRequestData {
   paymentId?: string;
   orderId?: string;
   signature?: string;
-  invoiceData: any; // TODO: Replace with proper InvoiceData type
+  invoiceData: InvoiceData;
   documentType?: string;
   skipPayment?: boolean;
   htmlContent?: string;
