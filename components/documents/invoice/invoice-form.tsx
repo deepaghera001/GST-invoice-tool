@@ -8,7 +8,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { useInvoiceForm } from "@/lib/hooks/use-invoice-form"
 import { Button } from "@/components/ui/button"
 import { Loader2, Download } from "lucide-react"
@@ -18,7 +18,7 @@ import { InvoiceDetails } from "./form-sections/invoice-details"
 import { ItemDetails } from "./form-sections/item-details"
 import { TaxDetails } from "./form-sections/tax-details"
 import { InvoicePreview } from "./invoice-preview"
-import { useSuggestions } from "@/hooks/use-suggestions"
+import { useSuggestions } from "@/lib/hooks/use-suggestions"
 import { createPaymentOrder } from "@/lib/actions/payment-actions"
 import { GSTIN_REGEX } from "@/lib/documents/invoice"
 
