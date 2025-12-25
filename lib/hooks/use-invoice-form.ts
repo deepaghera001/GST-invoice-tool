@@ -12,14 +12,14 @@ import type {
   InvoiceTotals,
   InvoiceValidationErrors,
   InvoiceCalculatedData,
-} from "@/lib/documents/invoice"
+} from "@/lib/invoice"
 import {
   calculateInvoiceTotals,
   invoiceSchema,
   invoiceFieldSchema,
   DEFAULT_INVOICE_DATA,
   type InvoiceFormData,
-} from "@/lib/documents/invoice"
+} from "@/lib/invoice"
 
 interface UseInvoiceFormReturn {
   // State

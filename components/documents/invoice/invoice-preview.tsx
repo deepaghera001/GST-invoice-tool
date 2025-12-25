@@ -6,14 +6,14 @@
 
 "use client"
 
-import type { InvoiceCalculatedData, InvoiceValidationErrors } from "@/lib/documents/invoice"
+import type { InvoiceCalculatedData, InvoiceValidationErrors } from "@/lib/invoice"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { FileText } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/utils/formatters"
 import { numberToWords } from "@/lib/utils/number-to-words"
-import { getStateFromGSTIN, gstinStates } from "@/lib/documents/invoice/data/gstin-states"
-import { GSTIN_REGEX, SAC_REGEX } from "@/lib/documents/invoice"
+import { getStateFromGSTIN, gstinStates } from "@/lib/invoice/data/gstin-states"
+import { GSTIN_REGEX, SAC_REGEX } from "@/lib/invoice"
 
 interface InvoicePreviewProps {
   calculatedData: InvoiceCalculatedData

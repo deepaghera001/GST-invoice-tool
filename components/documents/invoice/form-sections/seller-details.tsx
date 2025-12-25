@@ -7,7 +7,7 @@ import { FormField } from "@/components/ui/form-field"
 import { Badge } from "@/components/ui/badge"
 import type { useSuggestions } from "@/lib/hooks/use-suggestions"
 import { Sparkles, Check } from "lucide-react"
-import type { InvoiceData, InvoiceValidationErrors } from "@/lib/documents/invoice"
+import type { InvoiceData, InvoiceValidationErrors } from "@/lib/invoice"
 
 interface SellerDetailsProps {
   formData: InvoiceData

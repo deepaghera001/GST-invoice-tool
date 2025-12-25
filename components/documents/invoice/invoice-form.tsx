@@ -20,7 +20,7 @@ import { TaxDetails } from "./form-sections/tax-details"
 import { InvoicePreview } from "./invoice-preview"
 import { useSuggestions } from "@/lib/hooks/use-suggestions"
 import { createPaymentOrder } from "@/lib/actions/payment-actions"
-import { GSTIN_REGEX } from "@/lib/documents/invoice"
+import { GSTIN_REGEX } from "@/lib/invoice"
 
 export function InvoiceForm() {
   const { toast } = useToast()

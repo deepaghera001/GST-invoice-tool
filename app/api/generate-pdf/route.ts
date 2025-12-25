@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { documentService } from "@/lib/services/document-service"
 import { chromium } from "@playwright/test"
-import type { InvoiceData } from "@/lib/documents/invoice"
+import type { InvoiceData } from "@/lib/invoice"
 
 // Define types for our configuration
 interface BrowserLaunchConfig {

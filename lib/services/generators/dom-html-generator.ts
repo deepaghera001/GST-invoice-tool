@@ -1,6 +1,6 @@
 import { BasePDFGenerator } from "./base-pdf-generator"
 import type { GeneratorOptions } from "@/lib/core/types"
-import type { InvoiceData } from "@/lib/documents/invoice"
+import type { InvoiceData } from "@/lib/invoice"
 
 export class DOMHTMLGenerator extends BasePDFGenerator<InvoiceData> {
   name = "dom-html-generator"

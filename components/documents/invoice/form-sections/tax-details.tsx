@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect } from "react"
-import type { InvoiceData } from "@/lib/documents/invoice"
+import type { InvoiceData } from "@/lib/invoice"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"

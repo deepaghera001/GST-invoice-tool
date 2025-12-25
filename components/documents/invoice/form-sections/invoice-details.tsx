@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { FormField } from "@/components/ui/form-field"
 import { Button } from "@/components/ui/button"
 import type { useSuggestions } from "@/lib/hooks/use-suggestions"
-import type { InvoiceData, InvoiceValidationErrors } from "@/lib/documents/invoice"
+import type { InvoiceData, InvoiceValidationErrors } from "@/lib/invoice"
 import { Wand2, Check } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import type { useSuggestions } from "@/lib/hooks/use-suggestions"
 import { Search, Check } from "lucide-react"
-import type { InvoiceData, InvoiceValidationErrors } from "@/lib/documents/invoice"
+import type { InvoiceData, InvoiceValidationErrors } from "@/lib/invoice"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
