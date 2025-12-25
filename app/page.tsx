@@ -1,4 +1,4 @@
-import { InvoiceForm } from "@/components/invoice-form"
+import { InvoiceForm } from "@/components/documents/invoice/invoice-form"
 import { FileText, Shield, Zap, CheckCircle2 } from "lucide-react"
 
 export default function HomePage() {
