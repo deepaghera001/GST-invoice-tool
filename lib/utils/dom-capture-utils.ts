@@ -130,3 +130,26 @@ export function captureInvoicePreviewHTML(invoiceNumber: string): string {
   // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, `Invoice ${invoiceNumber}`, styles);
 }
+
+/**
+ * Capture the HTML content of the salary slip preview
+ */
+export function captureSalarySlipPreviewHTML(): string {
+  const previewElement = document.querySelector('#salary-slip-preview');
+  
+  if (!previewElement) {
+    throw new Error('Salary slip preview element not found');
+  }
+  
+  // Clone the element to avoid modifying the original
+  const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  
+  // Get the outer HTML
+  const htmlContent = clonedElement.outerHTML;
+  
+  // Capture styles
+  const styles = captureStyles();
+  
+  // Wrap in a complete HTML document with styles
+  return wrapHTMLWithStyles(htmlContent, 'Salary Slip', styles);
+}

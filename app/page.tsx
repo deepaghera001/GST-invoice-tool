@@ -20,8 +20,7 @@ const DOCUMENTS = [
     icon: IndianRupee,
     description: "Employee salary statements with deductions and benefits",
     features: ["Tax Calculations", "CTC Breakdown", "Secure Format"],
-    href: "#",
-    comingSoon: true,
+    href: "/salary-slip",
   },
   {
     id: "quotation",

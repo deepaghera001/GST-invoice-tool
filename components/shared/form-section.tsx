@@ -91,6 +91,11 @@ export interface FormSectionProps {
   className?: string
   /** Layout configuration - control columns, gaps, etc. */
   layout?: FormSectionLayout
+  /** 
+   * Optional prefix for nested field paths (e.g., "employee" for "employee.name")
+   * When set, automatically prefixes field names in onChange, onBlur, shouldShowError, and errors lookup
+   */
+  fieldPrefix?: string
 }
 
 /**
@@ -128,7 +133,23 @@ export function FormSection({
   isCompleted = false,
   className = "",
   layout = { columns: 1, gap: 16 },
+  fieldPrefix,
 }: FormSectionProps) {
+  // Helper to get full field path (with prefix if set)
+  const getFullPath = (fieldName: string) => fieldPrefix ? `${fieldPrefix}.${fieldName}` : fieldName
+  
+  // Helper to get error for field (checks prefixed path)
+  const getFieldError = (fieldName: string) => {
+    const fullPath = getFullPath(fieldName)
+    return errors[fullPath] || errors[fieldName]
+  }
+  
+  // Helper to check if should show error (uses prefixed path)
+  const checkShouldShowError = (fieldName: string) => {
+    const fullPath = getFullPath(fieldName)
+    return shouldShowError(fullPath)
+  }
+
   // Filter visible fields
   const visibleFields = fields.filter((field) => !field.hidden)
 
@@ -164,23 +185,21 @@ export function FormSection({
     return ""
   }
 
-  // Handle field change with optional transform
+  // Handle field change with optional transform and prefix
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: FormFieldConfig) => {
-    if (field.transform) {
-      const transformed = field.transform(e.target.value)
-      const newEvent = {
-        ...e,
-        target: { ...e.target, name: field.name, value: transformed.toString() },
-      } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-      onChange(newEvent)
-    } else {
-      onChange(e)
-    }
+    const fullPath = getFullPath(field.name)
+    const value = field.transform ? field.transform(e.target.value) : e.target.value
+    const newEvent = {
+      ...e,
+      target: { ...e.target, name: fullPath, value: value.toString() },
+    } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    onChange(newEvent)
   }
 
-  // Handle blur with optional field validation
+  // Handle blur with full path
   const handleBlur = (field: FormFieldConfig, value: any) => {
-    onBlur?.(field.name, value)
+    const fullPath = getFullPath(field.name)
+    onBlur?.(fullPath, value)
   }
 
   return (
@@ -223,7 +242,7 @@ export function FormSection({
                 label={field.label}
                 htmlFor={field.name}
                 required={field.required}
-                error={shouldShowError(field.name) ? errors[field.name] : undefined}
+                error={checkShouldShowError(field.name) ? getFieldError(field.name) : undefined}
                 hint={field.helpText}
               >
                 {field.type === "textarea" ? (
