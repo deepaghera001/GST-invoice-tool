@@ -49,13 +49,13 @@ export function getPDFGenerationOptions(): PDFGenerationOptions {
     format: "A4",
     printBackground: true,
     margin: {
-      top: "0.4in",
-      right: "0.4in",
-      bottom: "0.4in",
-      left: "0.4in",
+      top: "0",
+      right: "0",
+      bottom: "0",
+      left: "0",
     },
     displayHeaderFooter: false,
-    preferCSSPageSize: false,
+    preferCSSPageSize: true,
   };
 }
 
@@ -91,13 +91,28 @@ export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: s
       <style>
         ${styles}
         /* Additional styles to ensure proper rendering */
+        @page {
+          size: A4;
+          margin: 0;
+        }
         body {
           margin: 0;
-          padding: 20px;
+          padding: 0;
           font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+          background-color: white;
+        }
+        /* General PDF Reset: Ensures the captured content fills the page and removes UI-only styling */
+        body > * {
+          border: none !important;
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          width: 100% !important;
+          max-width: none !important;
+          margin: 0 !important;
+          position: static !important;
         }
         .sticky {
-          position: relative;
+          position: static !important;
         }
       </style>
     </head>
