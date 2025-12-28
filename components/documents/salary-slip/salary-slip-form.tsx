@@ -85,21 +85,16 @@ export function SalarySlipForm() {
     if (isDevelopment) {
       // In development mode, generate PDF directly without payment
       try {
-        console.log("[DEV] Sending salary slip data to API:", formData)
-
         // Capture HTML from preview
         const { captureSalarySlipPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
         const htmlContent = captureSalarySlipPreviewHTML()
-        console.log("[DEV] Captured HTML content, size:", htmlContent?.length || 0)
 
         const pdfResponse = await fetch("/api/generate-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            salarySlipData: formData,
-            skipPayment: true,
-            documentType: "html-salary-slip",
-            htmlContent: htmlContent,
+            htmlContent,
+            filename: `salary-slip-${formData.employee.employeeId}.pdf`,
           }),
         })
 

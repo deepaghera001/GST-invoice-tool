@@ -1,41 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { documentService } from "@/lib/services/document-service"
 import { chromium } from "@playwright/test"
-import type { InvoiceData } from "@/lib/invoice"
-
-// Define types for our configuration
-interface BrowserLaunchConfig {
-  headless: boolean;
-  args: string[];
-}
-
-interface PDFMargin {
-  top: string;
-  right: string;
-  bottom: string;
-  left: string;
-}
-
-interface PDFGenerationOptions {
-  format?: string;
-  printBackground?: boolean;
-  margin?: PDFMargin;
-  displayHeaderFooter?: boolean;
-  preferCSSPageSize?: boolean;
-}
-
-interface PDFRequestData {
-  paymentId?: string;
-  orderId?: string;
-  signature?: string;
-  invoiceData: InvoiceData;
-  documentType?: string;
-  skipPayment?: boolean;
-  htmlContent?: string;
-}
 
 // Get browser launch configuration
-function getBrowserLaunchConfig(): BrowserLaunchConfig {
+function getBrowserLaunchConfig() {
   return {
     headless: true,
     args: [
@@ -52,9 +19,9 @@ function getBrowserLaunchConfig(): BrowserLaunchConfig {
 }
 
 // Get PDF generation options
-function getPDFGenerationOptions(): PDFGenerationOptions {
+function getPDFGenerationOptions() {
   return {
-    format: "A4",
+    format: "A4" as const,
     printBackground: true,
     margin: {
       top: "0.4in",
@@ -69,49 +36,24 @@ function getPDFGenerationOptions(): PDFGenerationOptions {
 
 export async function POST(request: NextRequest) {
   try {
-    const requestData: PDFRequestData = await request.json();
-    const { paymentId, orderId, signature, invoiceData, documentType = "html-invoice", skipPayment = false, htmlContent } = requestData;
+    const { htmlContent, filename = "document.pdf" } = await request.json();
     
-    console.log("[API] Received PDF generation request:", { paymentId, orderId, signature, documentType, skipPayment });
-    console.log("[API] Invoice data:", invoiceData);
+    if (!htmlContent) {
+      return NextResponse.json({ error: "htmlContent is required" }, { status: 400 });
+    }
 
-    let pdfBuffer: Buffer
+    console.log("[API] Generating PDF, filename:", filename);
 
-    // Check if we're generating from DOM HTML content
-    if ((documentType === "html-invoice" || skipPayment) && htmlContent) {
-      console.log("[API] Generating PDF from DOM HTML content");
-      
-      // Launch browser and generate PDF from the provided HTML content
-      const browser = await chromium.launch(getBrowserLaunchConfig())
+    // Launch browser and generate PDF
+    const browser = await chromium.launch(getBrowserLaunchConfig())
 
-      try {
-        const page = await browser.newPage()
-        
-        // Set content from the DOM HTML
-        await page.setContent(htmlContent, {
-          waitUntil: "networkidle",
-        })
-        
-        // Generate PDF with settings that match the preview
-        pdfBuffer = await page.pdf(getPDFGenerationOptions())
-        
-        console.log("[API] PDF generated from DOM HTML, size:", pdfBuffer.length);
-      } finally {
-        await browser.close()
-      }
-    } else if (skipPayment) {
-      // In development mode with skipPayment but no htmlContent - this is an error
-      console.error("[API] Error: skipPayment requires htmlContent to be provided");
-      throw new Error("Cannot generate PDF in development mode without HTML content. Please provide htmlContent in the request.");
-    } else {
-      // Production mode - verify payment before generating PDF
-      console.log("[API] Verifying payment before generating document");
-      pdfBuffer = await documentService.verifyAndGenerateDocument(
-        { paymentId, orderId, signature },
-        invoiceData,
-        documentType,
-        "razorpay",
-      )
+    let pdfBuffer: Buffer;
+    try {
+      const page = await browser.newPage()
+      await page.setContent(htmlContent, { waitUntil: "networkidle" })
+      pdfBuffer = await page.pdf(getPDFGenerationOptions())
+    } finally {
+      await browser.close()
     }
     
     console.log("[API] PDF generated successfully, size:", pdfBuffer.length);
@@ -119,11 +61,11 @@ export async function POST(request: NextRequest) {
     return new NextResponse(pdfBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="invoice-${invoiceData.invoiceNumber}.pdf"`,
+        "Content-Disposition": `attachment; filename="${filename}"`,
       },
     })
   } catch (error) {
-    console.error("[v0] PDF generation error:", error)
+    console.error("[API] PDF generation error:", error)
     const message = error instanceof Error ? error.message : "Failed to generate PDF"
     return NextResponse.json({ error: message }, { status: 500 })
   }

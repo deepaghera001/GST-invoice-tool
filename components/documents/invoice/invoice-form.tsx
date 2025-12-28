@@ -86,21 +86,16 @@ export function InvoiceForm() {
     if (isDevelopment) {
       // In development mode, generate PDF directly without payment
       try {
-        console.log("[DEV] Sending invoice data to API:", formData)
-        
         // Capture HTML from preview
         const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
         const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber)
-        console.log("[DEV] Captured HTML content, size:", htmlContent?.length || 0)
         
         const pdfResponse = await fetch("/api/generate-pdf", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            invoiceData: formData,
-            skipPayment: true,
-            documentType: "html-invoice",
-            htmlContent: htmlContent,
+            htmlContent,
+            filename: `invoice-${formData.invoiceNumber}.pdf`,
           }),
         })
 
@@ -159,12 +154,8 @@ export function InvoiceForm() {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                paymentId: response.razorpay_payment_id,
-                orderId: response.razorpay_order_id,
-                signature: response.razorpay_signature,
-                invoiceData: formData,
-                documentType: "html-invoice",
-                htmlContent: htmlContent,
+                htmlContent,
+                filename: `invoice-${formData.invoiceNumber}.pdf`,
               }),
             })
 
@@ -229,10 +220,8 @@ export function InvoiceForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          invoiceData: formData,
-          skipPayment: true,
-          documentType: "html-invoice",
-          htmlContent: htmlContent,
+          htmlContent,
+          filename: `invoice-${formData.invoiceNumber}.pdf`,
         }),
       })
 
