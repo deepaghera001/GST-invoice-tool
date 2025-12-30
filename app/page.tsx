@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FileText, Shield, CheckCircle2, ArrowRight, Calculator, IndianRupee } from "lucide-react"
+import { FileText, Shield, CheckCircle2, ArrowRight, Calculator, IndianRupee, Home } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -37,6 +37,14 @@ const TOOLS = [
     description: "Employee salary statements",
     features: ["Tax Calculations", "CTC Breakdown", "PDF Format"],
     href: "/salary-slip",
+  },
+  {
+    id: "rent-agreement",
+    name: "Rent Agreement",
+    icon: Home,
+    description: "Generate rental agreements for properties",
+    features: ["All Indian States", "Standard Clauses", "PDF Download"],
+    href: "/rent-agreement",
   },
 ]
 
@@ -238,6 +246,7 @@ export default function HomePage() {
                 <li><Link href="/tds-calculator" className="text-sm text-slate-500 hover:text-slate-700">TDS Fee Calculator</Link></li>
                 <li><Link href="/invoice" className="text-sm text-slate-500 hover:text-slate-700">Invoice Generator</Link></li>
                 <li><Link href="/salary-slip" className="text-sm text-slate-500 hover:text-slate-700">Salary Slip</Link></li>
+                <li><Link href="/rent-agreement" className="text-sm text-slate-500 hover:text-slate-700">Rent Agreement</Link></li>
               </ul>
             </div>
 
