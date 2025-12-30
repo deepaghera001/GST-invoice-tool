@@ -16,6 +16,9 @@ interface TDSFeePreviewProps {
     filingDate: string
     daysLate: number
     lateFee: number
+    interestOnLateDeduction?: number
+    interestOnLatePayment?: number
+    totalPenalty: number
   }
 }
 
@@ -38,9 +41,12 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
 
   const getSectionName = (section: string) => {
     const sections: Record<string, string> = {
-      '194J': '194J - Commission/Brokerage',
+      '194C': '194C - Contractor Payments',
+      '194H': '194H - Commission/Brokerage',
+      '194I': '194I - Rent',
+      '194J': '194J - Professional/Technical Fees',
       '194O': '194O - E-commerce Seller',
-      '195': '195 - Non-resident Income',
+      '195': '195 - Non-resident Payments',
       'other': 'Other TDS Sections',
     }
     return sections[section] || section
@@ -121,22 +127,41 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
             </div>
             <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
               <div>
-                <span className="text-sm text-slate-600">Late Fee u/s 234E</span>
-                <p className="text-xs text-slate-400">₹200 per day (max ₹5,000)</p>
+                <span className="text-sm text-slate-600">Late Fee (Section 234E)</span>
+                <p className="text-xs text-slate-400">₹200/day, max = TDS amount</p>
               </div>
               <span className="font-semibold text-slate-900">{formatCurrency(data.lateFee)}</span>
             </div>
+            {(data.interestOnLateDeduction ?? 0) > 0 && (
+              <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
+                <div>
+                  <span className="text-sm text-slate-600">Interest - Late Deduction</span>
+                  <p className="text-xs text-slate-400">Section 201(1A) @ 1% per month</p>
+                </div>
+                <span className="font-semibold text-slate-900">{formatCurrency(data.interestOnLateDeduction ?? 0)}</span>
+              </div>
+            )}
+            {(data.interestOnLatePayment ?? 0) > 0 && (
+              <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
+                <div>
+                  <span className="text-sm text-slate-600">Interest - Late Payment</span>
+                  <p className="text-xs text-slate-400">Section 201(1A) @ 1.5% per month</p>
+                </div>
+                <span className="font-semibold text-slate-900">{formatCurrency(data.interestOnLatePayment ?? 0)}</span>
+              </div>
+            )}
             <div className="flex justify-between items-center px-4 py-3 bg-blue-800 text-white">
-              <span className="font-medium">Total Late Fee</span>
-              <span className="text-xl font-bold">{formatCurrency(data.lateFee)}</span>
+              <span className="font-medium">Total Penalty</span>
+              <span className="text-xl font-bold">{formatCurrency(data.totalPenalty)}</span>
             </div>
           </div>
         </div>
 
         {/* Notes */}
         <div className="text-xs text-slate-500 space-y-1 pt-2 border-t border-slate-200">
-          <p>• Late Fee u/s 234E: ₹200 per day for delay in filing TDS return</p>
-          <p>• Maximum late fee is capped at ₹5,000</p>
+          <p>• <strong>Late Fee (Section 234E):</strong> ₹200/day, max = TDS amount deducted</p>
+          <p>• <strong>Interest on late deduction (Section 201(1A)):</strong> 1% per month or part thereof</p>
+          <p>• <strong>Interest on late payment (Section 201(1A)):</strong> 1.5% per month or part thereof</p>
           <p>• This is an estimate. Actual fee may vary based on IT department calculations.</p>
         </div>
 

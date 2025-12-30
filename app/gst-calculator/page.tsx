@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,16 +12,9 @@ import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
 import { Shield, ArrowLeft, Download, CheckCircle, FlaskConical } from 'lucide-react';
 import { usePayment } from '@/lib/hooks/use-payment';
+import { useGSTForm } from '@/lib/hooks/use-gst-form';
 import { GSTPenaltyPreview, captureGSTPenaltyPreviewHTML } from '@/components/documents/gst-penalty/gst-penalty-preview';
-
-interface CalculationResult {
-  daysLate: number;
-  lateFee: number;
-  interest: number;
-  totalPenalty: number;
-  riskLevel: 'safe' | 'warning' | 'critical';
-  summary: string;
-}
+import { useState } from 'react';
 
 const PDF_PRICE = 199; // ₹199
 
@@ -30,68 +22,49 @@ const PDF_PRICE = 199; // ₹199
 const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
 
 export default function GSTCalculatorPage() {
-  const [formData, setFormData] = useState({
-    returnType: 'GSTR1',
-    taxAmount: '',
-    dueDate: '',
-    filingDate: '',
-    taxPaidLate: false,
-  });
+  // Use the GST form hook (Zod-based validation)
+  const {
+    formData,
+    errors,
+    calculations,
+    handleChange,
+    handleBlur,
+    validateFormFull,
+    shouldShowError,
+    getError,
+    fillTestData,
+    resetForm,
+  } = useGSTForm();
 
-  const [result, setResult] = useState<CalculationResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const { initiatePayment, loading: paymentLoading, error: paymentError } = usePayment();
 
-  const handleInputChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setResult(null);
+    setApiError(null);
     setPaymentSuccess(false);
-    setLoading(true);
 
-    if (!formData.taxAmount || !formData.dueDate || !formData.filingDate) {
-      setError('Please fill all required fields');
-      setLoading(false);
+    // Validate form using Zod schema
+    const { isValid, errors: validationErrors } = validateFormFull();
+    
+    if (!isValid) {
+      // Get first error message to show
+      const firstError = Object.values(validationErrors)[0];
+      if (firstError) {
+        setApiError(firstError);
+      }
       return;
     }
 
-    try {
-      const response = await fetch('/api/gst/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          returnType: formData.returnType,
-          taxAmount: parseFloat(formData.taxAmount),
-          dueDate: formData.dueDate,
-          filingDate: formData.filingDate,
-          taxPaidLate: formData.taxPaidLate,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Calculation failed');
-      }
-
-      const data: CalculationResult = await response.json();
-      setResult(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
+    // Form is valid - calculations are already available from the hook
+    // No API call needed since calculations are memoized in the hook
   };
 
   const downloadPDF = async () => {
-    if (!result) return;
+    if (!calculations) return;
 
     setDownloadingPDF(true);
     try {
@@ -121,7 +94,7 @@ export default function GSTCalculatorPage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to download PDF');
+      setApiError(err instanceof Error ? err.message : 'Failed to download PDF');
     } finally {
       setDownloadingPDF(false);
     }
@@ -150,17 +123,25 @@ export default function GSTCalculatorPage() {
     });
   };
 
-  // Preview data for the component
-  const previewData = result ? {
+  const handleReset = () => {
+    resetForm();
+    setPaymentSuccess(false);
+    setApiError(null);
+  };
+
+  // Preview data for the component (derived from form data and calculations)
+  const previewData = calculations ? {
     returnType: formData.returnType,
-    taxAmount: parseFloat(formData.taxAmount),
+    taxAmount: parseFloat(formData.taxAmount) || 0,
     dueDate: formData.dueDate,
     filingDate: formData.filingDate,
-    daysLate: result.daysLate,
-    lateFee: result.lateFee,
-    interest: result.interest,
-    totalPenalty: result.totalPenalty,
+    daysLate: calculations.daysLate,
+    lateFee: calculations.lateFee,
+    interest: calculations.interest,
+    totalPenalty: calculations.totalPenalty,
     taxPaidLate: formData.taxPaidLate,
+    isNilReturn: calculations.isNilReturn,
+    breakdown: calculations.breakdown,
   } : null;
 
   return (
@@ -206,14 +187,27 @@ export default function GSTCalculatorPage() {
             <Card className="border-slate-200 bg-white h-fit">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-medium">Return Details</CardTitle>
-                <CardDescription>Enter your GST return information</CardDescription>
+                <CardDescription>
+                  Enter your GST return information
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="ml-2 h-auto p-0 text-xs text-slate-500"
+                    onClick={fillTestData}
+                  >
+                    Fill test data
+                  </Button>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-5">
                   {/* Return Type */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-slate-700">Return Type</Label>
-                    <RadioGroup value={formData.returnType} onValueChange={(val) => handleInputChange('returnType', val)}>
+                    <RadioGroup 
+                      value={formData.returnType} 
+                      onValueChange={(val) => handleChange('returnType', val)}
+                    >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="GSTR1" id="gstr1" />
                         <Label htmlFor="gstr1" className="font-normal text-sm cursor-pointer">GSTR-1 (Monthly)</Label>
@@ -223,6 +217,9 @@ export default function GSTCalculatorPage() {
                         <Label htmlFor="gstr3b" className="font-normal text-sm cursor-pointer">GSTR-3B (Quarterly)</Label>
                       </div>
                     </RadioGroup>
+                    {shouldShowError('returnType') && (
+                      <p className="text-xs text-red-500">{getError('returnType')}</p>
+                    )}
                   </div>
 
                   {/* Tax Amount */}
@@ -233,13 +230,17 @@ export default function GSTCalculatorPage() {
                     <Input
                       id="taxAmount"
                       type="number"
-                      placeholder="50000"
+                      placeholder="50000 (enter 0 for NIL return)"
                       min="0"
                       step="0.01"
                       value={formData.taxAmount}
-                      onChange={(e) => handleInputChange('taxAmount', e.target.value)}
-                      className="border-slate-300"
+                      onChange={(e) => handleChange('taxAmount', e.target.value)}
+                      onBlur={() => handleBlur('taxAmount')}
+                      className={`border-slate-300 ${shouldShowError('taxAmount') ? 'border-red-500' : ''}`}
                     />
+                    {shouldShowError('taxAmount') && (
+                      <p className="text-xs text-red-500">{getError('taxAmount')}</p>
+                    )}
                   </div>
 
                   {/* Due Date */}
@@ -251,9 +252,13 @@ export default function GSTCalculatorPage() {
                       id="dueDate"
                       type="date"
                       value={formData.dueDate}
-                      onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                      className="border-slate-300"
+                      onChange={(e) => handleChange('dueDate', e.target.value)}
+                      onBlur={() => handleBlur('dueDate')}
+                      className={`border-slate-300 ${shouldShowError('dueDate') ? 'border-red-500' : ''}`}
                     />
+                    {shouldShowError('dueDate') && (
+                      <p className="text-xs text-red-500">{getError('dueDate')}</p>
+                    )}
                   </div>
 
                   {/* Filing Date */}
@@ -265,9 +270,13 @@ export default function GSTCalculatorPage() {
                       id="filingDate"
                       type="date"
                       value={formData.filingDate}
-                      onChange={(e) => handleInputChange('filingDate', e.target.value)}
-                      className="border-slate-300"
+                      onChange={(e) => handleChange('filingDate', e.target.value)}
+                      onBlur={() => handleBlur('filingDate')}
+                      className={`border-slate-300 ${shouldShowError('filingDate') ? 'border-red-500' : ''}`}
                     />
+                    {shouldShowError('filingDate') && (
+                      <p className="text-xs text-red-500">{getError('filingDate')}</p>
+                    )}
                   </div>
 
                   {/* Tax Paid Late */}
@@ -275,34 +284,28 @@ export default function GSTCalculatorPage() {
                     <Checkbox
                       id="taxPaidLate"
                       checked={formData.taxPaidLate}
-                      onCheckedChange={(checked) => handleInputChange('taxPaidLate', checked === true)}
+                      onCheckedChange={(checked) => handleChange('taxPaidLate', checked === true)}
                     />
                     <Label htmlFor="taxPaidLate" className="font-normal text-sm cursor-pointer text-slate-600">
                       Tax was also paid late (interest applies)
                     </Label>
                   </div>
 
-                  {/* Error */}
-                  {error && (
+                  {/* API/Form Error */}
+                  {(apiError || Object.keys(errors).length > 0) && (
                     <Alert variant="destructive" className="py-2">
-                      <AlertDescription className="text-sm">{error}</AlertDescription>
+                      <AlertDescription className="text-sm">
+                        {apiError || 'Please fix the errors above'}
+                      </AlertDescription>
                     </Alert>
                   )}
 
                   {/* Submit */}
                   <Button
                     type="submit"
-                    disabled={loading}
                     className="w-full bg-slate-800 hover:bg-slate-900"
                   >
-                    {loading ? (
-                      <>
-                        <Spinner className="mr-2 h-4 w-4" />
-                        Calculating...
-                      </>
-                    ) : (
-                      'Calculate Penalty'
-                    )}
+                    Calculate Penalty
                   </Button>
                 </form>
               </CardContent>
@@ -365,17 +368,7 @@ export default function GSTCalculatorPage() {
                       <Button
                         variant="outline"
                         className="w-full border-slate-300"
-                        onClick={() => {
-                          setResult(null);
-                          setPaymentSuccess(false);
-                          setFormData({
-                            returnType: 'GSTR1',
-                            taxAmount: '',
-                            dueDate: '',
-                            filingDate: '',
-                            taxPaidLate: false,
-                          });
-                        }}
+                        onClick={handleReset}
                       >
                         Calculate Another
                       </Button>
@@ -397,17 +390,30 @@ export default function GSTCalculatorPage() {
           {/* Info Section */}
           <Card className="mt-8 border-slate-200 bg-white">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-900">How is penalty calculated?</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-900">GST Late Fee & Interest Rules (Section 47 & 50)</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-slate-600 space-y-2">
-              <p>
-                <strong>Late Fee:</strong> ₹100 per day for filings after 30 days of due date (max ₹5,000)
-              </p>
-              <p>
-                <strong>Interest:</strong> 18% per annum on tax amount if both return and tax payment are late
-              </p>
-              <p className="text-xs text-slate-500 pt-2">
-                Based on GST Act Section 47 & 48. Consult a CA for official advice.
+            <CardContent className="text-sm text-slate-600 space-y-3">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <p className="font-medium text-slate-800">Late Fee (Section 47):</p>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li><strong>Regular Return:</strong> ₹50/day CGST + ₹50/day SGST = ₹100/day total</li>
+                    <li><strong>NIL Return:</strong> ₹25/day CGST + ₹25/day SGST = ₹50/day total</li>
+                    <li><strong>Maximum Cap:</strong> ₹5,000 CGST + ₹5,000 SGST = ₹10,000 total</li>
+                    <li><strong>NIL Return Cap:</strong> ₹500 CGST + ₹500 SGST = ₹1,000 total</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-medium text-slate-800">Interest (Section 50):</p>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li><strong>Rate:</strong> 18% per annum on outstanding tax</li>
+                    <li><strong>Applies when:</strong> Tax payment is also delayed</li>
+                    <li><strong>Calculation:</strong> (Tax × 18% × Days Late) / 365</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 pt-2 border-t">
+                ⚠️ This is for estimation purposes only. Consult a CA/Tax Professional for official advice. Rules may change.
               </p>
             </CardContent>
           </Card>

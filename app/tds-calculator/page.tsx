@@ -1,25 +1,20 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
 import { Shield, ArrowLeft, Download, CheckCircle, FlaskConical } from 'lucide-react';
 import { usePayment } from '@/lib/hooks/use-payment';
+import { useTDSForm } from '@/lib/hooks/use-tds-form';
 import { TDSFeePreview, captureTDSFeePreviewHTML } from '@/components/documents/tds-fee/tds-fee-preview';
-
-interface CalculationResult {
-  daysLate: number;
-  lateFee: number;
-  riskLevel: 'safe' | 'warning' | 'critical';
-  summary: string;
-}
+import { useState } from 'react';
 
 const PDF_PRICE = 199; // ₹199
 
@@ -27,66 +22,49 @@ const PDF_PRICE = 199; // ₹199
 const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
 
 export default function TDSCalculatorPage() {
-  const [formData, setFormData] = useState({
-    tdsSection: '194J',
-    tdsAmount: '',
-    dueDate: '',
-    filingDate: '',
-  });
+  // Use the TDS form hook (Zod-based validation)
+  const {
+    formData,
+    errors,
+    calculations,
+    handleChange,
+    handleBlur,
+    validateFormFull,
+    shouldShowError,
+    getError,
+    fillTestData,
+    resetForm,
+  } = useTDSForm();
 
-  const [result, setResult] = useState<CalculationResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const { initiatePayment, loading: paymentLoading, error: paymentError } = usePayment();
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setResult(null);
+    setApiError(null);
     setPaymentSuccess(false);
-    setLoading(true);
 
-    if (!formData.tdsAmount || !formData.dueDate || !formData.filingDate) {
-      setError('Please fill all required fields');
-      setLoading(false);
+    // Validate form using Zod schema
+    const { isValid, errors: validationErrors } = validateFormFull();
+    
+    if (!isValid) {
+      // Get first error message to show
+      const firstError = Object.values(validationErrors)[0];
+      if (firstError) {
+        setApiError(firstError);
+      }
       return;
     }
 
-    try {
-      const response = await fetch('/api/tds/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tdsSection: formData.tdsSection,
-          tdsAmount: parseFloat(formData.tdsAmount),
-          dueDate: formData.dueDate,
-          filingDate: formData.filingDate,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Calculation failed');
-      }
-
-      const data: CalculationResult = await response.json();
-      setResult(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
+    // Form is valid - calculations are already available from the hook
+    // No API call needed since calculations are memoized in the hook
   };
 
   const downloadPDF = async () => {
-    if (!result) return;
+    if (!calculations) return;
 
     setDownloadingPDF(true);
     try {
@@ -98,7 +76,7 @@ export default function TDSCalculatorPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           htmlContent,
-          filename: `TDS-Fee-Summary-${formData.tdsSection}-${Date.now()}.pdf`,
+          filename: `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`,
         }),
       });
 
@@ -110,13 +88,13 @@ export default function TDSCalculatorPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `TDS-Fee-Summary-${formData.tdsSection}-${Date.now()}.pdf`;
+      a.download = `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to download PDF');
+      setApiError(err instanceof Error ? err.message : 'Failed to download PDF');
     } finally {
       setDownloadingPDF(false);
     }
@@ -132,7 +110,7 @@ export default function TDSCalculatorPage() {
     initiatePayment({
       amount: PDF_PRICE,
       name: 'TDS Fee Summary',
-      description: `TDS Late Filing Fee Summary - ${formData.tdsSection}`,
+      description: `TDS Late Filing Fee Summary - ${formData.deductionType}`,
       onSuccess: (paymentId) => {
         console.log('Payment successful:', paymentId);
         setPaymentSuccess(true);
@@ -144,15 +122,37 @@ export default function TDSCalculatorPage() {
     });
   };
 
-  // Preview data for the component
-  const previewData = result ? {
-    tdsSection: formData.tdsSection,
+  const handleReset = () => {
+    resetForm();
+    setPaymentSuccess(false);
+    setApiError(null);
+  };
+
+  // Preview data for the component (derived from form data and calculations)
+  const previewData = calculations ? {
+    tdsSection: formData.deductionType,
     tdsAmount: parseFloat(formData.tdsAmount),
     dueDate: formData.dueDate,
     filingDate: formData.filingDate,
-    daysLate: result.daysLate,
-    lateFee: result.lateFee,
+    daysLate: calculations.daysLate,
+    lateFee: calculations.lateFee,
+    interestOnLateDeduction: calculations.interestOnLateDeduction || 0,
+    interestOnLatePayment: calculations.interestOnLatePayment || 0,
+    totalPenalty: calculations.totalPenalty,
   } : null;
+
+  // Map deduction type to display name
+  const getDeductionTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      salary: '192 - Salary',
+      contractor: '194C - Contractor Payments',
+      rent: '194I - Rent',
+      professional: '194J - Professional Fees',
+      commission: '194H - Commission',
+      other: 'Other Sections',
+    };
+    return labels[type] || type;
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -197,26 +197,47 @@ export default function TDSCalculatorPage() {
             <Card className="border-slate-200 bg-white h-fit">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-medium">TDS Details</CardTitle>
-                <CardDescription>Enter your TDS return information</CardDescription>
+                <CardDescription>
+                  Enter your TDS return information
+                  <Button
+                    type="button"
+                    variant="link"
+                    className="ml-2 h-auto p-0 text-xs text-slate-500"
+                    onClick={fillTestData}
+                  >
+                    Fill test data
+                  </Button>
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-5">
-                  {/* TDS Section */}
+                  {/* Deduction Type */}
                   <div className="space-y-2">
-                    <Label htmlFor="tdsSection" className="text-sm font-medium text-slate-700">
+                    <Label htmlFor="deductionType" className="text-sm font-medium text-slate-700">
                       TDS Section
                     </Label>
-                    <Select value={formData.tdsSection} onValueChange={(val) => handleInputChange('tdsSection', val)}>
-                      <SelectTrigger id="tdsSection" className="border-slate-300">
+                    <Select 
+                      value={formData.deductionType} 
+                      onValueChange={(val) => handleChange('deductionType', val)}
+                    >
+                      <SelectTrigger 
+                        id="deductionType" 
+                        className={`border-slate-300 ${shouldShowError('deductionType') ? 'border-red-500' : ''}`}
+                      >
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="194J">194J - Commission/Brokerage</SelectItem>
-                        <SelectItem value="194O">194O - E-commerce Seller</SelectItem>
-                        <SelectItem value="195">195 - Non-resident Income</SelectItem>
+                        <SelectItem value="salary">192 - Salary</SelectItem>
+                        <SelectItem value="contractor">194C - Contractor Payments</SelectItem>
+                        <SelectItem value="commission">194H - Commission/Brokerage</SelectItem>
+                        <SelectItem value="rent">194I - Rent</SelectItem>
+                        <SelectItem value="professional">194J - Professional/Technical Fees</SelectItem>
                         <SelectItem value="other">Other Sections</SelectItem>
                       </SelectContent>
                     </Select>
+                    {shouldShowError('deductionType') && (
+                      <p className="text-xs text-red-500">{getError('deductionType')}</p>
+                    )}
                   </div>
 
                   {/* TDS Amount */}
@@ -228,12 +249,16 @@ export default function TDSCalculatorPage() {
                       id="tdsAmount"
                       type="number"
                       placeholder="50000"
-                      min="0"
+                      min="1"
                       step="0.01"
                       value={formData.tdsAmount}
-                      onChange={(e) => handleInputChange('tdsAmount', e.target.value)}
-                      className="border-slate-300"
+                      onChange={(e) => handleChange('tdsAmount', e.target.value)}
+                      onBlur={() => handleBlur('tdsAmount')}
+                      className={`border-slate-300 ${shouldShowError('tdsAmount') ? 'border-red-500' : ''}`}
                     />
+                    {shouldShowError('tdsAmount') && (
+                      <p className="text-xs text-red-500">{getError('tdsAmount')}</p>
+                    )}
                   </div>
 
                   {/* Due Date */}
@@ -245,9 +270,13 @@ export default function TDSCalculatorPage() {
                       id="dueDate"
                       type="date"
                       value={formData.dueDate}
-                      onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                      className="border-slate-300"
+                      onChange={(e) => handleChange('dueDate', e.target.value)}
+                      onBlur={() => handleBlur('dueDate')}
+                      className={`border-slate-300 ${shouldShowError('dueDate') ? 'border-red-500' : ''}`}
                     />
+                    {shouldShowError('dueDate') && (
+                      <p className="text-xs text-red-500">{getError('dueDate')}</p>
+                    )}
                   </div>
 
                   {/* Filing Date */}
@@ -259,32 +288,63 @@ export default function TDSCalculatorPage() {
                       id="filingDate"
                       type="date"
                       value={formData.filingDate}
-                      onChange={(e) => handleInputChange('filingDate', e.target.value)}
-                      className="border-slate-300"
+                      onChange={(e) => handleChange('filingDate', e.target.value)}
+                      onBlur={() => handleBlur('filingDate')}
+                      className={`border-slate-300 ${shouldShowError('filingDate') ? 'border-red-500' : ''}`}
                     />
+                    {shouldShowError('filingDate') && (
+                      <p className="text-xs text-red-500">{getError('filingDate')}</p>
+                    )}
                   </div>
 
-                  {/* Error */}
-                  {error && (
+                  {/* Deposit Date (optional) */}
+                  <div className="space-y-2">
+                    <Label htmlFor="depositDate" className="text-sm font-medium text-slate-700">
+                      Deposit Date (optional)
+                    </Label>
+                    <Input
+                      id="depositDate"
+                      type="date"
+                      value={formData.depositDate}
+                      onChange={(e) => handleChange('depositDate', e.target.value)}
+                      onBlur={() => handleBlur('depositDate')}
+                      className={`border-slate-300 ${shouldShowError('depositDate') ? 'border-red-500' : ''}`}
+                    />
+                    {shouldShowError('depositDate') && (
+                      <p className="text-xs text-red-500">{getError('depositDate')}</p>
+                    )}
+                  </div>
+
+                  {/* Interest Options */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100">
+                    <p className="text-xs text-slate-500">Additional interest applies if:</p>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="depositedLate"
+                        checked={formData.depositedLate}
+                        onCheckedChange={(checked) => handleChange('depositedLate', checked === true)}
+                      />
+                      <Label htmlFor="depositedLate" className="font-normal text-sm cursor-pointer text-slate-600">
+                        TDS was deposited late (1.5% per month interest)
+                      </Label>
+                    </div>
+                  </div>
+
+                  {/* API/Form Error */}
+                  {(apiError || Object.keys(errors).length > 0) && (
                     <Alert variant="destructive" className="py-2">
-                      <AlertDescription className="text-sm">{error}</AlertDescription>
+                      <AlertDescription className="text-sm">
+                        {apiError || 'Please fix the errors above'}
+                      </AlertDescription>
                     </Alert>
                   )}
 
                   {/* Submit */}
                   <Button
                     type="submit"
-                    disabled={loading}
                     className="w-full bg-slate-800 hover:bg-slate-900"
                   >
-                    {loading ? (
-                      <>
-                        <Spinner className="mr-2 h-4 w-4" />
-                        Calculating...
-                      </>
-                    ) : (
-                      'Calculate Fee'
-                    )}
+                    Calculate Fee
                   </Button>
                 </form>
               </CardContent>
@@ -347,16 +407,7 @@ export default function TDSCalculatorPage() {
                       <Button
                         variant="outline"
                         className="w-full border-slate-300"
-                        onClick={() => {
-                          setResult(null);
-                          setPaymentSuccess(false);
-                          setFormData({
-                            tdsSection: '194J',
-                            tdsAmount: '',
-                            dueDate: '',
-                            filingDate: '',
-                          });
-                        }}
+                        onClick={handleReset}
                       >
                         Calculate Another
                       </Button>
@@ -378,14 +429,29 @@ export default function TDSCalculatorPage() {
           {/* Info Section */}
           <Card className="mt-8 border-slate-200 bg-white">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-900">How is the fee calculated?</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-900">TDS Late Fee & Interest Rules</CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-slate-600 space-y-2">
-              <p>
-                <strong>Late Fee u/s 234E:</strong> ₹200 per day from the due date (maximum ₹5,000)
-              </p>
-              <p className="text-xs text-slate-500 pt-2">
-                Based on Income Tax Act Section 234E. Consult a CA for official advice.
+            <CardContent className="text-sm text-slate-600 space-y-3">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <p className="font-medium text-slate-800">Late Fee (Section 234E):</p>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li><strong>Rate:</strong> ₹200 per day from due date</li>
+                    <li><strong>Maximum Cap:</strong> Cannot exceed TDS amount</li>
+                    <li><strong>Applies to:</strong> Late filing of TDS returns</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <p className="font-medium text-slate-800">Interest (Section 201(1A)):</p>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li><strong>Late Deduction:</strong> 1% per month (or part)</li>
+                    <li><strong>Late Payment:</strong> 1.5% per month (or part)</li>
+                    <li><strong>Calculation:</strong> From date due to date of payment</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 pt-2 border-t">
+                ⚠️ This is for estimation purposes only. Consult a CA/Tax Professional for official advice. Rules may change.
               </p>
             </CardContent>
           </Card>

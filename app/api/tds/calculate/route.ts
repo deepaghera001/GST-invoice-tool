@@ -21,6 +21,8 @@ export async function POST(request: NextRequest) {
       tdsAmount: parseFloat(body.tdsAmount),
       dueDate,
       filingDate,
+      tdsDeductedLate: body.tdsDeductedLate === true || body.tdsDeductedLate === 'true',
+      tdsDepositedLate: body.tdsDepositedLate === true || body.tdsDepositedLate === 'true',
     };
 
     // Validate required fields

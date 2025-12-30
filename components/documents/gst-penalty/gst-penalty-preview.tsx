@@ -19,6 +19,11 @@ interface GSTPenaltyPreviewProps {
     interest: number
     totalPenalty: number
     taxPaidLate: boolean
+    isNilReturn?: boolean
+    breakdown?: {
+      cgstLateFee: number
+      sgstLateFee: number
+    }
   }
 }
 
@@ -113,13 +118,31 @@ export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
               <span className="font-semibold text-slate-900">{data.daysLate} days</span>
             </div>
             <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
-              <span className="text-sm text-slate-600">Late Filing Fee</span>
+              <div>
+                <span className="text-sm text-slate-600">Late Filing Fee</span>
+                {data.breakdown && data.daysLate > 0 && (
+                  <p className="text-xs text-slate-400">
+                    CGST: ₹{data.breakdown.cgstLateFee.toLocaleString('en-IN')} + SGST: ₹{data.breakdown.sgstLateFee.toLocaleString('en-IN')}
+                  </p>
+                )}
+              </div>
               <span className="font-semibold text-slate-900">{formatCurrency(data.lateFee)}</span>
             </div>
-            <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
-              <span className="text-sm text-slate-600">Interest (18% p.a.)</span>
-              <span className="font-semibold text-slate-900">{formatCurrency(data.interest)}</span>
-            </div>
+            {data.taxPaidLate && (
+              <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
+                <div>
+                  <span className="text-sm text-slate-600">Interest (Section 50)</span>
+                  <p className="text-xs text-slate-400">18% p.a. on ₹{data.taxAmount.toLocaleString('en-IN')}</p>
+                </div>
+                <span className="font-semibold text-slate-900">{formatCurrency(data.interest)}</span>
+              </div>
+            )}
+            {!data.taxPaidLate && (
+              <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
+                <span className="text-sm text-slate-600">Interest (18% p.a.)</span>
+                <span className="font-semibold text-slate-500">N/A (Tax paid on time)</span>
+              </div>
+            )}
             <div className="flex justify-between items-center px-4 py-3 bg-slate-800 text-white">
               <span className="font-medium">Total Penalty</span>
               <span className="text-xl font-bold">{formatCurrency(data.totalPenalty)}</span>
@@ -129,8 +152,9 @@ export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
 
         {/* Notes */}
         <div className="text-xs text-slate-500 space-y-1 pt-2 border-t border-slate-200">
-          <p>• Late fee: ₹50/day (CGST) + ₹50/day (SGST) = ₹100/day, max ₹10,000</p>
-          <p>• Interest: 18% per annum on tax amount (if tax paid late)</p>
+          <p>• <strong>Late fee (Section 47):</strong> {data.isNilReturn || data.taxAmount === 0 ? '₹25/day CGST + ₹25/day SGST = ₹50/day (NIL return)' : '₹50/day CGST + ₹50/day SGST = ₹100/day'}</p>
+          <p>• <strong>Maximum cap:</strong> {data.isNilReturn || data.taxAmount === 0 ? '₹500 CGST + ₹500 SGST = ₹1,000' : '₹5,000 CGST + ₹5,000 SGST = ₹10,000'}</p>
+          <p>• <strong>Interest (Section 50):</strong> 18% per annum on outstanding tax (if tax paid late)</p>
           <p>• This is an estimate. Actual penalty may vary based on GST portal calculations.</p>
         </div>
 
