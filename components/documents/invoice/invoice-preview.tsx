@@ -66,14 +66,16 @@ export function InvoicePreview({ calculatedData, errors }: InvoicePreviewProps) 
   )
 
   return (
-    <Card className="sticky top-4" data-testid="invoice-preview">
+    <Card className="sticky top-4">
       <CardHeader className="bg-primary text-primary-foreground">
         <div className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
           <CardTitle className="text-lg">Invoice Preview</CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="p-6 space-y-6">
+      <CardContent className="p-0">
+        {/* PDF Capture Area - only this div is captured for PDF */}
+        <div data-testid="invoice-preview" className="p-6 space-y-6 bg-white">
         {/* Invoice Header */}
         <div className="space-y-1 animate-in fade-in duration-200">
           <h2 className="text-2xl font-bold text-foreground">TAX INVOICE</h2>
@@ -233,6 +235,7 @@ export function InvoicePreview({ calculatedData, errors }: InvoicePreviewProps) 
         <div className="text-sm text-muted-foreground animate-in fade-in duration-200 delay-250">
           Amount in words: {numberToWords(totals.total)} Rupees Only
         </div>
+        </div>{/* End PDF Capture Area */}
       </CardContent>
     </Card>
   )
