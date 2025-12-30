@@ -1,19 +1,29 @@
 /**
  * GST Penalty Calculator
  * 
- * Legal Basis:
- * - CGST Act, 2017: Section 47 (Late Fee) & Section 50 (Interest)
- * - CBIC Notifications for caps and rate changes
+ * LEGAL BASIS (Official Sources):
  * 
- * Official Sources:
- * - https://taxinformation.cbic.gov.in
- * - https://cbic-gst.gov.in
- * - https://www.gst.gov.in
+ * 1. Section 47, CGST Act 2017 - Late Fee:
+ *    "shall pay a late fee of ONE HUNDRED RUPEES for every day"
+ *    Source: https://taxinformation.cbic.gov.in/content/html/tax_repository/gst/acts/2017_CGST_act/active/chapter9/section47_v1.00.html
+ * 
+ * 2. Section 50, CGST Act 2017 - Interest:
+ *    18% per annum on outstanding tax liability
+ * 
+ * 3. Notification 19/2021-Central Tax (01.06.2021) - Caps:
+ *    Reduces MAXIMUM CAP to ₹5,000 (₹2,500 CGST + ₹2,500 SGST)
+ *    Source: https://gstcouncil.gov.in/node/4305
+ * 
+ * 4. Notification 20/2021-Central Tax - GSTR-1 caps
+ * 
+ * RATES APPLIED (per GST Portal enforcement):
+ * - Regular Return: ₹100/day (₹50 CGST + ₹50 SGST), max ₹5,000
+ * - NIL Return: ₹20/day (₹10 CGST + ₹10 SGST), max ₹500
+ * - Interest: 18% p.a. on outstanding tax
  * 
  * DISCLAIMER:
- * Late fee and interest rates are subject to change via government notifications.
- * This calculator follows current CBIC notifications (as of December 2024).
- * Always verify with official GST portal for your specific filing period.
+ * This calculator follows current CBIC notifications. Always verify with
+ * official GST portal (gst.gov.in) for your specific filing period.
  * This tool is for estimation purposes only and should not be used as legal advice.
  */
 
@@ -34,26 +44,29 @@ export interface GSTNotificationConfig {
 }
 
 /**
- * GST Late Fee Configuration as per CBIC Notifications
+ * GST Late Fee Configuration
  * 
- * Current rates (CGST Act Section 47 + Notification 19/2021, 20/2021):
- * - GSTR-3B/GSTR-1 (Regular): ₹100/day total (₹50 CGST + ₹50 SGST), max ₹5,000
- * - GSTR-3B/GSTR-1 (NIL): ₹20/day total (₹10 CGST + ₹10 SGST), max ₹500
- * - GSTR-9 (Annual): ₹200/day total (₹100 CGST + ₹100 SGST), max ₹5,000
+ * SECTION 47, CGST ACT 2017 (Official Text):
+ * "shall pay a late fee of ONE HUNDRED RUPEES for every day"
  * 
- * IMPORTANT: Notification 19/2021 reduced the MAXIMUM CAP (not the daily rate).
- * Daily rate remains ₹100/day as per Section 47. Cap reduced from ₹10,000 to ₹5,000.
+ * This ₹100/day is applied as ₹50 CGST + ₹50 SGST on the GST portal.
+ * Notification 19/2021 reduced the CAP (not the daily rate).
+ * 
+ * Current rates:
+ * - Regular: ₹100/day (₹50+₹50), max ₹5,000 (₹2,500+₹2,500)
+ * - NIL: ₹20/day (₹10+₹10), max ₹500 (₹250+₹250)
+ * - GSTR-9: ₹200/day (₹100+₹100), max ₹5,000 (₹2,500+₹2,500)
  */
 export const GST_LATE_FEE_CONFIG: Record<string, GSTNotificationConfig> = {
   // GSTR-3B - Regular Return (with tax liability)
   'GSTR3B': {
     returnType: 'GSTR-3B',
-    dailyFeeCGST: 50,      // ₹50/day CGST (Section 47)
-    dailyFeeSGST: 50,      // ₹50/day SGST (Section 47)
+    dailyFeeCGST: 50,      // ₹50/day CGST (Section 47: ₹100 total split)
+    dailyFeeSGST: 50,      // ₹50/day SGST (Section 47: ₹100 total split)
     maxCapCGST: 2500,      // Max ₹2,500 CGST (Notification 19/2021)
     maxCapSGST: 2500,      // Max ₹2,500 SGST (Notification 19/2021)
     effectiveFrom: '2021-06-01',
-    notificationRef: 'Section 47 (rate) + Notification 19/2021 (cap)',
+    notificationRef: 'Section 47 CGST Act + Notification 19/2021-CT',
   },
   
   // GSTR-3B - NIL Return (zero tax liability)
