@@ -30,6 +30,7 @@ export function InvoiceForm() {
   // Use the custom hook for form state management
   const {
     formData,
+    setFormData,
     errors,
     calculatedData,
     handleChange,
@@ -412,6 +413,7 @@ export function InvoiceForm() {
               <TaxDetails
                 formData={formData}
                 onChange={handleChange}
+                setFormData={setFormData}
                 isCompleted={true}
               />
             </div>

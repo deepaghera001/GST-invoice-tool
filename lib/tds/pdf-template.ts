@@ -364,7 +364,7 @@ export function generateTDSFeeHTML(data: TDSFeePDFData): string {
     <div class="reference-box">
       <div class="reference-title">Legal Reference</div>
       <div class="reference-text">
-        <strong>Late Filing Fee:</strong> As per Section 234E of the Income Tax Act, a late filing fee of ₹200 per day is charged for delayed filing of TDS returns. The fee is calculated from the due date until the actual date of filing, subject to a maximum cap of ₹5,000. This fee is applicable from Day 1 of the delay (no grace period).
+        <strong>Late Filing Fee (Section 234E):</strong> As per Section 234E of the Income Tax Act, a late filing fee of ₹200 per day is charged for delayed filing of TDS returns. The fee is calculated from the due date until the actual date of filing. <strong>Maximum cap:</strong> Cannot exceed the total TDS amount deducted. This fee is applicable from Day 1 of the delay (no grace period). <strong>Interest (Section 201(1A)):</strong> 1% per month for late deduction, 1.5% per month for late payment.
       </div>
     </div>
     

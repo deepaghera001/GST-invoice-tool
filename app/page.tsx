@@ -19,7 +19,7 @@ const TOOLS = [
     name: "TDS Late Fee Calculator",
     icon: Calculator,
     description: "Calculate late filing fees for TDS returns",
-    features: ["All TDS Sections", "Auto Cap at ₹5,000", "Based on IT Act"],
+    features: ["All TDS Sections", "Cap at TDS Amount", "Section 234E & 201(1A)"],
     href: "/tds-calculator",
   },
   {
@@ -198,14 +198,14 @@ export default function HomePage() {
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-600">Maximum Cap</span>
-                    <span className="font-medium text-slate-900">₹5,000</span>
+                    <span className="font-medium text-slate-900">TDS Amount</span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span className="text-slate-600">Applies from</span>
                     <span className="font-medium text-slate-900">Day 1</span>
                   </div>
                 </div>
-                <p className="text-xs text-slate-500">Based on Income Tax Act Section 206(3)</p>
+                <p className="text-xs text-slate-500">Based on Income Tax Act Section 234E & 201(1A)</p>
                 <Button asChild variant="outline" className="w-full border-slate-300">
                   <Link href="/tds-calculator">Calculate TDS Fee</Link>
                 </Button>
