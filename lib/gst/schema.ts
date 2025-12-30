@@ -1,13 +1,15 @@
 /**
  * GST Calculator Validation Schema (Zod)
  * Runtime validation for GST penalty calculator fields
+ * 
+ * Legal Reference: CGST Act Section 47 (Late Fee) + CBIC Notifications
  */
 
 import { z } from "zod"
 
-// Return Type Schema
-export const ReturnTypeSchema = z.enum(["GSTR1", "GSTR3B"], {
-  errorMap: () => ({ message: "Please select a valid return type (GSTR-1 or GSTR-3B)" }),
+// Return Type Schema - includes GSTR9 (Annual)
+export const ReturnTypeSchema = z.enum(["GSTR1", "GSTR3B", "GSTR9"], {
+  errorMap: () => ({ message: "Please select a valid return type" }),
 })
 
 // Tax Amount Schema (can be 0 for NIL returns)

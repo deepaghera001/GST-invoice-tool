@@ -178,7 +178,7 @@ export default function GSTCalculatorPage() {
               GST Late Fee & Interest Calculator
             </h1>
             <p className="text-slate-600">
-              Based on current GST rules. For estimation purposes.
+              Based on CGST Act Section 47 & 50, Notification 19/2021 & 20/2021. For estimation purposes.
             </p>
           </div>
 
@@ -209,12 +209,16 @@ export default function GSTCalculatorPage() {
                       onValueChange={(val) => handleChange('returnType', val)}
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="GSTR1" id="gstr1" />
-                        <Label htmlFor="gstr1" className="font-normal text-sm cursor-pointer">GSTR-1 (Monthly)</Label>
+                        <RadioGroupItem value="GSTR3B" id="gstr3b" />
+                        <Label htmlFor="gstr3b" className="font-normal text-sm cursor-pointer">GSTR-3B (Monthly/Quarterly)</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="GSTR3B" id="gstr3b" />
-                        <Label htmlFor="gstr3b" className="font-normal text-sm cursor-pointer">GSTR-3B (Quarterly)</Label>
+                        <RadioGroupItem value="GSTR1" id="gstr1" />
+                        <Label htmlFor="gstr1" className="font-normal text-sm cursor-pointer">GSTR-1 (Monthly/Quarterly)</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="GSTR9" id="gstr9" />
+                        <Label htmlFor="gstr9" className="font-normal text-sm cursor-pointer">GSTR-9 (Annual Return)</Label>
                       </div>
                     </RadioGroup>
                     {shouldShowError('returnType') && (
@@ -395,12 +399,12 @@ export default function GSTCalculatorPage() {
             <CardContent className="text-sm text-slate-600 space-y-3">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <p className="font-medium text-slate-800">Late Fee (Section 47):</p>
+                  <p className="font-medium text-slate-800">Late Fee (Section 47 + Notification 19/2021):</p>
                   <ul className="list-disc list-inside space-y-1 text-xs">
                     <li><strong>Regular Return:</strong> ₹50/day CGST + ₹50/day SGST = ₹100/day total</li>
-                    <li><strong>NIL Return:</strong> ₹25/day CGST + ₹25/day SGST = ₹50/day total</li>
-                    <li><strong>Maximum Cap:</strong> ₹5,000 CGST + ₹5,000 SGST = ₹10,000 total</li>
-                    <li><strong>NIL Return Cap:</strong> ₹500 CGST + ₹500 SGST = ₹1,000 total</li>
+                    <li><strong>NIL Return:</strong> ₹10/day CGST + ₹10/day SGST = ₹20/day total</li>
+                    <li><strong>Regular Cap:</strong> ₹2,500 CGST + ₹2,500 SGST = ₹5,000 total</li>
+                    <li><strong>NIL Return Cap:</strong> ₹250 CGST + ₹250 SGST = ₹500 total</li>
                   </ul>
                 </div>
                 <div className="space-y-2">

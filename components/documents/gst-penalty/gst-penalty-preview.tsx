@@ -23,6 +23,13 @@ interface GSTPenaltyPreviewProps {
     breakdown?: {
       cgstLateFee: number
       sgstLateFee: number
+      dailyRate?: number
+      maxCap?: number
+    }
+    legalReference?: {
+      lateFeeSection: string
+      interestSection: string
+      notification: string
     }
   }
 }
@@ -152,10 +159,11 @@ export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
 
         {/* Notes */}
         <div className="text-xs text-slate-500 space-y-1 pt-2 border-t border-slate-200">
-          <p>• <strong>Late fee (Section 47):</strong> {data.isNilReturn || data.taxAmount === 0 ? '₹25/day CGST + ₹25/day SGST = ₹50/day (NIL return)' : '₹50/day CGST + ₹50/day SGST = ₹100/day'}</p>
-          <p>• <strong>Maximum cap:</strong> {data.isNilReturn || data.taxAmount === 0 ? '₹500 CGST + ₹500 SGST = ₹1,000' : '₹5,000 CGST + ₹5,000 SGST = ₹10,000'}</p>
+          <p>• <strong>Late fee (Section 47):</strong> {data.isNilReturn || data.taxAmount === 0 ? '₹10/day CGST + ₹10/day SGST = ₹20/day (NIL return)' : '₹50/day CGST + ₹50/day SGST = ₹100/day'}</p>
+          <p>• <strong>Maximum cap (Notification 19/2021):</strong> {data.isNilReturn || data.taxAmount === 0 ? '₹250 CGST + ₹250 SGST = ₹500' : '₹2,500 CGST + ₹2,500 SGST = ₹5,000'}</p>
           <p>• <strong>Interest (Section 50):</strong> 18% per annum on outstanding tax (if tax paid late)</p>
-          <p>• This is an estimate. Actual penalty may vary based on GST portal calculations.</p>
+          <p>• <strong>Reference:</strong> CGST Act Section 47 (rate) + Notification 19/2021 (cap)</p>
+          <p className="text-slate-400 italic">This is an estimate. Actual penalty may vary based on GST portal calculations.</p>
         </div>
 
         {/* Footer */}
