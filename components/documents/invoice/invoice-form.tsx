@@ -11,7 +11,8 @@ import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useInvoiceForm } from "@/lib/hooks/use-invoice-form"
 import { Button } from "@/components/ui/button"
-import { Loader2, Download } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Download, FlaskConical } from "lucide-react"
 import { SellerDetails } from "./form-sections/seller-details"
 import { BuyerDetails } from "./form-sections/buyer-details"
 import { InvoiceDetails } from "./form-sections/invoice-details"
@@ -21,6 +22,9 @@ import { InvoicePreview } from "./invoice-preview"
 import { useSuggestions } from "@/lib/hooks/use-suggestions"
 import { createPaymentOrder } from "@/lib/actions/payment-actions"
 import { GSTIN_REGEX } from "@/lib/invoice"
+import { TestScenarioSelector, invoiceScenarios, isTestMode } from "@/lib/testing"
+
+const PDF_PRICE = 99 // ₹99
 
 export function InvoiceForm() {
   const { toast } = useToast()
@@ -81,11 +85,8 @@ export function InvoiceForm() {
 
     setIsProcessing(true)
 
-    // Check if we're in development mode
-    const isDevelopment = process.env.NODE_ENV === "development"
-
-    if (isDevelopment) {
-      // In development mode, generate PDF directly without payment
+    // In test mode, generate PDF directly without payment
+    if (isTestMode) {
       try {
         // Capture HTML from preview
         const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
@@ -102,19 +103,19 @@ export function InvoiceForm() {
 
         if (!pdfResponse.ok) {
           const errorText = await pdfResponse.text()
-          console.error("[DEV] PDF generation API error response:", errorText)
+          console.error("[TEST] PDF generation API error response:", errorText)
           throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
         }
 
         const blob = await pdfResponse.blob()
-        downloadPDF(blob, formData.invoiceNumber, "html")
+        downloadPDF(blob, formData.invoiceNumber)
 
         toast({
           title: "Success!",
-          description: "Your invoice has been generated and downloaded (development mode)",
+          description: "Your invoice has been generated and downloaded (test mode)",
         })
       } catch (error) {
-        console.error("[DEV] PDF generation error:", error)
+        console.error("[TEST] PDF generation error:", error)
         toast({
           title: "Error",
           description:
@@ -165,7 +166,7 @@ export function InvoiceForm() {
             }
 
             const blob = await pdfResponse.blob()
-            downloadPDF(blob, formData.invoiceNumber, "html")
+            downloadPDF(blob, formData.invoiceNumber)
 
             toast({
               title: "Success!",
@@ -206,52 +207,6 @@ export function InvoiceForm() {
     }
   }
 
-  // Test HTML PDF generation
-  const handleTestHTMLPDF = async () => {
-    if (process.env.NODE_ENV !== "development") return
-
-    setIsProcessing(true)
-    try {
-      console.log("[DEV] Testing HTML-to-PDF generation with actual DOM capture")
-
-      const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-      const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber)
-
-      const pdfResponse = await fetch("/api/generate-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          htmlContent,
-          filename: `invoice-${formData.invoiceNumber}.pdf`,
-        }),
-      })
-
-      if (!pdfResponse.ok) {
-        const errorText = await pdfResponse.text()
-        console.error("[DEV] HTML PDF generation API error response:", errorText)
-        throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
-      }
-
-      const blob = await pdfResponse.blob()
-      downloadPDF(blob, formData.invoiceNumber, "dom")
-
-      toast({
-        title: "Success!",
-        description: "HTML-to-PDF invoice has been generated and downloaded (development mode)",
-      })
-    } catch (error) {
-      console.error("[DEV] HTML PDF generation error:", error)
-      toast({
-        title: "Error",
-        description:
-          error instanceof Error ? error.message : "Failed to generate HTML PDF. Please try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
   return (
     <>
       <script src="https://checkout.razorpay.com/v1/checkout.js" async />
@@ -259,52 +214,28 @@ export function InvoiceForm() {
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold text-foreground text-balance">Create Your Invoice</h2>
-            <p className="text-muted-foreground text-pretty">
-              Fill in the details below to generate a professional GST-compliant invoice (standard
-              domestic). Preview updates in real-time.
-            </p>
-          </div>
-
-          {/* Test Button for Development */}
-          {process.env.NODE_ENV === "development" && (
-            <div className="p-4 border border-border rounded-lg bg-muted/50">
-              <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-foreground">Development Mode</h3>
-                  <p className="text-sm text-muted-foreground">Quick test with sample data</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    onClick={fillTestData}
-                    variant="secondary"
-                    size="sm"
-                    className="whitespace-nowrap"
-                  >
-                    Fill Test Data
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={handleTestHTMLPDF}
-                    variant="outline"
-                    size="sm"
-                    className="whitespace-nowrap"
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Generating HTML PDF...
-                      </>
-                    ) : (
-                      "Test HTML PDF"
-                    )}
-                  </Button>
-                </div>
-              </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="text-3xl font-bold text-foreground text-balance">Create Your Invoice</h2>
+              {isTestMode && (
+                <Badge variant="outline" className="border-amber-500 text-amber-600 gap-1">
+                  <FlaskConical className="h-3 w-3" />
+                  Test Mode
+                </Badge>
+              )}
             </div>
-          )}
+            <div className="flex items-center gap-3 flex-wrap">
+              <p className="text-muted-foreground text-pretty">
+                Fill in the details below to generate a professional GST-compliant invoice (standard
+                domestic). Preview updates in real-time.
+              </p>
+              {/* Test Scenario Selector - only renders in test mode */}
+              <TestScenarioSelector
+                scenarios={invoiceScenarios}
+                onApply={(data) => setFormData({ ...formData, ...data })}
+                label="Test Scenarios"
+              />
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Pricing Section */}
@@ -316,7 +247,7 @@ export function InvoiceForm() {
 
               <div className="text-center p-8 bg-muted/50 rounded-lg border border-border">
                 <div className="mb-2">
-                  <span className="text-4xl font-bold text-primary">₹99</span>
+                  <span className="text-4xl font-bold text-primary">₹{PDF_PRICE}</span>
                   <span className="text-lg text-muted-foreground ml-2">per invoice</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -413,7 +344,6 @@ export function InvoiceForm() {
               <TaxDetails
                 formData={formData}
                 onChange={handleChange}
-                setFormData={setFormData}
                 isCompleted={true}
               />
             </div>
@@ -433,12 +363,15 @@ export function InvoiceForm() {
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing Payment...
+                    {isTestMode ? 'Generating PDF...' : 'Processing Payment...'}
                   </>
                 ) : (
                   <>
                     <Download className="mr-2 h-4 w-4" />
-                    Pay ₹99 & Download GST Invoice
+                    {isTestMode 
+                      ? 'Download PDF (Test Mode - Free)' 
+                      : `Pay ₹${PDF_PRICE} & Download GST Invoice`
+                    }
                   </>
                 )}
               </Button>
@@ -448,7 +381,10 @@ export function InvoiceForm() {
                 </p>
               )}
               <p className="text-xs text-center text-muted-foreground">
-                Secure payment via Razorpay. Invoice generated instantly after payment.
+                {isTestMode 
+                  ? '⚠️ Test mode enabled - PDF downloads are free'
+                  : 'Secure payment via Razorpay. Invoice generated instantly after payment.'
+                }
               </p>
               <p className="text-xs text-center text-muted-foreground italic">
                 Based on GST Rule 46 invoice requirements for services.
@@ -468,11 +404,11 @@ export function InvoiceForm() {
 /**
  * Helper function to download PDF
  */
-function downloadPDF(blob: Blob, invoiceNumber: string, type: string) {
+function downloadPDF(blob: Blob, invoiceNumber: string) {
   const url = window.URL.createObjectURL(blob)
   const a = document.createElement("a")
   a.href = url
-  a.download = `invoice-${invoiceNumber}-${type}.pdf`
+  a.download = `invoice-${invoiceNumber}.pdf`
   document.body.appendChild(a)
   a.click()
   window.URL.revokeObjectURL(url)

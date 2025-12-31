@@ -14,12 +14,10 @@ import { Shield, ArrowLeft, Download, CheckCircle, FlaskConical } from 'lucide-r
 import { usePayment } from '@/lib/hooks/use-payment';
 import { useTDSForm } from '@/lib/hooks/use-tds-form';
 import { TDSFeePreview, captureTDSFeePreviewHTML } from '@/components/documents/tds-fee/tds-fee-preview';
+import { TestScenarioSelector, tdsScenarios, isTestMode } from '@/lib/testing';
 import { useState } from 'react';
 
 const PDF_PRICE = 199; // ₹199
-
-// Check if test mode is enabled
-const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
 
 export default function TDSCalculatorPage() {
   // Use the TDS form hook (Zod-based validation)
@@ -197,16 +195,18 @@ export default function TDSCalculatorPage() {
             <Card className="border-slate-200 bg-white h-fit">
               <CardHeader className="pb-4">
                 <CardTitle className="text-base font-medium">TDS Details</CardTitle>
-                <CardDescription>
+                <CardDescription className="flex items-center gap-2 flex-wrap">
                   Enter your TDS return information
-                  <Button
-                    type="button"
-                    variant="link"
-                    className="ml-2 h-auto p-0 text-xs text-slate-500"
-                    onClick={fillTestData}
-                  >
-                    Fill test data
-                  </Button>
+                  {/* Test Scenario Selector - only renders in test mode */}
+                  <TestScenarioSelector
+                    scenarios={tdsScenarios}
+                    onApply={(data) => {
+                      Object.entries(data).forEach(([key, value]) => {
+                        handleChange(key, value);
+                      });
+                    }}
+                    label="Test Scenarios"
+                  />
                 </CardDescription>
               </CardHeader>
               <CardContent>

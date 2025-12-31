@@ -10,7 +10,8 @@ import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useRentAgreementForm } from "@/lib/hooks/use-rent-agreement-form"
 import { Button } from "@/components/ui/button"
-import { Loader2, Download, RotateCcw, Sparkles } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Download, RotateCcw, FlaskConical } from "lucide-react"
 import {
   LandlordDetails,
   TenantDetails,
@@ -19,6 +20,9 @@ import {
   Clauses,
 } from "./form-sections"
 import { RentAgreementPreview } from "./rent-agreement-preview"
+import { TestScenarioSelector, rentAgreementScenarios, isTestMode } from "@/lib/testing"
+
+const PDF_PRICE = 149 // ₹149
 
 export function RentAgreementForm() {
   const { toast } = useToast()
@@ -26,6 +30,7 @@ export function RentAgreementForm() {
 
   const {
     formData,
+    setFormData,
     errors,
     calculatedData,
     handleChange,
@@ -120,18 +125,24 @@ export function RentAgreementForm() {
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Form Sections */}
         <div className="space-y-6">
-          {/* Action Buttons */}
+          {/* Test Mode Header */}
+          {isTestMode && (
+            <div className="flex items-center gap-3 flex-wrap">
+              <Badge variant="secondary" className="gap-1">
+                <FlaskConical className="h-3 w-3" />
+                Test Mode
+              </Badge>
+            </div>
+          )}
+
+          {/* Test Scenario Selector */}
+          <TestScenarioSelector
+            scenarios={rentAgreementScenarios}
+            onApply={(data) => setFormData({ ...formData, ...data })}
+          />
+
+          {/* Reset Button */}
           <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={fillTestData}
-              className="gap-2"
-            >
-              <Sparkles className="h-4 w-4" />
-              Fill Sample Data
-            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -202,13 +213,20 @@ export function RentAgreementForm() {
               ) : (
                 <>
                   <Download className="h-4 w-4" />
-                  Download Rent Agreement (PDF)
+                  {isTestMode 
+                    ? "Download Rent Agreement (Test Mode - Free)" 
+                    : `Download Rent Agreement (₹${PDF_PRICE})`}
                 </>
               )}
             </Button>
             {!canSubmit && (
               <p className="text-xs text-muted-foreground text-center mt-2">
                 Please fill all required fields to generate the agreement
+              </p>
+            )}
+            {canSubmit && isTestMode && (
+              <p className="text-xs text-amber-600 text-center mt-2">
+                Test mode - PDF generation is free for testing
               </p>
             )}
           </div>

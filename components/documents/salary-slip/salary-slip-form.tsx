@@ -11,7 +11,8 @@ import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useSalarySlipForm } from "@/lib/hooks/use-salary-slip-form"
 import { Button } from "@/components/ui/button"
-import { Loader2, Download } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Download, FlaskConical } from "lucide-react"
 import { PeriodDetails } from "./form-sections/period-details"
 import { EmployeeDetails } from "./form-sections/employee-details"
 import { CompanyDetails } from "./form-sections/company-details"
@@ -20,6 +21,9 @@ import { Deductions } from "./form-sections/deductions"
 import { BankingDetails } from "./form-sections/banking-details"
 import { SalarySlipPreview } from "./salary-slip-preview"
 import { PAN_REGEX, IFSC_REGEX } from "@/lib/salary-slip"
+import { TestScenarioSelector, salarySlipScenarios, isTestMode } from "@/lib/testing"
+
+const PDF_PRICE = 49 // ₹49
 
 export function SalarySlipForm() {
   const { toast } = useToast()
@@ -36,6 +40,17 @@ export function SalarySlipForm() {
     fillTestData,
     shouldShowError,
   } = useSalarySlipForm()
+
+  // Helper to set entire form data
+  const setFormData = (data: typeof formData) => {
+    Object.entries(data).forEach(([section, values]) => {
+      if (typeof values === 'object') {
+        Object.entries(values).forEach(([field, value]) => {
+          handleChange(`${section}.${field}`, value)
+        })
+      }
+    })
+  }
 
   // Simple wrapper for onChange that extracts field path from event
   const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -79,11 +94,8 @@ export function SalarySlipForm() {
 
     setIsProcessing(true)
 
-    // Check if we're in development mode
-    const isDevelopment = process.env.NODE_ENV === "development"
-
-    if (isDevelopment) {
-      // In development mode, generate PDF directly without payment
+    // In test mode, generate PDF directly without payment
+    if (isTestMode) {
       try {
         // Capture HTML from preview
         const { captureSalarySlipPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
@@ -100,19 +112,19 @@ export function SalarySlipForm() {
 
         if (!pdfResponse.ok) {
           const errorText = await pdfResponse.text()
-          console.error("[DEV] PDF generation API error response:", errorText)
+          console.error("[TEST] PDF generation API error response:", errorText)
           throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
         }
 
         const blob = await pdfResponse.blob()
-        downloadPDF(blob, formData.employee.employeeId, "html")
+        downloadPDF(blob, formData.employee.employeeId)
 
         toast({
           title: "Success!",
-          description: "Your salary slip has been generated and downloaded (development mode)",
+          description: "Your salary slip has been generated and downloaded (test mode)",
         })
       } catch (error) {
-        console.error("[DEV] PDF generation error:", error)
+        console.error("[TEST] PDF generation error:", error)
         toast({
           title: "Error",
           description:
@@ -128,7 +140,7 @@ export function SalarySlipForm() {
     // Production mode would handle payment here
     toast({
       title: "Coming Soon",
-      description: "Payment integration coming soon. Use development mode to test.",
+      description: "Payment integration coming soon. Enable test mode to test.",
       variant: "default",
     })
     setIsProcessing(false)
@@ -140,32 +152,27 @@ export function SalarySlipForm() {
         {/* Left Column: Form */}
         <div className="space-y-6">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold text-foreground text-balance">Create Your Salary Slip</h2>
-            <p className="text-muted-foreground text-pretty">
-              Fill in the details below to generate a professional salary slip. Preview updates in real-time.
-            </p>
-          </div>
-
-          {/* Test Button for Development */}
-          {process.env.NODE_ENV === "development" && (
-            <div className="p-4 border border-border rounded-lg bg-muted/50">
-              <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-foreground">Development Mode</h3>
-                  <p className="text-sm text-muted-foreground">Quick test with sample data</p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={fillTestData}
-                  variant="secondary"
-                  size="sm"
-                  className="whitespace-nowrap"
-                >
-                  Fill Test Data
-                </Button>
-              </div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="text-3xl font-bold text-foreground text-balance">Create Your Salary Slip</h2>
+              {isTestMode && (
+                <Badge variant="outline" className="border-amber-500 text-amber-600 gap-1">
+                  <FlaskConical className="h-3 w-3" />
+                  Test Mode
+                </Badge>
+              )}
             </div>
-          )}
+            <div className="flex items-center gap-3 flex-wrap">
+              <p className="text-muted-foreground text-pretty">
+                Fill in the details below to generate a professional salary slip. Preview updates in real-time.
+              </p>
+              {/* Test Scenario Selector - only renders in test mode */}
+              <TestScenarioSelector
+                scenarios={salarySlipScenarios}
+                onApply={(data) => setFormData({ ...formData, ...data } as typeof formData)}
+                label="Test Scenarios"
+              />
+            </div>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Pricing Section */}
@@ -177,7 +184,7 @@ export function SalarySlipForm() {
 
               <div className="text-center p-8 bg-muted/50 rounded-lg border border-border">
                 <div className="mb-2">
-                  <span className="text-4xl font-bold text-primary">₹49</span>
+                  <span className="text-4xl font-bold text-primary">₹{PDF_PRICE}</span>
                   <span className="text-lg text-muted-foreground ml-2">per salary slip</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">One-time payment. No subscription. Instant download.</p>
@@ -200,7 +207,7 @@ export function SalarySlipForm() {
               <div className="text-center pt-2">
                 <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
                   <span className="h-4 w-4 flex items-center justify-center">🔒</span>
-                  Secure payment via Razorpay • Instant PDF generation
+                  {isTestMode ? 'Test mode - PDF downloads are free' : 'Secure payment via Razorpay • Instant PDF generation'}
                 </p>
               </div>
             </div>
@@ -308,12 +315,15 @@ export function SalarySlipForm() {
                 {isProcessing ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing Payment...
+                    {isTestMode ? 'Generating PDF...' : 'Processing Payment...'}
                   </>
                 ) : (
                   <>
                     <Download className="mr-2 h-4 w-4" />
-                    Pay ₹49 & Download Salary Slip
+                    {isTestMode 
+                      ? 'Download PDF (Test Mode - Free)' 
+                      : `Pay ₹${PDF_PRICE} & Download Salary Slip`
+                    }
                   </>
                 )}
               </Button>
@@ -323,7 +333,10 @@ export function SalarySlipForm() {
                 </p>
               )}
               <p className="text-xs text-center text-muted-foreground">
-                Secure payment via Razorpay. Salary slip generated instantly after payment.
+                {isTestMode 
+                  ? '⚠️ Test mode enabled - PDF downloads are free'
+                  : 'Secure payment via Razorpay. Salary slip generated instantly after payment.'
+                }
               </p>
             </div>
           </form>
@@ -341,11 +354,11 @@ export function SalarySlipForm() {
 /**
  * Helper function to download PDF
  */
-function downloadPDF(blob: Blob, employeeId: string, type: string) {
+function downloadPDF(blob: Blob, employeeId: string) {
   const url = window.URL.createObjectURL(blob)
   const a = document.createElement("a")
   a.href = url
-  a.download = `salary-slip-${employeeId}-${type}.pdf`
+  a.download = `salary-slip-${employeeId}.pdf`
   document.body.appendChild(a)
   a.click()
   window.URL.revokeObjectURL(url)
