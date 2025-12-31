@@ -41,6 +41,7 @@ export function RentAgreementForm() {
     shouldShowError,
     resetForm,
     fillTestData,
+    isSectionComplete,
   } = useRentAgreementForm()
 
   // Check if minimum required fields are filled
@@ -161,6 +162,7 @@ export function RentAgreementForm() {
             onBlur={handleBlur}
             errors={errors}
             shouldShowError={shouldShowError}
+            isCompleted={isSectionComplete.landlord}
           />
 
           <TenantDetails
@@ -169,6 +171,7 @@ export function RentAgreementForm() {
             onBlur={handleBlur}
             errors={errors}
             shouldShowError={shouldShowError}
+            isCompleted={isSectionComplete.tenant}
           />
 
           <PropertyDetails
@@ -178,6 +181,7 @@ export function RentAgreementForm() {
             onCheckboxChange={handleCheckboxChange}
             errors={errors}
             shouldShowError={shouldShowError}
+            isCompleted={isSectionComplete.property}
           />
 
           <RentTerms
@@ -187,6 +191,7 @@ export function RentAgreementForm() {
             onCheckboxChange={handleCheckboxChange}
             errors={errors}
             shouldShowError={shouldShowError}
+            isCompleted={isSectionComplete.rentTerms}
           />
 
           <Clauses
@@ -195,6 +200,7 @@ export function RentAgreementForm() {
             onCheckboxChange={handleCheckboxChange}
             errors={errors}
             shouldShowError={shouldShowError}
+            isCompleted={isSectionComplete.clauses}
           />
 
           {/* Submit Button */}

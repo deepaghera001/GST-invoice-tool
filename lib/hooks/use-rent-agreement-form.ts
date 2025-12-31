@@ -18,6 +18,13 @@ import {
   DEFAULT_RENT_AGREEMENT_DATA,
 } from "@/lib/rent-agreement"
 
+// Extract section schemas from the main schema for section-level validation
+const landlordSchema = rentAgreementSchema.shape.landlord
+const tenantSchema = rentAgreementSchema.shape.tenant
+const propertySchema = rentAgreementSchema.shape.property
+const rentTermsSchema = rentAgreementSchema.shape.rentTerms
+const clausesSchema = rentAgreementSchema.shape.clauses
+
 interface UseRentAgreementFormReturn {
   // State
   formData: RentAgreementFormData
@@ -39,6 +46,15 @@ interface UseRentAgreementFormReturn {
   validateForm: () => { isValid: boolean; errors: RentAgreementValidationErrors }
   markFieldTouched: (fieldPath: string) => void
   clearErrors: () => void
+
+  // Section completion checks (using Zod)
+  isSectionComplete: {
+    landlord: boolean
+    tenant: boolean
+    property: boolean
+    rentTerms: boolean
+    clauses: boolean
+  }
 
   // Query methods
   shouldShowError: (fieldPath: string) => boolean
@@ -90,6 +106,15 @@ export function useRentAgreementForm(): UseRentAgreementFormReturn {
       calculations,
     }
   }, [formData])
+
+  // Section completion checks using Zod validation
+  const isSectionComplete = useMemo(() => ({
+    landlord: landlordSchema.safeParse(formData.landlord).success,
+    tenant: tenantSchema.safeParse(formData.tenant).success,
+    property: propertySchema.safeParse(formData.property).success,
+    rentTerms: rentTermsSchema.safeParse(formData.rentTerms).success,
+    clauses: clausesSchema.safeParse(formData.clauses).success,
+  }), [formData])
 
   /**
    * Set a nested value in form data
@@ -362,6 +387,9 @@ export function useRentAgreementForm(): UseRentAgreementFormReturn {
     validateForm,
     markFieldTouched,
     clearErrors,
+
+    // Section completion (Zod-based)
+    isSectionComplete,
 
     // Query methods
     shouldShowError,
