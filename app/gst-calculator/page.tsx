@@ -143,15 +143,18 @@ export default function GSTCalculatorPage() {
   } : null;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white">
+      <header className="border-b border-slate-200 bg-white sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <div className="p-2 bg-slate-800 rounded-lg">
               <Shield className="h-5 w-5 text-white" />
             </div>
-            <span className="text-lg font-semibold text-slate-900">ComplianceKit</span>
+            <div>
+              <span className="text-lg font-semibold text-slate-900">ComplianceKit</span>
+              <p className="text-xs text-slate-500">Documents & Compliance Tools</p>
+            </div>
           </Link>
           <div className="flex items-center gap-3">
             {isTestMode && (
@@ -423,6 +426,25 @@ export default function GSTCalculatorPage() {
           </Card>
         </div>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-white mt-auto">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-slate-500 text-center md:text-left">
+              © 2025 ComplianceKit. Free GST penalty calculator for Indian businesses.
+            </p>
+            <div className="flex items-center gap-2 text-sm text-slate-500">
+              <span>Free Tool</span>
+            </div>
+          </div>
+          <div className="mt-4 text-center">
+            <p className="text-xs text-slate-400">
+              Calculations are for estimation purposes only. Consult a CA for official advice.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

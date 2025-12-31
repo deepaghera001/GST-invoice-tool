@@ -30,14 +30,8 @@ export default function RentAgreementPage() {
       </header>
 
       {/* Main Content */}
-      <section className="py-12 md:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Rent Agreement Generator</h2>
-            <p className="text-muted-foreground">
-              Create a legally formatted rent agreement for residential properties in India
-            </p>
-          </div>
           <RentAgreementForm />
         </div>
       </section>

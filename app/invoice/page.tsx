@@ -15,8 +15,8 @@ export default function InvoicePage() {
                 <FileText className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">DocGen</h1>
-                <p className="text-xs text-muted-foreground">Professional Documents for India</p>
+                <h1 className="text-xl font-bold text-foreground">ComplianceKit</h1>
+                <p className="text-xs text-muted-foreground">Documents & Compliance Tools</p>
               </div>
             </Link>
             <Button variant="ghost" size="sm" asChild>
@@ -30,12 +30,8 @@ export default function InvoicePage() {
       </header>
 
       {/* Invoice Section */}
-      <section className="py-12 md:py-16">
+      <section className="py-8 md:py-12">
         <div className="container mx-auto px-4">
-          <div className="mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2">Create Invoice</h2>
-            <p className="text-muted-foreground">Fill in the details below to generate your GST-compliant invoice</p>
-          </div>
           <InvoiceForm />
         </div>
       </section>
@@ -45,7 +41,7 @@ export default function InvoicePage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground text-center md:text-left">
-              © 2025 InvoiceGen. Made for Indian freelancers who don't want GST mistakes.
+              © 2025 ComplianceKit. Professional invoices for Indian businesses.
             </p>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <span>Secure & Compliant</span>

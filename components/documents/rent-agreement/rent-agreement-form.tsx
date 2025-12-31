@@ -126,21 +126,66 @@ export function RentAgreementForm() {
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Form Sections */}
         <div className="space-y-6">
-          {/* Test Mode Header */}
-          {isTestMode && (
+          {/* Header with Test Mode */}
+          <div className="space-y-2">
             <div className="flex items-center gap-3 flex-wrap">
-              <Badge variant="secondary" className="gap-1">
-                <FlaskConical className="h-3 w-3" />
-                Test Mode
-              </Badge>
+              <h2 className="text-2xl font-bold text-foreground">Create Your Rent Agreement</h2>
+              {isTestMode && (
+                <Badge variant="outline" className="border-amber-500 text-amber-600 gap-1">
+                  <FlaskConical className="h-3 w-3" />
+                  Test Mode
+                </Badge>
+              )}
             </div>
-          )}
+            <div className="flex items-center gap-3 flex-wrap">
+              <p className="text-muted-foreground text-pretty">
+                Fill in the details below to generate a legally formatted rent agreement. Preview updates in real-time.
+              </p>
+              {/* Test Scenario Selector - only renders in test mode */}
+              <TestScenarioSelector
+                scenarios={rentAgreementScenarios}
+                onApply={(data) => setFormData({ ...formData, ...data })}
+                label="Test Scenarios"
+              />
+            </div>
+          </div>
 
-          {/* Test Scenario Selector */}
-          <TestScenarioSelector
-            scenarios={rentAgreementScenarios}
-            onApply={(data) => setFormData({ ...formData, ...data })}
-          />
+          {/* Pricing Section */}
+          <div className="space-y-6 p-6 border border-border rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-foreground mb-2">Pricing</h3>
+              <p className="text-sm text-muted-foreground">One agreement. One price.</p>
+            </div>
+
+            <div className="text-center p-8 bg-muted/50 rounded-lg border border-border">
+              <div className="mb-2">
+                <span className="text-4xl font-bold text-primary">₹{PDF_PRICE}</span>
+                <span className="text-lg text-muted-foreground ml-2">per agreement</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">One-time payment. No subscription. Instant download.</p>
+              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground flex-wrap">
+                <div className="flex items-center gap-1">
+                  <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
+                  <span>Legal Format</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
+                  <span>All Indian States</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
+                  <span>Standard Clauses</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center pt-2">
+              <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
+                <span className="h-4 w-4 flex items-center justify-center">🔒</span>
+                {isTestMode ? 'Test mode - PDF downloads are free' : 'Secure payment via Razorpay • Instant PDF generation'}
+              </p>
+            </div>
+          </div>
 
           {/* Reset Button */}
           <div className="flex items-center gap-2">
@@ -152,7 +197,7 @@ export function RentAgreementForm() {
               className="gap-2"
             >
               <RotateCcw className="h-4 w-4" />
-              Reset
+              Reset Form
             </Button>
           </div>
 
@@ -204,37 +249,45 @@ export function RentAgreementForm() {
           />
 
           {/* Submit Button */}
-          <div className="pt-4">
+          <div className="flex flex-col gap-3 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="text-center py-2">
+              <p className="text-sm font-medium text-primary">Create a legally formatted agreement in minutes</p>
+            </div>
+
             <Button
               type="submit"
               size="lg"
-              className="w-full gap-2"
+              className="w-full text-base"
               disabled={!canSubmit || isProcessing}
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating Agreement...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {isTestMode ? 'Generating PDF...' : 'Processing Payment...'}
                 </>
               ) : (
                 <>
-                  <Download className="h-4 w-4" />
+                  <Download className="mr-2 h-4 w-4" />
                   {isTestMode 
-                    ? "Download Rent Agreement (Test Mode - Free)" 
-                    : `Download Rent Agreement (₹${PDF_PRICE})`}
+                    ? "Download PDF (Test Mode - Free)" 
+                    : `Pay ₹${PDF_PRICE} & Download Agreement`}
                 </>
               )}
             </Button>
-            {!canSubmit && (
-              <p className="text-xs text-muted-foreground text-center mt-2">
-                Please fill all required fields to generate the agreement
+            {!canSubmit && !isProcessing && (
+              <p className="text-xs text-center text-destructive">
+                Please fill in all required fields with valid data to continue
               </p>
             )}
-            {canSubmit && isTestMode && (
-              <p className="text-xs text-amber-600 text-center mt-2">
-                Test mode - PDF generation is free for testing
-              </p>
-            )}
+            <p className="text-xs text-center text-muted-foreground">
+              {isTestMode 
+                ? '⚠️ Test mode enabled - PDF downloads are free'
+                : 'Secure payment via Razorpay. Agreement generated instantly after payment.'
+              }
+            </p>
+            <p className="text-xs text-center text-muted-foreground italic">
+              Ready for stamp paper registration as per your state requirements.
+            </p>
           </div>
         </div>
 
