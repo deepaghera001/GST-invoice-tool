@@ -344,6 +344,7 @@ export function InvoiceForm() {
               <TaxDetails
                 formData={formData}
                 onChange={handleChange}
+                setFormData={setFormData}
                 isCompleted={true}
               />
             </div>

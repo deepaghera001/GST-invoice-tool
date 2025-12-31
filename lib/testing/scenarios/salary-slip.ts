@@ -14,7 +14,7 @@ const VALID_BASE: SalarySlipFormData = {
   },
   employee: {
     employeeName: "Rahul Verma",
-    employeeId: "EMP-2024-001",
+    employeeId: "EMP2024001", // Must be 3-10 uppercase alphanumeric chars only
     designation: "Senior Software Engineer",
     department: "Engineering",
     panNumber: "ABCDE1234F",
