@@ -1,21 +1,9 @@
 "use client"
 
-import { useState, useCallback, useMemo } from "react"
-import { SuggestionProvider, type Suggestion } from "@/lib/invoice/providers"
+import { useCallback, useMemo } from "react"
+import { SuggestionProvider } from "@/lib/invoice/providers"
 
 export function useSuggestions() {
-  const [hsnSuggestions, setHsnSuggestions] = useState<Suggestion[]>([])
-
-  const searchHSN = useCallback((query: string) => {
-    const suggestions = SuggestionProvider.getHSNSuggestions(query)
-    setHsnSuggestions(suggestions)
-    return suggestions
-  }, [])
-
-  const getGSTRateForHSN = useCallback((hsnCode: string) => {
-    return SuggestionProvider.getGSTRateSuggestion(hsnCode)
-  }, [])
-
   const analyzeGSTIN = useCallback((gstin: string) => {
     return SuggestionProvider.analyzeGSTIN(gstin)
   }, [])
@@ -37,11 +25,6 @@ export function useSuggestions() {
   }, [])
 
   return {
-    // HSN
-    hsnSuggestions,
-    searchHSN,
-    getGSTRateForHSN,
-
     // GSTIN
     analyzeGSTIN,
     extractPAN,

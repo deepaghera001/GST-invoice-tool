@@ -6,8 +6,12 @@
 /** GSTIN validation regex pattern */
 export const GSTIN_REGEX = /^\d{2}[A-Z]{5}\d{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/
 
-/** SAC (Service Accounting Code) validation regex pattern */
-export const SAC_REGEX = /^\d{6}$/
+/** HSN/SAC (Harmonized System of Nomenclature / Service Accounting Code) validation regex pattern */
+/** HSN codes: 4, 6, or 8 digits | SAC codes: 6 digits */
+export const HSN_SAC_REGEX = /^\d{4,8}$/
+
+/** @deprecated Use HSN_SAC_REGEX instead */
+export const SAC_REGEX = HSN_SAC_REGEX
 
 /** Invoice number validation regex pattern */
 export const INVOICE_NUMBER_REGEX = /^[A-Z0-9\-/]+$/i

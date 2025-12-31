@@ -3,5 +3,5 @@
  */
 
 export * from "./gstin-states"
-export * from "./common-hsn-codes"
+export * from "./hsn-sac-codes"
 export * from "./invoice-templates"

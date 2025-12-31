@@ -1,24 +1,20 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect } from "react"
 import { FormSection, type FormFieldConfig } from "@/components/shared/form-section"
-import { Button } from "@/components/ui/button"
-import type { useSuggestions } from "@/lib/hooks/use-suggestions"
-import { Search } from "lucide-react"
 import { Package } from "lucide-react"
 import type { InvoiceData, InvoiceValidationErrors } from "@/lib/invoice"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { HSNSACSearch } from "@/components/ui/hsn-sac-search"
+import type { HSNCode } from "@/lib/invoice/data/hsn-sac-codes"
 
 const ITEM_FIELDS: FormFieldConfig[] = [
   {
     name: "itemDescription",
-    label: "Item Description",
+    label: "Item/Service Description",
     type: "textarea",
-    placeholder: "Describe the product or service",
+    placeholder: "e.g., Web development services for March 2025",
     required: true,
-    colSpan: "full", // Full width textarea
+    colSpan: "full",
   },
   {
     name: "quantity",
@@ -26,26 +22,26 @@ const ITEM_FIELDS: FormFieldConfig[] = [
     type: "number",
     placeholder: "1",
     required: true,
-    colSpan: "third", // 1/3 width - number field doesn't need full space
+    colSpan: "third",
     min: 0.01,
     step: 0.01,
   },
   {
-    name: "unitPrice",
+    name: "rate",
     label: "Unit Price (₹)",
     type: "number",
     placeholder: "0.00",
     required: true,
-    colSpan: "third", // 1/3 width
+    colSpan: "third",
     min: 0,
     step: 0.01,
   },
   {
     name: "hsnCode",
-    label: "HSN Code",
-    placeholder: "Enter or search HSN code",
+    label: "HSN/SAC Code",
+    placeholder: "e.g., 998314",
     required: false,
-    colSpan: "third", // 1/3 width
+    colSpan: "third",
     maxLength: 8,
   },
 ]
@@ -56,7 +52,6 @@ interface ItemDetailsProps {
   onBlur?: (fieldName: string, value: any) => void
   errors?: InvoiceValidationErrors
   shouldShowError?: (fieldName: string) => boolean
-  suggestions?: ReturnType<typeof useSuggestions>
   setFormData?: React.Dispatch<React.SetStateAction<InvoiceData>>
   isCompleted?: boolean
 }
@@ -67,36 +62,27 @@ export function ItemDetails({
   onBlur,
   errors = {},
   shouldShowError = () => false,
-  suggestions,
   setFormData,
   isCompleted,
 }: ItemDetailsProps) {
-  const [hsnSearchOpen, setHsnSearchOpen] = useState(false)
-  const [hsnSearchQuery, setHsnSearchQuery] = useState("")
 
-  useEffect(() => {
-    if (hsnSearchQuery && suggestions) {
-      suggestions.searchHSN(hsnSearchQuery)
-    }
-  }, [hsnSearchQuery, suggestions])
-
-  const handleHSNSelect = (hsnCode: string, metadata?: any) => {
+  const handleHSNSelect = (code: string, gstRate: number | null, codeDetails: HSNCode) => {
+    // Update HSN code field
     const event = {
-      target: { name: "hsnCode", value: hsnCode },
+      target: { name: "hsnCode", value: code },
     } as React.ChangeEvent<HTMLInputElement>
     onChange(event)
 
-    if (metadata?.gstRate && setFormData) {
-      const halfRate = (metadata.gstRate / 2).toString()
+    // Auto-fill GST rate if available (SAC codes only)
+    if (gstRate && setFormData) {
+      const halfRate = (gstRate / 2).toString()
       setFormData((prev) => ({
         ...prev,
-        hsnCode,
+        hsnCode: code,
         cgst: halfRate,
         sgst: halfRate,
       }))
     }
-
-    setHsnSearchOpen(false)
   }
 
   return (
@@ -110,51 +96,14 @@ export function ItemDetails({
       onBlur={onBlur}
       shouldShowError={shouldShowError}
       isCompleted={isCompleted}
-      layout={{ columns: 3, gap: 16 }} // 3-column layout: description full-width, quantity/price/hsn 1/3 each
+      layout={{ columns: 3, gap: 16 }}
     >
-      {/* HSN Search Dropdown */}
-      {suggestions && (
-        <Popover open={hsnSearchOpen} onOpenChange={setHsnSearchOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full mt-2"
-            >
-              <Search className="h-4 w-4 mr-2" />
-              Search HSN Code
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-full p-0">
-            <Command>
-              <CommandInput
-                placeholder="Search HSN code..."
-                value={hsnSearchQuery}
-                onValueChange={setHsnSearchQuery}
-              />
-              <CommandEmpty>No HSN codes found.</CommandEmpty>
-              <CommandGroup>
-                <CommandList>
-                  {suggestions?.hsnSuggestions.map((suggestion) => (
-                    <CommandItem
-                      key={suggestion.value}
-                      value={suggestion.value}
-                      onSelect={() => handleHSNSelect(suggestion.value, suggestion.metadata)}
-                    >
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{suggestion.value}</span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">{suggestion.metadata?.description}</span>
-                      </div>
-                    </CommandItem>
-                  ))}
-                </CommandList>
-              </CommandGroup>
-            </Command>
-          </PopoverContent>
-        </Popover>
-      )}
+      {/* HSN/SAC Code Search Component */}
+      <HSNSACSearch
+        value={formData.hsnCode}
+        onSelect={handleHSNSelect}
+        placeholder="Search HSN/SAC Code (Auto-fills GST for services)"
+      />
     </FormSection>
   )
 }

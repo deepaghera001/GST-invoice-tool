@@ -90,7 +90,7 @@ const baseInvoiceSchema = z.object({
 
   hsnCode: z
     .string()
-    .regex(SAC_REGEX, "SAC must be exactly 6 digits")
+    .regex(SAC_REGEX, "HSN/SAC code must be 4-8 digits")
     .optional()
     .or(z.literal("")),
 

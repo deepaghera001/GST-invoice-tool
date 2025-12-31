@@ -175,43 +175,6 @@ export function SalarySlipForm() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Pricing Section */}
-            <div className="space-y-6 p-6 border border-border rounded-xl bg-card shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="text-center">
-                <h3 className="text-xl font-bold text-foreground mb-2">Pricing</h3>
-                <p className="text-sm text-muted-foreground">One salary slip. One price.</p>
-              </div>
-
-              <div className="text-center p-8 bg-muted/50 rounded-lg border border-border">
-                <div className="mb-2">
-                  <span className="text-4xl font-bold text-primary">₹{PDF_PRICE}</span>
-                  <span className="text-lg text-muted-foreground ml-2">per salary slip</span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-4">One-time payment. No subscription. Instant download.</p>
-                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground flex-wrap">
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
-                    <span>Professional Format</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
-                    <span>Auto Calculations</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="h-3 w-3 text-green-500 flex-shrink-0">✓</div>
-                    <span>Secure Payment</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-center pt-2">
-                <p className="text-sm text-muted-foreground flex items-center justify-center gap-1">
-                  <span className="h-4 w-4 flex items-center justify-center">🔒</span>
-                  {isTestMode ? 'Test mode - PDF downloads are free' : 'Secure payment via Razorpay • Instant PDF generation'}
-                </p>
-              </div>
-            </div>
-
             {/* Form Sections */}
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-75">
               <PeriodDetails

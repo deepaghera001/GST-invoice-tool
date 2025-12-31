@@ -31,7 +31,7 @@ interface UseInvoiceFormReturn {
   calculatedData: InvoiceCalculatedData
 
   // Form control methods
-  setFormData: (data: InvoiceData) => void
+  setFormData: React.Dispatch<React.SetStateAction<InvoiceData>>
   setFieldValue: (fieldName: string, value: any) => void
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   handleBlur: (fieldName: string, value?: any) => void

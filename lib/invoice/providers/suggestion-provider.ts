@@ -1,9 +1,8 @@
 /**
  * Suggestion Provider
- * Provides HSN, GSTIN, and invoice-related suggestions
+ * Provides GSTIN and invoice-related suggestions
  */
 
-import { searchHSNCodes, getGSTRateForHSN } from "../data/common-hsn-codes"
 import { gstinStates, getStateFromGSTIN } from "../data/gstin-states"
 import { invoiceTemplates, generateInvoiceNumber } from "../data/invoice-templates"
 
@@ -14,29 +13,6 @@ export interface Suggestion {
 }
 
 export class SuggestionProvider {
-  /**
-   * Get HSN code suggestions based on search query
-   */
-  static getHSNSuggestions(query: string): Suggestion[] {
-    const results = searchHSNCodes(query)
-    return results.map((hsn) => ({
-      value: hsn.code,
-      label: `${hsn.code} - ${hsn.description} (${hsn.gstRate}% GST)`,
-      metadata: { gstRate: hsn.gstRate, description: hsn.description },
-    }))
-  }
-
-  /**
-   * Get GST rate suggestion based on HSN code
-   */
-  static getGSTRateSuggestion(hsnCode: string): { cgst: string; sgst: string } | null {
-    const gstRate = getGSTRateForHSN(hsnCode)
-    if (!gstRate) return null
-
-    const halfRate = (gstRate / 2).toString()
-    return { cgst: halfRate, sgst: halfRate }
-  }
-
   /**
    * Get state name from GSTIN
    */
