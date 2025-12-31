@@ -5,9 +5,9 @@
 
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { FileText, AlertTriangle } from "lucide-react"
+import { PreviewWrapper } from "../shared/preview-wrapper"
 import type { RentAgreementCalculatedData } from "@/lib/rent-agreement"
 import { 
   formatAgreementDate, 
@@ -62,14 +62,7 @@ export function RentAgreementPreview({ calculatedData }: RentAgreementPreviewPro
   const documentId = `RA-${Date.now().toString(36).toUpperCase().slice(-8)}`
 
   return (
-    <Card className="sticky top-4 overflow-hidden">
-      <CardHeader className="bg-primary text-primary-foreground py-3">
-        <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          <CardTitle className="text-lg">Agreement Preview</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="p-0 max-h-[calc(100vh-200px)] overflow-y-auto">
+    <PreviewWrapper className="overflow-hidden" title="Agreement Preview" icon={<FileText className="h-5 w-5" />} previewId="rent-agreement-preview" dataTestId="rent-agreement-preview" pdfContentId="rent-agreement-pdf-content">
         {/* LEGAL DOCUMENT - This is what gets captured for PDF */}
         <div data-testid="rent-agreement-preview" className="p-6 space-y-5 text-sm bg-white">
           {/* Title */}
@@ -356,7 +349,6 @@ export function RentAgreementPreview({ calculatedData }: RentAgreementPreviewPro
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+    </PreviewWrapper>
   )
 }

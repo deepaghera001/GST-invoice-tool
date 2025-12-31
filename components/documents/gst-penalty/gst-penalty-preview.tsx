@@ -10,7 +10,7 @@
 
 "use client"
 
-import { Card } from "@/components/ui/card"
+import { PreviewWrapper } from "../shared/preview-wrapper"
 
 interface GSTPenaltyPreviewProps {
   data: {
@@ -68,11 +68,7 @@ export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
   const cardClass = "border border-slate-200 bg-white overflow-hidden rounded-none"
 
   return (
-    <Card 
-      className={cardClass}
-      data-testid="gst-penalty-preview"
-      id="gst-penalty-preview"
-    >
+    <PreviewWrapper className={cardClass} previewId="gst-penalty-preview" dataTestId="gst-penalty-preview" pdfContentId="gst-penalty-pdf-content">
       {/* Header */}
       <div className="bg-slate-800 text-white px-6 py-4">
         <div className="flex items-center justify-between">
@@ -180,7 +176,7 @@ export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
           <p className="text-xs text-slate-400">www.compliancekit.in</p>
         </div>
       </div>
-    </Card>
+    </PreviewWrapper>
   )
 }
 
@@ -189,9 +185,9 @@ export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
  * Uses the same approach as invoice for consistent PDF output
  */
 export function captureGSTPenaltyPreviewHTML(): string {
-  const previewElement = document.getElementById('gst-penalty-preview')
+  const previewElement = document.getElementById('gst-penalty-pdf-content')
   if (!previewElement) {
-    throw new Error('GST Penalty preview element not found')
+    throw new Error('GST Penalty PDF content element not found')
   }
 
   // Clone the element to avoid modifying the original

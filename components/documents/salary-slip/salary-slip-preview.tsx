@@ -7,6 +7,7 @@
 
 import type { SalarySlipFormData, SalarySlipCalculationResult } from "@/lib/salary-slip"
 import { MONTHS } from "@/lib/salary-slip"
+import { PreviewWrapper } from "../shared/preview-wrapper"
 
 interface SalarySlipPreviewProps {
   formData: SalarySlipFormData
@@ -17,10 +18,14 @@ export function SalarySlipPreview({ formData, calculations }: SalarySlipPreviewP
   const monthLabel = MONTHS.find((m) => m.value === formData.period.month)?.label || "January"
 
   return (
-    <div
-      id="salary-slip-preview"
-      className="sticky top-24 bg-white dark:bg-slate-900 border border-border rounded-lg shadow-lg p-8 space-y-6 text-sm"
+    <PreviewWrapper
+      title="Salary Slip"
+      previewId="salary-slip-preview"
+      dataTestId="salary-slip-preview"
+      className="bg-white dark:bg-slate-900 border border-border rounded-lg shadow-lg"
+      pdfContentId="salary-slip-pdf-content"
     >
+      <div className="p-8 space-y-6 text-sm">
       {/* Header */}
       <div className="border-b border-border pb-4 text-center">
         <h3 className="font-bold text-lg text-foreground">SALARY SLIP</h3>
@@ -205,6 +210,7 @@ export function SalarySlipPreview({ formData, calculations }: SalarySlipPreviewP
       <div className="text-xs text-center text-muted-foreground border-t border-border pt-4">
         <p>This is a computer-generated document. No signature required.</p>
       </div>
-    </div>
+      </div>
+    </PreviewWrapper>
   )
 }

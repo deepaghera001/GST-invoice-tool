@@ -7,10 +7,10 @@
 "use client"
 
 import type { InvoiceCalculatedData, InvoiceValidationErrors } from "@/lib/invoice"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { FileText } from "lucide-react"
 import { formatCurrency, formatDate } from "@/lib/utils/formatters"
+import { PreviewWrapper } from "../shared/preview-wrapper"
 import { numberToWords } from "@/lib/utils/number-to-words"
 import { getStateFromGSTIN, gstinStates } from "@/lib/invoice/data/gstin-states"
 import { GSTIN_REGEX, SAC_REGEX } from "@/lib/invoice"
@@ -66,16 +66,9 @@ export function InvoicePreview({ calculatedData, errors }: InvoicePreviewProps) 
   )
 
   return (
-    <Card className="sticky top-4">
-      <CardHeader className="bg-primary text-primary-foreground">
-        <div className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
-          <CardTitle className="text-lg">Invoice Preview</CardTitle>
-        </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        {/* PDF Capture Area - only this div is captured for PDF */}
-        <div data-testid="invoice-preview" className="p-6 space-y-6 bg-white">
+    <PreviewWrapper title="Invoice Preview" icon={<FileText className="h-5 w-5" />} previewId="invoice-preview" dataTestId="invoice-preview" pdfContentId="invoice-pdf-content">
+      {/* PDF Capture Area - only this div is captured for PDF */}
+      <div className="p-6 space-y-6">
         {/* Invoice Header */}
         <div className="space-y-1 animate-in fade-in duration-200">
           <h2 className="text-2xl font-bold text-foreground">TAX INVOICE</h2>
@@ -235,8 +228,7 @@ export function InvoicePreview({ calculatedData, errors }: InvoicePreviewProps) 
         <div className="text-sm text-muted-foreground animate-in fade-in duration-200 delay-250">
           Amount in words: {numberToWords(totals.total)} Rupees Only
         </div>
-        </div>{/* End PDF Capture Area */}
-      </CardContent>
-    </Card>
+      </div>
+    </PreviewWrapper>
   )
 }

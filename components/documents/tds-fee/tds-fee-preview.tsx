@@ -10,7 +10,7 @@
 
 "use client"
 
-import { Card } from "@/components/ui/card"
+import { PreviewWrapper } from "../shared/preview-wrapper"
 
 interface TDSFeePreviewProps {
   data: {
@@ -65,11 +65,7 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
   const risk = getRiskLevel()
 
   return (
-    <Card 
-      className="border border-slate-200 bg-white overflow-hidden rounded-none"
-      data-testid="tds-fee-preview"
-      id="tds-fee-preview"
-    >
+    <PreviewWrapper className="border border-slate-200 bg-white overflow-hidden rounded-none" previewId="tds-fee-preview" dataTestId="tds-fee-preview" pdfContentId="tds-fee-pdf-content">
       {/* Header */}
       <div className="bg-blue-800 text-white px-6 py-4">
         <div className="flex items-center justify-between">
@@ -175,7 +171,7 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
           <p className="text-xs text-slate-400">www.compliancekit.in</p>
         </div>
       </div>
-    </Card>
+    </PreviewWrapper>
   )
 }
 
@@ -184,9 +180,9 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
  * Uses the same approach as invoice for consistent PDF output
  */
 export function captureTDSFeePreviewHTML(): string {
-  const previewElement = document.getElementById('tds-fee-preview')
+  const previewElement = document.getElementById('tds-fee-pdf-content')
   if (!previewElement) {
-    throw new Error('TDS Fee preview element not found')
+    throw new Error('TDS Fee PDF content element not found')
   }
 
   // Clone the element to avoid modifying the original

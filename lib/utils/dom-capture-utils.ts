@@ -127,10 +127,10 @@ export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: s
  * Capture the HTML content of the invoice preview
  */
 export function captureInvoicePreviewHTML(invoiceNumber: string): string {
-  const previewElement = document.querySelector('[data-testid="invoice-preview"]');
+  const previewElement = document.getElementById('invoice-pdf-content');
   
   if (!previewElement) {
-    throw new Error('Invoice preview element not found');
+    throw new Error('Invoice PDF content element not found');
   }
   
   // Clone the element to avoid modifying the original
@@ -150,10 +150,10 @@ export function captureInvoicePreviewHTML(invoiceNumber: string): string {
  * Capture the HTML content of the salary slip preview
  */
 export function captureSalarySlipPreviewHTML(): string {
-  const previewElement = document.querySelector('#salary-slip-preview');
+  const previewElement = document.getElementById('salary-slip-pdf-content');
   
   if (!previewElement) {
-    throw new Error('Salary slip preview element not found');
+    throw new Error('Salary slip PDF content element not found');
   }
   
   // Clone the element to avoid modifying the original
@@ -173,10 +173,10 @@ export function captureSalarySlipPreviewHTML(): string {
  * Capture the HTML content of the rent agreement preview
  */
 export function captureRentAgreementPreviewHTML(): string {
-  const previewElement = document.querySelector('[data-testid="rent-agreement-preview"]');
+  const previewElement = document.getElementById('rent-agreement-pdf-content');
   
   if (!previewElement) {
-    throw new Error('Rent agreement preview element not found');
+    throw new Error('Rent agreement PDF content element not found');
   }
   
   // Clone the element to avoid modifying the original
