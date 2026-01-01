@@ -79,7 +79,7 @@ export const tdsScenarios: TestScenario<TDSFormData>[] = [
     id: 'valid-on-time-deposit',
     name: '✅ Late Filing, On-Time Deposit',
     category: 'valid',
-    description: 'Only late fee, no interest on late deduction',
+    description: 'Only late fee, no interest on late payment',
     data: {
       deductionType: 'salary',
       tdsAmount: '30000',

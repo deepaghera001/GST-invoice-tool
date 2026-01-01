@@ -294,7 +294,7 @@ export function generateTDSFeeHTML(data: TDSFeePDFData): string {
         </div>
       </div>
       <div class="document-title">
-        <h1>TDS Late Filing Fee Summary</h1>
+        <h1>TDS Late Filing Fee Summary — Income-tax Act, 1961 (Sections 234E & 201(1A))</h1>
         <p>Generated on ${formatDate(data.generatedAt)}</p>
       </div>
     </div>
@@ -340,7 +340,7 @@ export function generateTDSFeeHTML(data: TDSFeePDFData): string {
             <td>${data.daysLate} days</td>
           </tr>
           <tr>
-            <td>Late Filing Fee @ ₹200/day (max ₹5,000)</td>
+            <td>Late Filing Fee @ ₹200/day (max = TDS amount deducted)</td>
             <td class="${data.lateFee > 0 ? 'fee-amount' : ''}">${formatCurrency(data.lateFee)}</td>
           </tr>
           <tr class="total-row">
@@ -364,14 +364,14 @@ export function generateTDSFeeHTML(data: TDSFeePDFData): string {
     <div class="reference-box">
       <div class="reference-title">Legal Reference</div>
       <div class="reference-text">
-        <strong>Late Filing Fee (Section 234E):</strong> As per Section 234E of the Income Tax Act, a late filing fee of ₹200 per day is charged for delayed filing of TDS returns. The fee is calculated from the due date until the actual date of filing. <strong>Maximum cap:</strong> Cannot exceed the total TDS amount deducted. This fee is applicable from Day 1 of the delay (no grace period). <strong>Interest (Section 201(1A)):</strong> 1% per month for late deduction, 1.5% per month for late payment.
+        <strong>Late Filing Fee (Section 234E):</strong> As per Section 234E of the Income-tax Act, a late filing fee of ₹200 per day is charged for delayed filing of TDS returns. The fee is calculated from the due date until the actual date of filing. <strong>Maximum cap:</strong> Cannot exceed the total TDS amount deducted. This fee is applicable from Day 1 of the delay (no grace period). <strong>Interest (Section 201(1A)):</strong> 1.5% per month or part thereof for late payment.
       </div>
     </div>
     
     <div class="disclaimer">
       <div class="disclaimer-title">Important Disclaimer</div>
       <div class="disclaimer-text">
-        This document is generated for estimation and reference purposes only. The actual fee may vary based on specific circumstances, amendments to Income Tax rules, or orders from tax authorities. This summary does not constitute legal or financial advice. Please consult a qualified Chartered Accountant or tax professional for official guidance. ComplianceKit is not liable for any decisions made based on this document.
+        This document is generated for estimation and reference purposes only. The actual fee may vary based on specific circumstances, amendments to Income Tax rules, or orders from tax authorities. This summary does not constitute legal or financial advice. Please consult a qualified Chartered Accountant or tax professional for official guidance. Penalty under Section 271H (₹10,000–₹1,00,000) is not included in this estimate. ComplianceKit is not liable for any decisions made based on this document.
       </div>
     </div>
     

@@ -457,8 +457,7 @@ export default function TDSCalculatorPage() {
                   <div className="space-y-2">
                     <p className="font-medium text-slate-800">Interest (Section 201(1A)):</p>
                     <ul className="list-disc list-inside space-y-1 text-xs">
-                      <li><strong>Late Deduction:</strong> 1% per month (or part)</li>
-                      <li><strong>Late Payment:</strong> 1.5% per month (or part)</li>
+                      <li><strong>Late Payment:</strong> 1.5% per month or part thereof</li>
                       <li><strong>Calculation:</strong> From date due to date of payment</li>
                     </ul>
                   </div>

@@ -135,8 +135,8 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
             {(data.interestOnLateDeduction ?? 0) > 0 && (
               <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
                 <div>
-                  <span className="text-sm text-slate-600">Interest - Late Deduction</span>
-                  <p className="text-xs text-slate-400">Section 201(1A) @ 1% per month</p>
+                  <span className="text-sm text-slate-600">Interest - Late Payment</span>
+                  <p className="text-xs text-slate-400">Section 201(1A) @ 1.5% per month or part thereof</p>
                 </div>
                 <span className="font-semibold text-slate-900">{formatCurrency(data.interestOnLateDeduction ?? 0)}</span>
               </div>
@@ -145,7 +145,7 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
               <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
                 <div>
                   <span className="text-sm text-slate-600">Interest - Late Payment</span>
-                  <p className="text-xs text-slate-400">Section 201(1A) @ 1.5% per month</p>
+                  <p className="text-xs text-slate-400">Section 201(1A) @ 1.5% per month or part thereof</p>
                 </div>
                 <span className="font-semibold text-slate-900">{formatCurrency(data.interestOnLatePayment ?? 0)}</span>
               </div>
@@ -160,9 +160,9 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
         {/* Notes */}
         <div className="text-xs text-slate-500 space-y-1 pt-2 border-t border-slate-200">
           <p>• <strong>Late Fee (Section 234E):</strong> ₹200/day, max = TDS amount deducted</p>
-          <p>• <strong>Interest on late deduction (Section 201(1A)):</strong> 1% per month or part thereof</p>
           <p>• <strong>Interest on late payment (Section 201(1A)):</strong> 1.5% per month or part thereof</p>
           <p>• This is an estimate. Actual fee may vary based on IT department calculations.</p>
+            <p>• <strong>Interest on late payment (Section 201(1A)):</strong> 1.5% per month or part thereof</p>
         </div>
 
         {/* Footer */}

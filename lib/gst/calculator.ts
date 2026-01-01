@@ -195,7 +195,8 @@ export function calculateGSTPenalty(input: GSTPenaltyInput): GSTPenaltyOutput {
   // Standard disclaimer
   const disclaimer = 'Late fee and interest are subject to change via government notifications. ' +
     'This calculator follows current CBIC notifications and may not apply to past periods. ' +
-    'Please verify with official GST portal for your specific filing period.';
+    'Please verify with official GST portal for your specific filing period. ' +
+    'Caps may vary based on return type and turnover. ₹5,000 cap shown applies to commonly filed returns like GSTR-1 & GSTR-3B.';
 
   // Check if filing date is before or on due date (on time)
   if (input.filingDate <= input.dueDate) {

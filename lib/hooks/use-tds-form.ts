@@ -185,6 +185,35 @@ export function useTDSForm(
       : formData.deductionType === 'commission' ? '194H'
       : 'other';
 
+    // If payment interest is enabled, ensure depositDate is provided and valid.
+    if (formData.depositedLate) {
+      const raw = formData.depositDate
+      const depositDate = raw ? new Date(raw) : undefined
+      if (!raw || !depositDate || isNaN(depositDate.getTime())) {
+        // set inline validation error and do not run calculation
+        setErrors((prev) => ({ ...prev, depositDate: 'Deposit date is required when interest is enabled' }))
+        return null
+      }
+
+      // Clear any existing depositDate error
+      setErrors((prev) => {
+        const next = { ...prev }
+        delete next.depositDate
+        return next
+      })
+
+      return calculateTDSPenalty({
+        tdsSection: tdsSection as any,
+        tdsAmount,
+        dueDate,
+        filingDate,
+        depositDate,
+        tdsDeductedLate: false,
+        tdsDepositedLate: formData.depositedLate,
+      })
+    }
+
+    // No payment interest requested — simple calculation
     return calculateTDSPenalty({
       tdsSection: tdsSection as any,
       tdsAmount,

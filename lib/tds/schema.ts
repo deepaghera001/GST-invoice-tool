@@ -61,6 +61,19 @@ export const tdsCalculatorSchema = z
       path: ["filingDate"],
     }
   )
+  // If user has indicated deposit was late (i.e., interest requested), depositDate must be provided
+  .refine(
+    (data) => {
+      if (data.depositedLate) {
+        return typeof data.depositDate === 'string' && data.depositDate.trim() !== ''
+      }
+      return true
+    },
+    {
+      message: 'Deposit date is required when interest calculation is enabled',
+      path: ['depositDate'],
+    }
+  )
 
 // Partial schema for field-level validation
 export const tdsCalculatorFieldSchema = z.object({
