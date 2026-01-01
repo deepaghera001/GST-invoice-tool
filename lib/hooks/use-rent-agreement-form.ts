@@ -167,7 +167,7 @@ export function useRentAgreementForm(): UseRentAgreementFormReturn {
       "landlord.name", "landlord.address", "landlord.phone",
       "tenant.name", "tenant.address", "tenant.phone",
       "property.address", "property.city", "property.state", "property.pincode",
-      "rentTerms.monthlyRent", "rentTerms.agreementStartDate",
+      "rentTerms.monthlyRent", "rentTerms.securityDeposit", "rentTerms.agreementStartDate",
     ]
     
     if (requiredFields.includes(fieldPath)) {

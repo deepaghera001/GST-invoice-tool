@@ -78,7 +78,7 @@ const rentTermsSchema = z.object({
     .max(10000000, "Monthly rent seems too high"),
   securityDeposit: z
     .number()
-    .min(0, "Security deposit cannot be negative")
+    .min(1, "Security deposit is required")
     .max(50000000, "Security deposit seems too high"),
   maintenanceCharges: z.number().min(0).optional(),
   maintenanceIncluded: z.boolean(),
