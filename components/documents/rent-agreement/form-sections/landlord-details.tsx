@@ -40,11 +40,13 @@ const LANDLORD_FIELDS: FormFieldConfig[] = [
     name: "panNumber",
     label: "PAN Number",
     placeholder: "ABCDE1234F",
+    helpText: "Optional — include only if required by parties",
   },
   {
     name: "aadharNumber",
     label: "Aadhar Number",
     placeholder: "12-digit Aadhar number",
+    helpText: "Optional — include only if required by parties",
   },
 ]
 

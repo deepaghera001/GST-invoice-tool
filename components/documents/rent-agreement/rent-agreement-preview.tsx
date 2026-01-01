@@ -338,10 +338,10 @@ export function RentAgreementPreview({ calculatedData }: RentAgreementPreviewPro
             <div className="space-y-2 text-xs">
               <p className="font-medium text-amber-800">Before You Print:</p>
               <ul className="text-amber-700 space-y-1 list-disc list-inside">
-                <li>Print this agreement on appropriate <strong>stamp paper</strong> as per {getStateName(property.state)} Stamp Act</li>
+                <li>Print this agreement on appropriate <strong>stamp paper</strong> as per the applicable State Stamp Act</li>
                 <li>Estimated stamp duty: <strong>{formatCurrency(calculations.stampDutyEstimate)}</strong></li>
                 <li>Both parties must <strong>sign</strong> in presence of <strong>two witnesses</strong></li>
-                <li>Registration may be required for agreements exceeding 11 months</li>
+                <li>Registration is typically required for agreements of 12 months or more in most states</li>
               </ul>
               <p className="text-amber-600 text-[10px] pt-1">
                 This note will not appear in your downloaded PDF. The PDF contains only the legal agreement.

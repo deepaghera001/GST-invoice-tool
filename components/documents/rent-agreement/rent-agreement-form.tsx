@@ -248,8 +248,11 @@ export function RentAgreementForm() {
                 : 'Secure payment via Razorpay. Agreement generated instantly after payment.'
               }
             </p>
+            <p className="text-sm text-center font-medium text-foreground">
+              Used by thousands of tenants & landlords across India
+            </p>
             <p className="text-xs text-center text-muted-foreground italic">
-              Ready for stamp paper registration as per your state requirements.
+              Print this agreement on appropriate stamp paper as per the applicable State Stamp Act.
             </p>
           </div>
         </div>
