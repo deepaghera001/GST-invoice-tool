@@ -191,3 +191,26 @@ export function captureRentAgreementPreviewHTML(): string {
   // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'Rent Agreement', styles);
 }
+
+/**
+ * Capture the HTML content of the GST penalty preview
+ */
+export function captureGSTPenaltyPreviewHTML(): string {
+  const previewElement = document.getElementById('gst-penalty-pdf-content');
+
+  if (!previewElement) {
+    throw new Error('GST Penalty PDF content element not found');
+  }
+
+  // Clone the element to avoid modifying the original
+  const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+
+  // Get the outer HTML
+  const htmlContent = clonedElement.outerHTML;
+
+  // Capture styles
+  const styles = captureStyles();
+
+  // Wrap in a complete HTML document with styles
+  return wrapHTMLWithStyles(htmlContent, 'GST Penalty Summary', styles);
+}
