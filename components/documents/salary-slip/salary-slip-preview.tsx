@@ -26,6 +26,12 @@ export function SalarySlipPreview({ formData, calculations }: SalarySlipPreviewP
       pdfContentId="salary-slip-pdf-content"
     >
       <div className="p-8 space-y-6 text-sm">
+      {/* Company logo (optional) */}
+      {formData.company.logo && (
+        <div className="flex justify-center mb-2">
+          <img src={formData.company.logo} alt="Company logo" className="h-16 object-contain" />
+        </div>
+      )}
       {/* Header */}
       <div className="border-b border-border pb-4 text-center">
         <h3 className="font-bold text-lg text-foreground">SALARY SLIP</h3>
@@ -77,6 +83,10 @@ export function SalarySlipPreview({ formData, calculations }: SalarySlipPreviewP
             <div>
               <p className="text-muted-foreground">PAN</p>
               <p className="font-medium text-foreground">{formData.employee.panNumber}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">UAN</p>
+              <p className="font-medium text-foreground">{formData.employee.uan || "-"}</p>
             </div>
           </div>
         </div>

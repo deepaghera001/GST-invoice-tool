@@ -11,6 +11,7 @@ export const EMPLOYEE_ID_REGEX = /^[A-Z0-9]{3,10}$/
 export const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/
 export const ACCOUNT_NUMBER_REGEX = /^[0-9]{9,18}$/
 export const CIN_REGEX = /^[A-Z0-9]{21}$/
+export const UAN_REGEX = /^[0-9]{12}$/
 
 // Month Options
 export const MONTHS = [
@@ -53,12 +54,14 @@ export const DEFAULT_SALARY_SLIP: SalarySlipFormData = {
     department: "",
     dateOfJoining: "",
     panNumber: "",
+    uan: "",
   },
   company: {
     companyName: "",
     companyAddress: "",
     panNumber: "",
     cin: "",
+    logo: "",
   },
   earnings: {
     basicSalary: 0,
@@ -95,12 +98,14 @@ export const SAMPLE_SALARY_SLIP: SalarySlipFormData = {
     department: "Engineering",
     dateOfJoining: "2022-01-15",
     panNumber: "ABCDE1234F",
+    uan: "123456789012",
   },
   company: {
     companyName: "Tech Solutions Pvt Ltd",
     companyAddress: "123 Business Park, Mumbai, Maharashtra 400001",
     panNumber: "AAACT1234D",
     cin: "U62030MH2015PTC260923",
+    logo: "",
   },
   earnings: {
     basicSalary: 50000,

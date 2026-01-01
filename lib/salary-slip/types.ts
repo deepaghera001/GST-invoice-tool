@@ -15,6 +15,7 @@ export interface Employee {
   department: string
   dateOfJoining: string // YYYY-MM-DD
   panNumber: string
+  uan?: string
 }
 
 export interface Company {
@@ -22,6 +23,8 @@ export interface Company {
   companyAddress: string
   panNumber: string
   cin?: string // Corporate Identification Number (optional)
+  /** Optional company logo as data URL or remote URL */
+  logo?: string
 }
 
 export interface Earnings {

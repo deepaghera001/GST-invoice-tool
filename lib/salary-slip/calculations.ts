@@ -64,60 +64,54 @@ export class SalarySlipCalculations {
    * Convert amount to words (Indian number system)
    */
   static amountInWords(amount: number): string {
-    const ones = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+    const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"]
     const tens = [
       "",
-      "ten",
-      "twenty",
-      "thirty",
-      "forty",
-      "fifty",
-      "sixty",
-      "seventy",
-      "eighty",
-      "ninety",
+      "Ten",
+      "Twenty",
+      "Thirty",
+      "Forty",
+      "Fifty",
+      "Sixty",
+      "Seventy",
+      "Eighty",
+      "Ninety",
     ]
     const scales = [
       "",
-      "thousand",
-      "lakh",
-      "crore",
-      "arab",
-      "kharab",
-      "neel",
-      "padma",
-      "shankh",
+      "Thousand",
+      "Lakh",
+      "Crore",
+      "Arab",
+      "Kharab",
+      "Neel",
+      "Padma",
+      "Shankh",
     ]
 
-    if (amount === 0) return "zero"
-    if (amount < 0) return "negative " + this.amountInWords(-amount)
+    if (amount === 0) return "Zero"
+    if (amount < 0) return "Negative " + this.amountInWords(-amount)
 
     const parts: string[] = []
-    let scaleIndex = 0
 
+    // First group: last 3 digits
+    const firstGroup = amount % 1000
+    if (firstGroup > 0) {
+      parts.unshift(this.convertGroupToWords(firstGroup, ones, tens))
+    }
+    amount = Math.floor(amount / 1000)
+
+    let scaleIndex = 1
+
+    // Remaining groups: 2 digits each
     while (amount > 0) {
-      let groupValue: number
-      let divisor: number
-
-      if (scaleIndex === 0) {
-        // Ones place (units)
-        groupValue = amount % 100
-        divisor = 100
-      } else if (scaleIndex === 1) {
-        // Thousands
-        groupValue = amount % 1000
-        divisor = 1000
-      } else {
-        // Lakhs, crores, etc (2 digits each)
-        groupValue = amount % 100
-        divisor = 100
+      const group = amount % 100
+      if (group > 0) {
+        parts.unshift(
+          this.convertGroupToWords(group, ones, tens) + " " + scales[scaleIndex]
+        )
       }
-
-      if (groupValue > 0) {
-        parts.unshift(this.convertGroupToWords(groupValue, ones, tens) + (scales[scaleIndex] || ""))
-      }
-
-      amount = Math.floor(amount / divisor)
+      amount = Math.floor(amount / 100)
       scaleIndex++
     }
 
@@ -138,22 +132,22 @@ export class SalarySlipCalculations {
 
     const hundreds = Math.floor(num / 100)
     if (hundreds > 0) {
-      parts.push(ones[hundreds], "hundred")
+      parts.push(ones[hundreds], "Hundred")
     }
 
     const remainder = num % 100
     if (remainder >= 10 && remainder <= 19) {
       const teens = [
-        "ten",
-        "eleven",
-        "twelve",
-        "thirteen",
-        "fourteen",
-        "fifteen",
-        "sixteen",
-        "seventeen",
-        "eighteen",
-        "nineteen",
+        "Ten",
+        "Eleven",
+        "Twelve",
+        "Thirteen",
+        "Fourteen",
+        "Fifteen",
+        "Sixteen",
+        "Seventeen",
+        "Eighteen",
+        "Nineteen",
       ]
       parts.push(teens[remainder - 10])
     } else {

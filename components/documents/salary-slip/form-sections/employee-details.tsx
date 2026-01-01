@@ -8,7 +8,7 @@
 import type React from "react"
 import { FormSection, type FormFieldConfig } from "@/components/shared/form-section"
 import { User } from "lucide-react"
-import { PAN_REGEX, EMPLOYEE_ID_REGEX } from "@/lib/salary-slip"
+import { PAN_REGEX, EMPLOYEE_ID_REGEX, UAN_REGEX } from "@/lib/salary-slip"
 
 const EMPLOYEE_FIELDS: FormFieldConfig[] = [
   {
@@ -54,6 +54,14 @@ const EMPLOYEE_FIELDS: FormFieldConfig[] = [
     colSpan: "half",
     transform: (value) => value.toUpperCase(),
   },
+  {
+    name: "uan",
+    label: "UAN (Optional)",
+    placeholder: "123456789012",
+    required: false,
+    colSpan: "half",
+    helpText: "12-digit UAN (optional)",
+  },
 ]
 
 interface EmployeeDetailsProps {
@@ -63,6 +71,7 @@ interface EmployeeDetailsProps {
   department: string
   dateOfJoining: string
   panNumber: string
+  uan?: string
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   onBlur?: (fieldName: string, value: any) => void
   errors?: Record<string, string>
@@ -77,6 +86,7 @@ export function EmployeeDetails({
   department,
   dateOfJoining,
   panNumber,
+  uan,
   onChange,
   onBlur,
   errors = {},
@@ -90,6 +100,7 @@ export function EmployeeDetails({
     department,
     dateOfJoining,
     panNumber,
+    uan,
   }
 
   return (

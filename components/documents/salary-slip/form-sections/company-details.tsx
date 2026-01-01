@@ -49,6 +49,7 @@ interface CompanyDetailsProps {
   companyAddress: string
   panNumber: string
   cin?: string
+  logo?: string
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   onBlur?: (fieldName: string, value: any) => void
   errors?: Record<string, string>
@@ -61,6 +62,7 @@ export function CompanyDetails({
   companyAddress,
   panNumber,
   cin = "",
+  logo,
   onChange,
   onBlur,
   errors = {},
@@ -72,6 +74,7 @@ export function CompanyDetails({
     companyAddress,
     panNumber,
     cin,
+    logo,
   }
 
   return (
@@ -91,6 +94,42 @@ export function CompanyDetails({
         companyAddress.trim().length >= 10 &&
         PAN_REGEX.test(panNumber)
       }
-    />
+    >
+      <div className="mt-4">
+        <label className="text-sm font-medium block mb-2">Company Logo (optional)</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={async (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0]
+            if (!file) return
+            const reader = new FileReader()
+            reader.onload = () => {
+              const value = reader.result as string
+              const name = fieldPrefix ? `${fieldPrefix}.logo` : "company.logo"
+              const synthetic = { target: { name, value } } as unknown as React.ChangeEvent<HTMLInputElement>
+              onChange(synthetic)
+            }
+            reader.readAsDataURL(file)
+          }}
+        />
+        {logo && (
+          <div className="mt-2 flex items-center gap-3">
+            <img src={logo} alt="Company logo" className="h-12 w-12 object-contain rounded" />
+            <button
+              type="button"
+              className="text-xs text-destructive underline"
+              onClick={() => {
+                const name = fieldPrefix ? `${fieldPrefix}.logo` : "company.logo"
+                const synthetic = { target: { name, value: "" } } as unknown as React.ChangeEvent<HTMLInputElement>
+                onChange(synthetic)
+              }}
+            >
+              Remove
+            </button>
+          </div>
+        )}
+      </div>
+    </FormSection>
   )
 }

@@ -6,6 +6,7 @@
 import { z } from "zod"
 import {
   PAN_REGEX,
+  UAN_REGEX,
   EMPLOYEE_ID_REGEX,
   IFSC_REGEX,
   ACCOUNT_NUMBER_REGEX,
@@ -39,6 +40,9 @@ export const EmployeeSchema = z.object({
     message: "Date of joining must be in YYYY-MM-DD format",
   }),
   panNumber: z.string().regex(PAN_REGEX, "Invalid PAN format (e.g., ABCDE1234F)"),
+  uan: z.string().optional().refine((uan) => !uan || UAN_REGEX.test(uan), {
+    message: "Invalid UAN format (12 digits)",
+  }),
 })
 
 // Company Schema
@@ -49,6 +53,7 @@ export const CompanySchema = z.object({
   cin: z.string().optional().refine((cin) => !cin || CIN_REGEX.test(cin), {
     message: "Invalid CIN format",
   }),
+  logo: z.string().optional(),
 })
 
 // Earnings Schema

@@ -37,7 +37,6 @@ export function SalarySlipForm() {
     handleBlur,
     validateFormFull,
     markFieldTouched,
-    fillTestData,
     shouldShowError,
   } = useSalarySlipForm()
 
@@ -191,6 +190,7 @@ export function SalarySlipForm() {
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-100">
               <EmployeeDetails
                 employeeId={formData.employee.employeeId}
+                uan={formData.employee.uan}
                 employeeName={formData.employee.employeeName}
                 designation={formData.employee.designation}
                 department={formData.employee.department}
@@ -207,6 +207,7 @@ export function SalarySlipForm() {
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-150">
               <CompanyDetails
                 companyName={formData.company.companyName}
+                logo={formData.company.logo}
                 companyAddress={formData.company.companyAddress}
                 panNumber={formData.company.panNumber}
                 cin={formData.company.cin}
