@@ -2,58 +2,69 @@ import Link from "next/link"
 import { InvoiceForm } from "@/components/documents/invoice/invoice-form"
 import { FileText, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Head from "next/head"
 
 export default function InvoicePage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header with navigation */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <div className="p-2 bg-primary rounded-lg">
-                <FileText className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">ComplianceKit</h1>
-                <p className="text-xs text-muted-foreground">Documents & Compliance Tools</p>
-              </div>
-            </Link>
-            <Button variant="ghost" size="sm" asChild>
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
+    <>
+      <Head>
+        <title>Invoice Generator - ComplianceKit</title>
+        <meta
+          name="description"
+          content="Generate professional GST-compliant invoices with ComplianceKit's Invoice Generator. Easy, fast, and accurate."
+        />
+        <meta name="keywords" content="invoice generator, GST invoice generator, professional invoices, compliance tools" />
+      </Head>
+      <div className="min-h-screen bg-background">
+        {/* Header with navigation */}
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div className="p-2 bg-primary rounded-lg">
+                  <FileText className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-foreground">ComplianceKit</h1>
+                  <p className="text-xs text-muted-foreground">Documents & Compliance Tools</p>
+                </div>
               </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Invoice Section */}
-      <section className="py-8 md:py-12">
-        <div className="container mx-auto px-4">
-          <InvoiceForm />
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-muted/30 mt-auto">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-muted-foreground text-center md:text-left">
-              © 2025 ComplianceKit. Professional invoices for Indian businesses.
-            </p>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>Secure & Compliant</span>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Home
+                </Link>
+              </Button>
             </div>
           </div>
-          <div className="mt-4 text-center">
-            <p className="text-xs text-muted-foreground">
-              No data stored after invoice generation.
-            </p>
+        </header>
+
+        {/* Invoice Section */}
+        <section className="py-8 md:py-12">
+          <div className="container mx-auto px-4">
+            <InvoiceForm />
           </div>
-        </div>
-      </footer>
-    </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="border-t border-border bg-muted/30 mt-auto">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground text-center md:text-left">
+                © 2025 ComplianceKit. Professional invoices for Indian businesses.
+              </p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>Secure & Compliant</span>
+              </div>
+            </div>
+            <div className="mt-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                No data stored after invoice generation.
+              </p>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </>
   )
 }
