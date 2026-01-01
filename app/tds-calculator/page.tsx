@@ -359,6 +359,40 @@ export default function TDSCalculatorPage() {
                     >
                       Calculate Fee
                     </Button>
+
+                    {/* Bottom actions: stacked buttons, full-width to match form */}
+                    <div className="flex flex-col items-stretch gap-2 w-full">
+                      <Button
+                        variant="outline"
+                        type="button"
+                        className="w-full border-slate-300"
+                        onClick={handleReset}
+                      >
+                        Calculate Another
+                      </Button>
+
+                      <Button
+                        type="button"
+                        onClick={handlePayAndDownload}
+                        disabled={!calculations || paymentLoading || downloadingPDF}
+                        className="w-full bg-slate-800 hover:bg-slate-900"
+                      >
+                        {paymentLoading || downloadingPDF ? (
+                          <>
+                            <Spinner className="mr-2 h-4 w-4" />
+                            {paymentLoading ? 'Processing...' : 'Generating PDF...'}
+                          </>
+                        ) : (
+                          <>
+                            <Download className="mr-2 h-4 w-4" />
+                            {isTestMode
+                              ? 'Download PDF (Test Mode - Free)'
+                              : `Download Fee Summary (₹${PDF_PRICE})`
+                            }
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -370,62 +404,7 @@ export default function TDSCalculatorPage() {
                     {/* The Preview Component - This is what gets captured for PDF */}
                     <TDSFeePreview data={previewData} />
 
-                    {/* Download Actions */}
-                    <Card className="border-slate-200 bg-white">
-                      <CardContent className="pt-4 space-y-3">
-                        {/* Payment Success */}
-                        {paymentSuccess && (
-                          <div className="p-3 bg-green-50 border border-green-200 rounded-md flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <p className="text-sm text-green-800">Payment successful! Downloading PDF...</p>
-                          </div>
-                        )}
-
-                        {/* Payment Error */}
-                        {paymentError && (
-                          <Alert variant="destructive" className="py-2">
-                            <AlertDescription className="text-sm">{paymentError}</AlertDescription>
-                          </Alert>
-                        )}
-
-                        {/* Download Button */}
-                        <Button
-                          className="w-full bg-slate-800 hover:bg-slate-900"
-                          onClick={handlePayAndDownload}
-                          disabled={paymentLoading || downloadingPDF}
-                        >
-                          {paymentLoading || downloadingPDF ? (
-                            <>
-                              <Spinner className="mr-2 h-4 w-4" />
-                              {paymentLoading ? 'Processing...' : 'Generating PDF...'}
-                            </>
-                          ) : (
-                            <>
-                              <Download className="mr-2 h-4 w-4" />
-                              {isTestMode
-                                ? 'Download PDF (Test Mode - Free)'
-                                : `Download Fee Summary (₹${PDF_PRICE})`
-                              }
-                            </>
-                          )}
-                        </Button>
-                        <p className="text-xs text-slate-500 text-center">
-                          {isTestMode
-                            ? '⚠️ Test mode enabled - PDF downloads are free'
-                            : 'Suitable for audit & record keeping'
-                          }
-                        </p>
-
-                        {/* Reset */}
-                        <Button
-                          variant="outline"
-                          className="w-full border-slate-300"
-                          onClick={handleReset}
-                        >
-                          Calculate Another
-                        </Button>
-                      </CardContent>
-                    </Card>
+                    {/* Download Actions moved to form footer (bottom-right) */}
                   </>
                 ) : (
                   <Card className="border-slate-200 border-dashed bg-slate-50/50">
