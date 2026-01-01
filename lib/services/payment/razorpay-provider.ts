@@ -2,13 +2,16 @@ import Razorpay from "razorpay"
 import crypto from "crypto"
 import { BasePaymentProvider } from "./base-payment-provider"
 import type { PaymentOrder, PaymentVerificationData } from "@/lib/core/types"
+import type { IncomingMessage } from "http"
 
 export class RazorpayProvider extends BasePaymentProvider {
   name = "razorpay"
   private client: Razorpay
+  private mode: "test" | "live"
 
-  constructor(keyId: string, keySecret: string) {
+  constructor(keyId: string, keySecret: string, mode: "test" | "live" = "test") {
     super()
+    this.mode = mode
     this.client = new Razorpay({
       key_id: keyId,
       key_secret: keySecret,
@@ -29,7 +32,7 @@ export class RazorpayProvider extends BasePaymentProvider {
 
     return {
       orderId: order.id,
-      amount: order.amount,
+      amount: Number(order.amount), // Ensure amount is a number
       currency: order.currency,
       provider: this.name,
     }
@@ -44,5 +47,25 @@ export class RazorpayProvider extends BasePaymentProvider {
       .digest("hex")
 
     return generatedSignature === signature
+  }
+
+  async handleWebhook(req: IncomingMessage, secret: string): Promise<any> {
+    const chunks: Uint8Array[] = []
+    for await (const chunk of req) {
+      chunks.push(chunk)
+    }
+    const body = Buffer.concat(chunks).toString()
+
+    const signature = req.headers["x-razorpay-signature"] as string
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(body)
+      .digest("hex")
+
+    if (signature !== expectedSignature) {
+      throw new Error("Invalid webhook signature")
+    }
+
+    return JSON.parse(body)
   }
 }
