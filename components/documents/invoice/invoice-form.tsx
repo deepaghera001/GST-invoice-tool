@@ -11,6 +11,7 @@ import { useCallback } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useInvoiceForm } from "@/lib/hooks/use-invoice-form"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { FlaskConical } from "lucide-react"
 import { SellerDetails } from "./form-sections/seller-details"
 import { BuyerDetails } from "./form-sections/buyer-details"
@@ -41,6 +42,7 @@ export function InvoiceForm() {
     markFieldTouched,
     fillTestData,
     shouldShowError,
+    resetForm,
     isFormComplete,
     completedSectionsCount,
     totalSections,
@@ -221,6 +223,16 @@ export function InvoiceForm() {
             <div className="text-xs text-center text-muted-foreground italic pt-2">
               Based on GST Rule 46 invoice requirements for services.
             </div>
+
+            {/* Reset Form */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => resetForm()}
+            >
+              Reset Form
+            </Button>
           </form>
         </div>
 

@@ -12,6 +12,7 @@ import type React from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useSalarySlipForm } from "@/lib/hooks/use-salary-slip-form"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { FlaskConical } from "lucide-react"
 import { PeriodDetails } from "./form-sections/period-details"
 import { EmployeeDetails } from "./form-sections/employee-details"
@@ -37,6 +38,7 @@ export function SalarySlipForm() {
     validateFormFull,
     markFieldTouched,
     shouldShowError,
+    resetForm,
     isFormComplete,
     completedSectionsCount,
     totalSections,
@@ -231,6 +233,16 @@ export function SalarySlipForm() {
                 shouldShowError={shouldShowError}
               />
             </div>
+
+            {/* Reset Form */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => resetForm()}
+            >
+              Reset Form
+            </Button>
           </form>
         </div>
 

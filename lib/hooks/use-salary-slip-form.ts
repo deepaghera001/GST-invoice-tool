@@ -175,6 +175,15 @@ export function useSalarySlipForm(initialData: Partial<SalarySlipFormData> = {})
   )
 
   /**
+   * Reset form to defaults
+   */
+  const resetForm = useCallback(() => {
+    setFormData(DEFAULT_SALARY_SLIP)
+    setTouched(new Set())
+    setErrors({})
+  }, [])
+
+  /**
    * Calculate values memoized
    */
   const calculations = useMemo(() => {
@@ -222,6 +231,7 @@ export function useSalarySlipForm(initialData: Partial<SalarySlipFormData> = {})
     fillTestData,
     shouldShowError,
     getError,
+    resetForm,
     isSectionComplete,
     isFormComplete,
     completedSectionsCount,

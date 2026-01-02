@@ -108,7 +108,7 @@ export function RentAgreementForm() {
 
   return (
     <div className="grid lg:grid-cols-2 gap-8">
-      {/* Form Sections */}
+      {/* Left Column: Form Sections */}
       <div className="space-y-6">
         {/* Header with Test Mode */}
         <div className="space-y-2">
@@ -125,27 +125,12 @@ export function RentAgreementForm() {
             <p className="text-muted-foreground text-pretty">
               Fill in the details below to generate a legally formatted rent agreement. Preview updates in real-time.
             </p>
-            {/* Test Scenario Selector - only renders in test mode */}
             <TestScenarioSelector
               scenarios={rentAgreementScenarios}
               onApply={(data) => setFormData({ ...formData, ...data })}
               label="Test Scenarios"
             />
           </div>
-        </div>
-
-        {/* Reset Button */}
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={resetForm}
-            className="gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Reset Form
-          </Button>
         </div>
 
         <LandlordDetails
@@ -170,7 +155,6 @@ export function RentAgreementForm() {
           formData={formData}
           onChange={handleChange}
           onBlur={handleBlur}
-          onCheckboxChange={handleCheckboxChange}
           errors={errors}
           shouldShowError={shouldShowError}
           isCompleted={isSectionComplete.property}
@@ -180,7 +164,6 @@ export function RentAgreementForm() {
           formData={formData}
           onChange={handleChange}
           onBlur={handleBlur}
-          onCheckboxChange={handleCheckboxChange}
           errors={errors}
           shouldShowError={shouldShowError}
           isCompleted={isSectionComplete.rentTerms}
@@ -194,22 +177,33 @@ export function RentAgreementForm() {
           shouldShowError={shouldShowError}
           isCompleted={isSectionComplete.clauses}
         />
+
+        {/* Reset Form at bottom for consistency */}
+        <Button type="button" variant="outline" className="w-full" onClick={resetForm}>Reset Form</Button>
       </div>
 
-      {/* Preview + PaymentCTA */}
+      {/* Right Column: Preview + PaymentCTA */}
       <div className="sticky top-24 self-start space-y-3">
-        <RentAgreementPreview calculatedData={calculatedData} maxHeight="55vh" />
-        
-        <PaymentCTA
-          isFormComplete={isFormComplete}
-          completedSections={completedSectionsCount}
-          totalSections={totalSections}
-          onPaymentSuccess={generateAndDownloadPDF}
-          onPaymentError={handlePaymentError}
-          price={PDF_PRICE}
-          documentType="rent-agreement"
-          buttonText="Download Agreement"
-        />
+        {calculatedData ? (
+          <>
+            <RentAgreementPreview calculatedData={calculatedData} maxHeight="55vh" />
+            <PaymentCTA
+              isFormComplete={isFormComplete}
+              price={PDF_PRICE}
+              documentType="rent-agreement"
+              isTestMode={isTestMode}
+              onPaymentSuccess={generateAndDownloadPDF}
+              onPaymentError={handlePaymentError}
+              completedSections={completedSectionsCount}
+              totalSections={totalSections}
+              paymentDescription={`Rent Agreement for ${formData.tenant.name || 'Tenant'}`}
+            />
+          </>
+        ) : (
+          <div className="border border-dashed rounded-lg p-6 text-center text-sm text-muted-foreground bg-muted/50">
+            Preview will appear here once you fill the form
+          </div>
+        )}
       </div>
     </div>
   )
