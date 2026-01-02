@@ -51,14 +51,9 @@ export function SalarySlipForm() {
     })
   }
 
-  // Simple wrapper for onChange that extracts field path from event
+  // Simple wrapper for onChange that extracts field path and type from event
   const handleFieldChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    handleChange(e.target.name, e.target.value)
-  }
-
-  // Simple wrapper for number fields
-  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    handleChange(e.target.name, Number.parseFloat(e.target.value) || 0)
+    handleChange(e.target.name, e.target.value, e.target.type)
   }
 
   // Determine if form can be submitted
@@ -228,7 +223,7 @@ export function SalarySlipForm() {
                 otherEarnings={formData.earnings.otherEarnings}
                 totalEarnings={calculations.totalEarnings}
                 fieldPrefix="earnings"
-                onChange={handleNumberChange}
+                onChange={handleFieldChange}
                 onBlur={handleBlur}
                 errors={errors as Record<string, string>}
                 shouldShowError={shouldShowError}
@@ -243,7 +238,7 @@ export function SalarySlipForm() {
                 otherDeductions={formData.deductions.otherDeductions}
                 totalDeductions={calculations.totalDeductions}
                 fieldPrefix="deductions"
-                onChange={handleNumberChange}
+                onChange={handleFieldChange}
                 onBlur={handleBlur}
                 errors={errors as Record<string, string>}
                 shouldShowError={shouldShowError}

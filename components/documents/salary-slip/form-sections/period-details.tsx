@@ -47,8 +47,9 @@ export function PeriodDetails({
   const formData = { year }
 
   const handleMonthChange = (value: string) => {
+    const fullPath = fieldPrefix ? `${fieldPrefix}.month` : "month"
     const event = {
-      target: { name: "month", value },
+      target: { name: fullPath, value },
     } as any
     onChange(event)
   }

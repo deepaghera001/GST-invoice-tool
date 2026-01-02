@@ -14,7 +14,7 @@ export interface UseSalarySlipFormReturn {
   errors: SalarySlipValidationErrors
   touched: Set<string>
   calculations: SalarySlipCalculationResult
-  handleChange: (field: string, value: any) => void
+  handleChange: (field: string, value: any, type?: string) => void
   handleBlur: (field: string) => void
   validateFormFull: () => { isValid: boolean; errors: SalarySlipValidationErrors }
   markFieldTouched: (field: string) => void
@@ -35,11 +35,17 @@ export function useSalarySlipForm(initialData: Partial<SalarySlipFormData> = {})
   /**
    * Handle field changes (supports nested paths like "period.month")
    */
-  const handleChange = useCallback((field: string, value: any) => {
+  const handleChange = useCallback((field: string, value: any, type?: string) => {
+    // Coerce number inputs from string to actual numbers
+    let processedValue = value
+    if (type === "number") {
+      processedValue = value === "" ? 0 : parseFloat(value)
+    }
+    
     setFormData((prev) => {
       const keys = field.split(".")
       if (keys.length === 1) {
-        return { ...prev, [field]: value }
+        return { ...prev, [field]: processedValue }
       }
 
       // Handle nested fields
@@ -49,7 +55,7 @@ export function useSalarySlipForm(initialData: Partial<SalarySlipFormData> = {})
         current[keys[i]] = { ...current[keys[i]] }
         current = current[keys[i]]
       }
-      current[keys[keys.length - 1]] = value
+      current[keys[keys.length - 1]] = processedValue
       return obj
     })
 

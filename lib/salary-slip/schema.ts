@@ -18,16 +18,9 @@ export const PeriodSchema = z.object({
   month: z.string().min(1, "Month is required").refine((m) => /^(1|2|3|4|5|6|7|8|9|10|11|12)$/.test(m), {
     message: "Invalid month",
   }),
-  year: z.preprocess((val) => {
-    if (typeof val === "string") {
-      const s = val.trim()
-      return s === "" ? undefined : Number(s)
-    }
-    return val
-  },
-  z.number({ required_error: "Year is required", invalid_type_error: "Year must be a number" })
+  year: z.number({ required_error: "Year is required", invalid_type_error: "Year must be a number" })
     .min(2000, "Year must be 2000 or later")
-    .max(new Date().getFullYear() + 1, "Year cannot be in the future")),
+    .max(new Date().getFullYear() + 1, "Year cannot be in the future"),
 })
 
 // Employee Schema

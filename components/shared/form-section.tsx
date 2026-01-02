@@ -9,6 +9,14 @@ import type { LucideIcon } from "lucide-react"
 import { Check } from "lucide-react"
 
 /**
+ * Option for select fields
+ */
+export interface SelectOption {
+  value: string
+  label: string
+}
+
+/**
  * Configuration for a single form field
  * 
  * Flexible design allows easy extension without tight coupling
@@ -19,7 +27,7 @@ export interface FormFieldConfig {
   /** User-facing label */
   label: string
   /** HTML input type */
-  type?: "text" | "textarea" | "number" | "email" | "date" | "tel" | "url"
+  type?: "text" | "textarea" | "number" | "email" | "date" | "tel" | "url" | "select"
   /** Placeholder text */
   placeholder?: string
   /** Whether field is required */
@@ -36,6 +44,8 @@ export interface FormFieldConfig {
   pattern?: string
   /** Max length for text inputs */
   maxLength?: number
+  /** Options for select fields */
+  options?: SelectOption[]
   /** Custom validation function - receives field value, returns error message or undefined */
   validate?: (value: any) => string | undefined
   /** Custom transform function - called on onChange before storing value */
@@ -189,10 +199,20 @@ export function FormSection({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: FormFieldConfig) => {
     const fullPath = getFullPath(field.name)
     const value = field.transform ? field.transform(e.target.value) : e.target.value
+    
+    // Create synthetic event with explicit type preservation
+    // IMPORTANT: e.target.type is a getter on HTMLInputElement prototype, not an own property,
+    // so spreading e.target does NOT copy it. We must explicitly include it.
     const newEvent = {
       ...e,
-      target: { ...e.target, name: fullPath, value: value.toString() },
+      target: { 
+        ...e.target, 
+        name: fullPath, 
+        value,
+        type: e.target.type,  // Explicitly preserve input type for numeric coercion
+      },
     } as React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    
     onChange(newEvent)
   }
 
@@ -257,6 +277,32 @@ export function FormSection({
                     rows={2}
                     maxLength={field.maxLength}
                   />
+                ) : field.type === "select" ? (
+                  <select
+                    id={field.name}
+                    name={field.name}
+                    value={data[field.name] || ""}
+                    onChange={(e) => {
+                      const fullPath = getFullPath(field.name)
+                      const value = field.transform ? field.transform(e.target.value) : e.target.value
+                      const newEvent = {
+                        ...e,
+                        target: { ...e.target, name: fullPath, value: value.toString() },
+                      } as React.ChangeEvent<HTMLSelectElement>
+                      onChange(newEvent as any)
+                    }}
+                    onBlur={() => handleBlur(field, data[field.name])}
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-background transition-all duration-200 focus:scale-[1.01] ${
+                      checkShouldShowError(field.name) ? "border-destructive" : "border-input"
+                    }`}
+                  >
+                    <option value="">{field.placeholder || "Select an option"}</option>
+                    {field.options?.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 ) : (
                   <Input
                     id={field.name}

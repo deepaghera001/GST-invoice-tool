@@ -214,3 +214,26 @@ export function captureGSTPenaltyPreviewHTML(): string {
   // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'GST Penalty Summary', styles);
 }
+
+/**
+ * Capture the HTML content of the shareholders agreement preview
+ */
+export function captureShareholdersAgreementPreviewHTML(): string {
+  const previewElement = document.getElementById('shareholders-agreement-preview');
+
+  if (!previewElement) {
+    throw new Error('Shareholders agreement PDF content element not found');
+  }
+
+  // Clone the element to avoid modifying the original
+  const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+
+  // Get the outer HTML
+  const htmlContent = clonedElement.outerHTML;
+
+  // Capture styles
+  const styles = captureStyles();
+
+  // Wrap in a complete HTML document with styles
+  return wrapHTMLWithStyles(htmlContent, 'Shareholders Agreement', styles);
+}
