@@ -7,7 +7,31 @@
 
 import { useState, useCallback, useMemo } from "react"
 import type { SalarySlipFormData, SalarySlipValidationErrors, SalarySlipCalculationResult } from "@/lib/salary-slip"
-import { DEFAULT_SALARY_SLIP, SalarySlipCalculations, validateForm, validateField } from "@/lib/salary-slip"
+import { 
+  DEFAULT_SALARY_SLIP, 
+  SalarySlipCalculations, 
+  validateForm, 
+  validateField,
+  PeriodSchema,
+  EmployeeSchema,
+  CompanySchema,
+  EarningsSchema,
+  DeductionsSchema,
+  BankingDetailsSchema,
+} from "@/lib/salary-slip"
+
+/**
+ * Section completion status for progressive form validation
+ * Used for psychology-based CTA display (show download only when complete)
+ */
+export interface SectionCompletionStatus {
+  period: boolean
+  employee: boolean
+  company: boolean
+  earnings: boolean
+  deductions: boolean
+  bankingDetails: boolean
+}
 
 export interface UseSalarySlipFormReturn {
   formData: SalarySlipFormData
@@ -21,6 +45,14 @@ export interface UseSalarySlipFormReturn {
   fillTestData: () => void
   shouldShowError: (field: string) => boolean
   getError: (field: string) => string | undefined
+  /** Section-level completion checks using Zod schemas */
+  isSectionComplete: SectionCompletionStatus
+  /** Whether all sections are complete (form ready to submit) */
+  isFormComplete: boolean
+  /** Count of completed sections (for progress tracking) */
+  completedSectionsCount: number
+  /** Total number of sections */
+  totalSections: number
 }
 
 export function useSalarySlipForm(initialData: Partial<SalarySlipFormData> = {}): UseSalarySlipFormReturn {
@@ -149,6 +181,35 @@ export function useSalarySlipForm(initialData: Partial<SalarySlipFormData> = {})
     return SalarySlipCalculations.calculateAll(formData)
   }, [formData])
 
+  /**
+   * Section completion checks using Zod schemas
+   * Used for progressive validation and psychology-based CTA display
+   */
+  const isSectionComplete = useMemo<SectionCompletionStatus>(() => ({
+    period: PeriodSchema.safeParse(formData.period).success,
+    employee: EmployeeSchema.safeParse(formData.employee).success,
+    company: CompanySchema.safeParse(formData.company).success,
+    earnings: EarningsSchema.safeParse(formData.earnings).success && formData.earnings.basicSalary > 0,
+    deductions: DeductionsSchema.safeParse(formData.deductions).success,
+    bankingDetails: BankingDetailsSchema.safeParse(formData.bankingDetails).success,
+  }), [formData])
+
+  /**
+   * Count of completed sections (for progress tracking)
+   */
+  const completedSectionsCount = useMemo(() => {
+    return Object.values(isSectionComplete).filter(Boolean).length
+  }, [isSectionComplete])
+
+  const totalSections = 6
+
+  /**
+   * Whether all required sections are complete (form ready to submit)
+   */
+  const isFormComplete = useMemo(() => {
+    return completedSectionsCount === totalSections
+  }, [completedSectionsCount])
+
   return {
     formData,
     errors,
@@ -161,5 +222,9 @@ export function useSalarySlipForm(initialData: Partial<SalarySlipFormData> = {})
     fillTestData,
     shouldShowError,
     getError,
+    isSectionComplete,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   }
 }

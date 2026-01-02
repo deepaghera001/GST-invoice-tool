@@ -2,17 +2,17 @@
  * Salary Slip Form Component
  * Main form with 2-column layout (form + preview)
  * Follows the same pattern as InvoiceForm
+ * 
+ * Payment is handled by PaymentCTA component (modular)
  */
 
 "use client"
 
 import type React from "react"
-import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useSalarySlipForm } from "@/lib/hooks/use-salary-slip-form"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Download, FlaskConical } from "lucide-react"
+import { FlaskConical } from "lucide-react"
 import { PeriodDetails } from "./form-sections/period-details"
 import { EmployeeDetails } from "./form-sections/employee-details"
 import { CompanyDetails } from "./form-sections/company-details"
@@ -20,14 +20,13 @@ import { Earnings } from "./form-sections/earnings"
 import { Deductions } from "./form-sections/deductions"
 import { BankingDetails } from "./form-sections/banking-details"
 import { SalarySlipPreview } from "./salary-slip-preview"
-import { PAN_REGEX, IFSC_REGEX } from "@/lib/salary-slip"
+import { PaymentCTA } from "@/components/shared/payment-cta"
 import { TestScenarioSelector, salarySlipScenarios, isTestMode } from "@/lib/testing"
 
 const PDF_PRICE = 49 // ₹49
 
 export function SalarySlipForm() {
   const { toast } = useToast()
-  const [isProcessing, setIsProcessing] = useState(false)
 
   const {
     formData,
@@ -38,6 +37,9 @@ export function SalarySlipForm() {
     validateFormFull,
     markFieldTouched,
     shouldShowError,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   } = useSalarySlipForm()
 
   // Helper to set entire form data
@@ -56,26 +58,12 @@ export function SalarySlipForm() {
     handleChange(e.target.name, e.target.value, e.target.type)
   }
 
-  // Determine if form can be submitted
-  const isValidGSTIN = PAN_REGEX.test(formData.employee.panNumber)
-  const isValidCompanyPAN = PAN_REGEX.test(formData.company.panNumber)
-  const isValidIFSC = IFSC_REGEX.test(formData.bankingDetails.ifscCode)
-
-  const canSubmit =
-    formData.employee.employeeName.trim().length >= 2 &&
-    formData.employee.employeeId.trim().length > 0 &&
-    isValidGSTIN &&
-    formData.company.companyName.trim().length >= 2 &&
-    isValidCompanyPAN &&
-    formData.earnings.basicSalary > 0 &&
-    formData.bankingDetails.bankName.trim().length > 0 &&
-    isValidIFSC
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  /**
+   * Generate and download PDF - called by PaymentCTA after successful payment
+   */
+  const generateAndDownloadPDF = async () => {
+    // Validate form before generating
     const { isValid } = validateFormFull()
-
     if (!isValid) {
       Object.keys(errors).forEach((field) => markFieldTouched(field))
       toast({
@@ -83,61 +71,46 @@ export function SalarySlipForm() {
         description: "Please fix the errors in the form before submitting",
         variant: "destructive",
       })
-      return
+      throw new Error("Form validation failed")
     }
 
-    setIsProcessing(true)
+    // Capture HTML from preview
+    const { captureSalarySlipPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
+    const htmlContent = captureSalarySlipPreviewHTML()
 
-    // In test mode, generate PDF directly without payment
-    if (isTestMode) {
-      try {
-        // Capture HTML from preview
-        const { captureSalarySlipPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-        const htmlContent = captureSalarySlipPreviewHTML()
-
-        const pdfResponse = await fetch("/api/generate-pdf", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            htmlContent,
-            filename: `salary-slip-${formData.employee.employeeId}.pdf`,
-          }),
-        })
-
-        if (!pdfResponse.ok) {
-          const errorText = await pdfResponse.text()
-          console.error("[TEST] PDF generation API error response:", errorText)
-          throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
-        }
-
-        const blob = await pdfResponse.blob()
-        downloadPDF(blob, formData.employee.employeeId)
-
-        toast({
-          title: "Success!",
-          description: "Your salary slip has been generated and downloaded (test mode)",
-        })
-      } catch (error) {
-        console.error("[TEST] PDF generation error:", error)
-        toast({
-          title: "Error",
-          description:
-            error instanceof Error ? error.message : "Failed to generate PDF. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsProcessing(false)
-      }
-      return
-    }
-
-    // Production mode would handle payment here
-    toast({
-      title: "Coming Soon",
-      description: "Payment integration coming soon. Enable test mode to test.",
-      variant: "default",
+    const pdfResponse = await fetch("/api/generate-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        htmlContent,
+        filename: `salary-slip-${formData.employee.employeeId}.pdf`,
+      }),
     })
-    setIsProcessing(false)
+
+    if (!pdfResponse.ok) {
+      const errorText = await pdfResponse.text()
+      console.error("PDF generation API error:", errorText)
+      throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
+    }
+
+    const blob = await pdfResponse.blob()
+    downloadPDF(blob, formData.employee.employeeId)
+
+    toast({
+      title: "Success! 🎉",
+      description: "Your salary slip has been generated and downloaded.",
+    })
+  }
+
+  /**
+   * Handle payment errors from PaymentCTA
+   */
+  const handlePaymentError = (error: string) => {
+    toast({
+      title: "Payment Failed",
+      description: error || "Payment was not completed. Please try again.",
+      variant: "destructive",
+    })
   }
 
   return (
@@ -168,7 +141,7 @@ export function SalarySlipForm() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form className="space-y-6">
             {/* Form Sections */}
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-75">
               <PeriodDetails
@@ -259,45 +232,18 @@ export function SalarySlipForm() {
               />
             </div>
 
-            {/* Submit Button */}
-            <div className="flex flex-col gap-3 pt-4 animate-in fade-in slide-in-from-top-2 duration-200 delay-500">
-              <div className="text-center py-2">
-                <p className="text-sm font-medium text-primary">Professional salary slips in 2 minutes</p>
-              </div>
-
-              <Button
-                type="submit"
-                size="lg"
-                disabled={isProcessing || !canSubmit}
-                className="w-full text-base"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isTestMode ? 'Generating PDF...' : 'Processing Payment...'}
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-4 w-4" />
-                    {isTestMode 
-                      ? 'Download PDF (Test Mode - Free)' 
-                      : `Pay ₹${PDF_PRICE} & Download Salary Slip`
-                    }
-                  </>
-                )}
-              </Button>
-              {!canSubmit && !isProcessing && (
-                <p className="text-xs text-center text-destructive">
-                  Please fill in all required fields with valid data to continue
-                </p>
-              )}
-              <p className="text-xs text-center text-muted-foreground">
-                {isTestMode 
-                  ? '⚠️ Test mode enabled - PDF downloads are free'
-                  : 'Secure payment via Razorpay. Salary slip generated instantly after payment.'
-                }
-              </p>
-            </div>
+            {/* Psychology-optimized Payment CTA - handles payment internally */}
+            <PaymentCTA
+              isFormComplete={isFormComplete}
+              price={PDF_PRICE}
+              documentType="salary-slip"
+              isTestMode={isTestMode}
+              onPaymentSuccess={generateAndDownloadPDF}
+              onPaymentError={handlePaymentError}
+              completedSections={completedSectionsCount}
+              totalSections={totalSections}
+              paymentDescription={`Salary Slip - ${formData.employee.employeeName} (${formData.period.month}/${formData.period.year})`}
+            />
           </form>
         </div>
 
