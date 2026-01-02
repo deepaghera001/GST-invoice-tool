@@ -7,6 +7,7 @@
 "use client"
 
 import { useState, useCallback, useMemo } from "react"
+import { z } from "zod"
 import type {
   InvoiceData,
   InvoiceTotals,
@@ -19,7 +20,45 @@ import {
   invoiceFieldSchema,
   DEFAULT_INVOICE_DATA,
   type InvoiceFormData,
+  GSTIN_REGEX,
 } from "@/lib/invoice"
+
+/**
+ * Section-specific Zod schemas for progress tracking
+ * These mirror the validation rules in the main invoice schema
+ */
+const SellerDetailsSchema = z.object({
+  sellerName: z.string().min(2).trim(),
+  sellerAddress: z.string().min(10).trim(),
+  sellerGSTIN: z.string().regex(GSTIN_REGEX),
+})
+
+const BuyerDetailsSchema = z.object({
+  buyerName: z.string().min(2).trim(),
+  buyerAddress: z.string().min(10).trim(),
+})
+
+const InvoiceDetailsSchema = z.object({
+  invoiceNumber: z.string().min(1).trim(),
+  invoiceDate: z.string().min(1),
+})
+
+const ItemDetailsSchema = z.object({
+  itemDescription: z.string().min(3).trim(),
+  quantity: z.string().refine((val) => Number.parseFloat(val) > 0),
+  rate: z.string().refine((val) => Number.parseFloat(val) > 0),
+})
+
+/**
+ * Section completion status for Invoice form
+ */
+export interface InvoiceSectionCompletionStatus {
+  sellerDetails: boolean
+  buyerDetails: boolean
+  invoiceDetails: boolean
+  itemDetails: boolean
+  taxDetails: boolean
+}
 
 interface UseInvoiceFormReturn {
   // State
@@ -49,6 +88,12 @@ interface UseInvoiceFormReturn {
   // Helper methods
   resetForm: () => void
   fillTestData: () => void
+
+  // Section completion (for PaymentCTA progress tracking)
+  isSectionComplete: InvoiceSectionCompletionStatus
+  isFormComplete: boolean
+  completedSectionsCount: number
+  totalSections: number
 }
 
 /**
@@ -237,6 +282,55 @@ export function useInvoiceForm(): UseInvoiceFormReturn {
     setErrors(newErrors)
   }, [validateField])
 
+  /**
+   * Section completion status using Zod schemas
+   */
+  const isSectionComplete = useMemo((): InvoiceSectionCompletionStatus => {
+    return {
+      sellerDetails: SellerDetailsSchema.safeParse({
+        sellerName: formData.sellerName,
+        sellerAddress: formData.sellerAddress,
+        sellerGSTIN: formData.sellerGSTIN,
+      }).success,
+      buyerDetails: BuyerDetailsSchema.safeParse({
+        buyerName: formData.buyerName,
+        buyerAddress: formData.buyerAddress,
+      }).success,
+      invoiceDetails: InvoiceDetailsSchema.safeParse({
+        invoiceNumber: formData.invoiceNumber,
+        invoiceDate: formData.invoiceDate,
+      }).success,
+      itemDetails: ItemDetailsSchema.safeParse({
+        itemDescription: formData.itemDescription,
+        quantity: formData.quantity,
+        rate: formData.rate,
+      }).success,
+      taxDetails: true, // Tax section has defaults, always complete
+    }
+  }, [formData])
+
+  /**
+   * Check if all sections are complete
+   */
+  const isFormComplete = useMemo(() => {
+    return (
+      isSectionComplete.sellerDetails &&
+      isSectionComplete.buyerDetails &&
+      isSectionComplete.invoiceDetails &&
+      isSectionComplete.itemDetails &&
+      isSectionComplete.taxDetails
+    )
+  }, [isSectionComplete])
+
+  /**
+   * Count completed sections
+   */
+  const completedSectionsCount = useMemo(() => {
+    return Object.values(isSectionComplete).filter(Boolean).length
+  }, [isSectionComplete])
+
+  const totalSections = 5
+
   return {
     // State
     formData,
@@ -265,5 +359,11 @@ export function useInvoiceForm(): UseInvoiceFormReturn {
     // Helpers
     resetForm,
     fillTestData,
+
+    // Section completion
+    isSectionComplete,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   }
 }

@@ -1,18 +1,17 @@
 /**
  * Invoice Form Component
  * Refactored to use the useInvoiceForm hook
- * Focuses on UI rendering only
+ * Payment handled by PaymentCTA component (modular)
  */
 
 "use client"
 
 import type React from "react"
-import { useState } from "react"
+import { useCallback } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useInvoiceForm } from "@/lib/hooks/use-invoice-form"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Download, FlaskConical } from "lucide-react"
+import { FlaskConical } from "lucide-react"
 import { SellerDetails } from "./form-sections/seller-details"
 import { BuyerDetails } from "./form-sections/buyer-details"
 import { InvoiceDetails } from "./form-sections/invoice-details"
@@ -20,15 +19,14 @@ import { ItemDetails } from "./form-sections/item-details"
 import { TaxDetails } from "./form-sections/tax-details"
 import { InvoicePreview } from "./invoice-preview"
 import { useSuggestions } from "@/lib/hooks/use-suggestions"
-import { createPaymentOrder } from "@/lib/actions/payment-actions"
 import { GSTIN_REGEX } from "@/lib/invoice"
 import { TestScenarioSelector, invoiceScenarios, isTestMode } from "@/lib/testing"
+import { PaymentCTA } from "@/components/shared/payment-cta"
 
 const PDF_PRICE = 99 // ₹99
 
 export function InvoiceForm() {
   const { toast } = useToast()
-  const [isProcessing, setIsProcessing] = useState(false)
   const suggestions = useSuggestions()
 
   // Use the custom hook for form state management
@@ -43,32 +41,25 @@ export function InvoiceForm() {
     markFieldTouched,
     fillTestData,
     shouldShowError,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   } = useInvoiceForm()
 
   // Check if seller GSTIN is valid
   const isSellerGSTINValid = GSTIN_REGEX.test(formData.sellerGSTIN)
 
-  // Determine if form can be submitted
-  const canSubmit =
-    formData.sellerName.trim().length >= 2 &&
-    formData.sellerAddress.trim().length >= 10 &&
-    isSellerGSTINValid &&
-    formData.invoiceNumber.trim().length >= 1 &&
-    formData.invoiceDate.length > 0 &&
-    formData.itemDescription.trim().length >= 3 &&
-    Number.parseFloat(formData.quantity) > 0 &&
-    Number.parseFloat(formData.rate) > 0
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+  /**
+   * Generate and download PDF - called by PaymentCTA after successful payment
+   */
+  const generateAndDownloadPDF = useCallback(async () => {
     if (!isSellerGSTINValid) {
       toast({
         title: "Invalid Seller GSTIN",
-        description: "Please enter a valid seller GSTIN before proceeding with payment.",
+        description: "Please enter a valid seller GSTIN before proceeding.",
         variant: "destructive",
       })
-      return
+      throw new Error("Invalid seller GSTIN")
     }
 
     const { isValid } = validateForm()
@@ -80,132 +71,47 @@ export function InvoiceForm() {
         description: "Please fix the errors in the form before submitting",
         variant: "destructive",
       })
-      return
+      throw new Error("Form validation failed")
     }
 
-    setIsProcessing(true)
+    // Capture HTML from preview
+    const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
+    const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber)
 
-    // In test mode, generate PDF directly without payment
-    if (isTestMode) {
-      try {
-        // Capture HTML from preview
-        const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-        const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber)
-        
-        const pdfResponse = await fetch("/api/generate-pdf", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            htmlContent,
-            filename: `invoice-${formData.invoiceNumber}.pdf`,
-          }),
-        })
+    const pdfResponse = await fetch("/api/generate-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        htmlContent,
+        filename: `invoice-${formData.invoiceNumber}.pdf`,
+      }),
+    })
 
-        if (!pdfResponse.ok) {
-          const errorText = await pdfResponse.text()
-          console.error("[TEST] PDF generation API error response:", errorText)
-          throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
-        }
-
-        const blob = await pdfResponse.blob()
-        downloadPDF(blob, formData.invoiceNumber)
-
-        toast({
-          title: "Success!",
-          description: "Your invoice has been generated and downloaded (test mode)",
-        })
-      } catch (error) {
-        console.error("[TEST] PDF generation error:", error)
-        toast({
-          title: "Error",
-          description:
-            error instanceof Error ? error.message : "Failed to generate PDF. Please try again.",
-          variant: "destructive",
-        })
-      } finally {
-        setIsProcessing(false)
-      }
-      return
+    if (!pdfResponse.ok) {
+      const errorText = await pdfResponse.text()
+      console.error("PDF generation API error:", errorText)
+      throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
     }
 
-    // Production mode - proceed with payment
-    try {
-      const amount = 99
-      const orderResult = await createPaymentOrder(amount, "razorpay")
+    const blob = await pdfResponse.blob()
+    downloadPDF(blob, formData.invoiceNumber)
 
-      if (!orderResult.success || !orderResult.data) {
-        throw new Error(orderResult.error || "Failed to create order")
-      }
+    toast({
+      title: "Success! 🎉",
+      description: "Your invoice has been generated and downloaded",
+    })
+  }, [formData, isSellerGSTINValid, validateForm, errors, markFieldTouched, toast])
 
-      const { orderId, amount: orderAmount, currency, keyId } = orderResult.data
-
-      const options = {
-        key: keyId,
-        amount: orderAmount,
-        currency,
-        name: "InvoiceGen",
-        description: "Detailed GST Invoice PDF",
-        order_id: orderId,
-        handler: async (response: any) => {
-          try {
-            // Capture HTML from preview
-            const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-            const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber)
-            
-            const pdfResponse = await fetch("/api/generate-pdf", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                htmlContent,
-                filename: `invoice-${formData.invoiceNumber}.pdf`,
-              }),
-            })
-
-            if (!pdfResponse.ok) {
-              throw new Error("Payment verification failed")
-            }
-
-            const blob = await pdfResponse.blob()
-            downloadPDF(blob, formData.invoiceNumber)
-
-            toast({
-              title: "Success!",
-              description: "Your invoice has been generated and downloaded",
-            })
-          } catch (error) {
-            toast({
-              title: "Error",
-              description: "Failed to generate PDF. Please contact support.",
-              variant: "destructive",
-            })
-          } finally {
-            setIsProcessing(false)
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setIsProcessing(false)
-          },
-        },
-        prefill: {
-          name: formData.sellerName,
-        },
-        theme: {
-          color: "#3b82f6",
-        },
-      }
-
-      const razorpay = new (window as any).Razorpay(options)
-      razorpay.open()
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to initiate payment. Please try again.",
-        variant: "destructive",
-      })
-      setIsProcessing(false)
-    }
-  }
+  /**
+   * Handle payment error
+   */
+  const handlePaymentError = useCallback((error: string) => {
+    toast({
+      title: "Payment Error",
+      description: error,
+      variant: "destructive",
+    })
+  }, [toast])
 
   return (
     <>
@@ -239,7 +145,7 @@ export function InvoiceForm() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form className="space-y-6">
             {/* Form Sections */}
             <div className="animate-in fade-in slide-in-from-top-2 duration-200 delay-75">
               <SellerDetails
@@ -311,56 +217,30 @@ export function InvoiceForm() {
               />
             </div>
 
-            {/* Submit Button */}
-            <div className="flex flex-col gap-3 pt-4 animate-in fade-in slide-in-from-top-2 duration-200 delay-400">
-              <div className="text-center py-2">
-                <p className="text-sm font-medium text-primary">Avoid GST mistakes in 2 minutes</p>
-              </div>
-
-              <Button
-                type="submit"
-                size="lg"
-                disabled={isProcessing || !canSubmit}
-                className="w-full text-base"
-              >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isTestMode ? 'Generating PDF...' : 'Processing Payment...'}
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-4 w-4" />
-                    {isTestMode 
-                      ? 'Download PDF (Test Mode - Free)' 
-                      : `Pay ₹${PDF_PRICE} & Download GST Invoice`
-                    }
-                  </>
-                )}
-              </Button>
-              {!canSubmit && !isProcessing && (
-                <p className="text-xs text-center text-destructive">
-                  Please fill in all required fields with valid data to continue
-                </p>
-              )}
-              <p className="text-xs text-center text-muted-foreground">
-                {isTestMode 
-                  ? '⚠️ Test mode enabled - PDF downloads are free'
-                  : 'Secure payment via Razorpay. Invoice generated instantly after payment.'
-                }
-              </p>
-              <p className="text-xs text-center text-muted-foreground italic">
-                Based on GST Rule 46 invoice requirements for services.
-              </p>
-              <p className="text-[10px] text-center text-muted-foreground/70 mt-2">
-                For invoicing assistance only. Please verify details before filing GST returns.
-              </p>
+            {/* GST compliance note */}
+            <div className="text-xs text-center text-muted-foreground italic pt-2">
+              Based on GST Rule 46 invoice requirements for services.
             </div>
           </form>
         </div>
 
-        <div className="lg:block hidden">
-          <InvoicePreview calculatedData={calculatedData} errors={errors} />
+        {/* Right Column: Preview + PaymentCTA */}
+        <div className="lg:block hidden sticky top-24 self-start space-y-3">
+          {/* Preview - Uses maxHeight prop to leave room for PaymentCTA */}
+          <InvoicePreview calculatedData={calculatedData} errors={errors} maxHeight="55vh" />
+          
+          {/* Psychology-optimized Payment CTA */}
+          <PaymentCTA
+            isFormComplete={isFormComplete}
+            price={PDF_PRICE}
+            documentType="invoice"
+            isTestMode={isTestMode}
+            onPaymentSuccess={generateAndDownloadPDF}
+            onPaymentError={handlePaymentError}
+            completedSections={completedSectionsCount}
+            totalSections={totalSections}
+            paymentDescription={`GST Invoice - ${formData.invoiceNumber || 'New Invoice'}`}
+          />
         </div>
       </div>
     </>

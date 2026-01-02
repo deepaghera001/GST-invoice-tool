@@ -8,15 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Spinner } from '@/components/ui/spinner';
 import { Badge } from '@/components/ui/badge';
-import { Shield, ArrowLeft, Download, CheckCircle, FlaskConical } from 'lucide-react';
-import { usePayment } from '@/lib/hooks/use-payment';
+import { Shield, ArrowLeft, FlaskConical } from 'lucide-react';
 import { useTDSForm } from '@/lib/hooks/use-tds-form';
 import { TDSFeePreview, captureTDSFeePreviewHTML } from '@/components/documents/tds-fee/tds-fee-preview';
 import { TestScenarioSelector, tdsScenarios, isTestMode } from '@/lib/testing';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Head from "next/head";
+import { PaymentCTA } from '@/components/shared/payment-cta';
 
 const PDF_PRICE = 199; // ₹199
 
@@ -33,18 +32,16 @@ export default function TDSCalculatorPage() {
     getError,
     fillTestData,
     resetForm,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   } = useTDSForm();
 
-  const [downloadingPDF, setDownloadingPDF] = useState(false);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-
-  const { initiatePayment, loading: paymentLoading, error: paymentError } = usePayment();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setApiError(null);
-    setPaymentSuccess(false);
 
     // Validate form using Zod schema
     const { isValid, errors: validationErrors } = validateFormFull();
@@ -62,68 +59,50 @@ export default function TDSCalculatorPage() {
     // No API call needed since calculations are memoized in the hook
   };
 
-  const downloadPDF = async () => {
-    if (!calculations) return;
-
-    setDownloadingPDF(true);
-    try {
-      // Capture HTML from the preview component (same as what user sees)
-      const htmlContent = captureTDSFeePreviewHTML();
-
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          htmlContent,
-          filename: `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate PDF');
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Failed to download PDF');
-    } finally {
-      setDownloadingPDF(false);
-    }
-  };
-
-  const handlePayAndDownload = () => {
-    // In test mode, download directly without payment
-    if (isTestMode) {
-      downloadPDF();
-      return;
+  /**
+   * Generate and download PDF - called by PaymentCTA after successful payment
+   */
+  const generateAndDownloadPDF = useCallback(async () => {
+    if (!calculations) {
+      throw new Error('No calculations available');
     }
 
-    initiatePayment({
-      amount: PDF_PRICE,
-      name: 'TDS Fee Summary',
-      description: `TDS Late Filing Fee Summary - ${formData.deductionType}`,
-      onSuccess: (paymentId) => {
-        console.log('Payment successful:', paymentId);
-        setPaymentSuccess(true);
-        downloadPDF();
-      },
-      onError: (error) => {
-        console.error('Payment failed:', error);
-      },
+    // Capture HTML from the preview component (same as what user sees)
+    const htmlContent = captureTDSFeePreviewHTML();
+
+    const response = await fetch('/api/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        htmlContent,
+        filename: `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`,
+      }),
     });
-  };
+
+    if (!response.ok) {
+      throw new Error('Failed to generate PDF');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }, [calculations, formData.deductionType]);
+
+  /**
+   * Handle payment error - called by PaymentCTA on payment failure
+   */
+  const handlePaymentError = useCallback((error: string) => {
+    setApiError(error);
+  }, []);
 
   const handleReset = () => {
     resetForm();
-    setPaymentSuccess(false);
     setApiError(null);
   };
 
@@ -360,51 +339,38 @@ export default function TDSCalculatorPage() {
                       Calculate Fee
                     </Button>
 
-                    {/* Bottom actions: stacked buttons, full-width to match form */}
-                    <div className="flex flex-col items-stretch gap-2 w-full">
-                      <Button
-                        variant="outline"
-                        type="button"
-                        className="w-full border-slate-300"
-                        onClick={handleReset}
-                      >
-                        Calculate Another
-                      </Button>
-
-                      <Button
-                        type="button"
-                        onClick={handlePayAndDownload}
-                        disabled={!calculations || paymentLoading || downloadingPDF}
-                        className="w-full bg-slate-800 hover:bg-slate-900"
-                      >
-                        {paymentLoading || downloadingPDF ? (
-                          <>
-                            <Spinner className="mr-2 h-4 w-4" />
-                            {paymentLoading ? 'Processing...' : 'Generating PDF...'}
-                          </>
-                        ) : (
-                          <>
-                            <Download className="mr-2 h-4 w-4" />
-                            {isTestMode
-                              ? 'Download PDF (Test Mode - Free)'
-                              : `Download Fee Summary (₹${PDF_PRICE})`
-                            }
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                    {/* Reset Button */}
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="w-full border-slate-300"
+                      onClick={handleReset}
+                    >
+                      Calculate Another
+                    </Button>
                   </form>
                 </CardContent>
               </Card>
 
-              {/* Preview Card */}
-              <div className="space-y-4">
+              {/* Preview Column - Contains preview + PaymentCTA */}
+              <div className="space-y-3 sticky top-24 self-start">
                 {previewData ? (
                   <>
-                    {/* The Preview Component - This is what gets captured for PDF */}
-                    <TDSFeePreview data={previewData} />
-
-                    {/* Download Actions moved to form footer (bottom-right) */}
+                    {/* Preview - Uses maxHeight prop to leave room for PaymentCTA */}
+                    <TDSFeePreview data={previewData} maxHeight="55vh" />
+                    
+                    {/* Payment CTA - Always visible below preview */}
+                    <PaymentCTA
+                      isFormComplete={isFormComplete && !!calculations}
+                      price={PDF_PRICE}
+                      documentType="tds-certificate"
+                      isTestMode={isTestMode}
+                      onPaymentSuccess={generateAndDownloadPDF}
+                      onPaymentError={handlePaymentError}
+                      completedSections={completedSectionsCount}
+                      totalSections={totalSections}
+                      paymentDescription={`TDS Late Filing Fee Summary - ${formData.deductionType}`}
+                    />
                   </>
                 ) : (
                   <Card className="border-slate-200 border-dashed bg-slate-50/50">

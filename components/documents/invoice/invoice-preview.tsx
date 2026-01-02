@@ -18,6 +18,8 @@ import { GSTIN_REGEX, SAC_REGEX } from "@/lib/invoice"
 interface InvoicePreviewProps {
   calculatedData: InvoiceCalculatedData
   errors?: InvoiceValidationErrors
+  /** Optional max height for preview (e.g. '55vh') */
+  maxHeight?: string
 }
 
 /**
@@ -49,7 +51,7 @@ function getPlaceOfSupply(
   return "Not specified yet"
 }
 
-export function InvoicePreview({ calculatedData, errors }: InvoicePreviewProps) {
+export function InvoicePreview({ calculatedData, errors, maxHeight }: InvoicePreviewProps) {
   const { formData, totals } = calculatedData
 
   // Validate GSTIN and SAC formats
@@ -66,7 +68,7 @@ export function InvoicePreview({ calculatedData, errors }: InvoicePreviewProps) 
   )
 
   return (
-    <PreviewWrapper title="Invoice Preview" icon={<FileText className="h-5 w-5" />} previewId="invoice-preview" dataTestId="invoice-preview" pdfContentId="invoice-pdf-content">
+    <PreviewWrapper title="Invoice Preview" icon={<FileText className="h-5 w-5" />} previewId="invoice-preview" dataTestId="invoice-preview" pdfContentId="invoice-pdf-content" maxHeight={maxHeight}>
       {/* PDF Capture Area - only this div is captured for PDF */}
       <div className="p-6 space-y-6">
         {/* Invoice Header */}

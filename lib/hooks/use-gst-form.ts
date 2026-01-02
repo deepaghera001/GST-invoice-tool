@@ -28,6 +28,10 @@ export interface UseGSTFormReturn {
   shouldShowError: (field: string) => boolean
   getError: (field: string) => string | undefined
   resetForm: () => void
+  // Form completion status
+  isFormComplete: boolean
+  completedSectionsCount: number
+  totalSections: number
 }
 
 // Sample test data for GST calculator
@@ -149,6 +153,18 @@ export function useGSTForm(
   )
 
   /**
+   * Form completion status using Zod validation
+   */
+  const isFormComplete = useMemo(() => {
+    const result = validateForm(formData)
+    return result.isValid
+  }, [formData])
+
+  // For GST calculator, treat it as a single section (simpler form)
+  const completedSectionsCount = isFormComplete ? 1 : 0
+  const totalSections = 1
+
+  /**
    * Calculate GST penalty (memoized)
    */
   const calculations = useMemo(() => {
@@ -194,5 +210,9 @@ export function useGSTForm(
     shouldShowError,
     getError,
     resetForm,
+    // Form completion status
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   }
 }

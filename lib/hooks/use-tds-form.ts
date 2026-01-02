@@ -12,8 +12,26 @@ import {
   DEFAULT_TDS_CALCULATOR_DATA,
   validateField,
   validateForm,
+  DeductionTypeSchema,
+  TDSAmountSchema,
+  DateSchema,
+  OptionalDateSchema,
 } from "@/lib/tds/schema"
 import { calculateTDSPenalty, type TDSPenaltyOutput } from "@/lib/tds/calculator"
+import { z } from "zod"
+
+/**
+ * Section completion status for TDS form
+ * TDS has 3 logical sections:
+ * 1. TDS Details (section type + amount)
+ * 2. Dates (due date + filing date)
+ * 3. Optional Interest (deposit date, only when enabled)
+ */
+export interface TDSSectionCompletionStatus {
+  tdsDetails: boolean
+  dates: boolean
+  interestOptions: boolean
+}
 
 export interface UseTDSFormReturn {
   formData: typeof DEFAULT_TDS_CALCULATOR_DATA
@@ -28,6 +46,14 @@ export interface UseTDSFormReturn {
   shouldShowError: (field: string) => boolean
   getError: (field: string) => string | undefined
   resetForm: () => void
+  /** Section completion status (for progress tracking) */
+  isSectionComplete: TDSSectionCompletionStatus
+  /** Whether all required sections are complete */
+  isFormComplete: boolean
+  /** Number of completed sections */
+  completedSectionsCount: number
+  /** Total number of sections */
+  totalSections: number
 }
 
 // Sample test data for TDS calculator
@@ -224,6 +250,70 @@ export function useTDSForm(
     })
   }, [formData])
 
+  /**
+   * Section completion status using Zod schemas
+   * This enables progress tracking for the PaymentCTA component
+   */
+  const isSectionComplete = useMemo((): TDSSectionCompletionStatus => {
+    // TDS Details: deduction type + TDS amount
+    const tdsDetailsSchema = z.object({
+      deductionType: DeductionTypeSchema,
+      tdsAmount: TDSAmountSchema,
+    })
+
+    // Dates: due date + filing date (with filing >= due validation)
+    const datesSchema = z.object({
+      dueDate: DateSchema,
+      filingDate: DateSchema,
+    }).refine(
+      (data) => {
+        const dueDate = new Date(data.dueDate)
+        const filingDate = new Date(data.filingDate)
+        return filingDate >= dueDate
+      },
+      { message: "Filing date must be on or after due date" }
+    )
+
+    // Interest options: always complete if depositedLate is false
+    // If depositedLate is true, requires valid depositDate
+    const interestOptionsComplete = !formData.depositedLate || 
+      (formData.depositDate !== '' && 
+       /^\d{4}-\d{2}-\d{2}$/.test(formData.depositDate) &&
+       !isNaN(new Date(formData.depositDate).getTime()))
+
+    return {
+      tdsDetails: tdsDetailsSchema.safeParse({
+        deductionType: formData.deductionType,
+        tdsAmount: formData.tdsAmount,
+      }).success,
+      dates: datesSchema.safeParse({
+        dueDate: formData.dueDate,
+        filingDate: formData.filingDate,
+      }).success,
+      interestOptions: interestOptionsComplete,
+    }
+  }, [formData])
+
+  /**
+   * Check if all required sections are complete
+   */
+  const isFormComplete = useMemo(() => {
+    return (
+      isSectionComplete.tdsDetails &&
+      isSectionComplete.dates &&
+      isSectionComplete.interestOptions
+    )
+  }, [isSectionComplete])
+
+  /**
+   * Count completed sections
+   */
+  const completedSectionsCount = useMemo(() => {
+    return Object.values(isSectionComplete).filter(Boolean).length
+  }, [isSectionComplete])
+
+  const totalSections = 3
+
   return {
     formData,
     errors,
@@ -237,5 +327,9 @@ export function useTDSForm(
     shouldShowError,
     getError,
     resetForm,
+    isSectionComplete,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   }
 }

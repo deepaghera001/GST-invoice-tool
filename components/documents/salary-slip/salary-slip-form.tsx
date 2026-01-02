@@ -231,25 +231,26 @@ export function SalarySlipForm() {
                 shouldShowError={shouldShowError}
               />
             </div>
-
-            {/* Psychology-optimized Payment CTA - handles payment internally */}
-            <PaymentCTA
-              isFormComplete={isFormComplete}
-              price={PDF_PRICE}
-              documentType="salary-slip"
-              isTestMode={isTestMode}
-              onPaymentSuccess={generateAndDownloadPDF}
-              onPaymentError={handlePaymentError}
-              completedSections={completedSectionsCount}
-              totalSections={totalSections}
-              paymentDescription={`Salary Slip - ${formData.employee.employeeName} (${formData.period.month}/${formData.period.year})`}
-            />
           </form>
         </div>
 
-        {/* Right Column: Preview */}
-        <div className="lg:block hidden">
-          <SalarySlipPreview formData={formData} calculations={calculations} />
+        {/* Right Column: Preview + PaymentCTA */}
+        <div className="lg:block hidden sticky top-24 self-start space-y-3">
+          {/* Preview - Uses maxHeight prop to leave room for PaymentCTA */}
+          <SalarySlipPreview formData={formData} calculations={calculations} maxHeight="55vh" />
+          
+          {/* Psychology-optimized Payment CTA - Always visible below preview */}
+          <PaymentCTA
+            isFormComplete={isFormComplete}
+            price={PDF_PRICE}
+            documentType="salary-slip"
+            isTestMode={isTestMode}
+            onPaymentSuccess={generateAndDownloadPDF}
+            onPaymentError={handlePaymentError}
+            completedSections={completedSectionsCount}
+            totalSections={totalSections}
+            paymentDescription={`Salary Slip - ${formData.employee.employeeName} (${formData.period.month}/${formData.period.year})`}
+          />
         </div>
       </div>
     </>

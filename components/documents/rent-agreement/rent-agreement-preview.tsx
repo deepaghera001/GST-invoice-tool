@@ -22,6 +22,7 @@ import {
 
 interface RentAgreementPreviewProps {
   calculatedData: RentAgreementCalculatedData
+  maxHeight?: string
 }
 
 function formatCurrency(amount: number): string {
@@ -54,7 +55,7 @@ function getOrdinalSuffix(n: number): string {
   return s[(v - 20) % 10] || s[v] || s[0]
 }
 
-export function RentAgreementPreview({ calculatedData }: RentAgreementPreviewProps) {
+export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreementPreviewProps) {
   const { formData, calculations } = calculatedData
   const { landlord, tenant, property, rentTerms, clauses } = formData
 
@@ -62,7 +63,7 @@ export function RentAgreementPreview({ calculatedData }: RentAgreementPreviewPro
   const documentId = `RA-${Date.now().toString(36).toUpperCase().slice(-8)}`
 
   return (
-    <PreviewWrapper className="overflow-hidden" title="Agreement Preview" icon={<FileText className="h-5 w-5" />} previewId="rent-agreement-preview" dataTestId="rent-agreement-preview" pdfContentId="rent-agreement-pdf-content">
+    <PreviewWrapper className="overflow-hidden" title="Agreement Preview" icon={<FileText className="h-5 w-5" />} previewId="rent-agreement-preview" dataTestId="rent-agreement-preview" pdfContentId="rent-agreement-pdf-content" maxHeight={maxHeight}>
         {/* LEGAL DOCUMENT - This is what gets captured for PDF */}
         <div data-testid="rent-agreement-preview" className="p-6 space-y-5 text-sm bg-white">
           {/* Title */}

@@ -55,6 +55,9 @@ interface UseRentAgreementFormReturn {
     rentTerms: boolean
     clauses: boolean
   }
+  isFormComplete: boolean
+  completedSectionsCount: number
+  totalSections: number
 
   // Query methods
   shouldShowError: (fieldPath: string) => boolean
@@ -115,6 +118,19 @@ export function useRentAgreementForm(): UseRentAgreementFormReturn {
     rentTerms: rentTermsSchema.safeParse(formData.rentTerms).success,
     clauses: clausesSchema.safeParse(formData.clauses).success,
   }), [formData])
+
+  // Form completion status
+  const isFormComplete = useMemo(() => 
+    Object.values(isSectionComplete).every(Boolean),
+    [isSectionComplete]
+  )
+
+  const completedSectionsCount = useMemo(() => 
+    Object.values(isSectionComplete).filter(Boolean).length,
+    [isSectionComplete]
+  )
+
+  const totalSections = 5
 
   /**
    * Set a nested value in form data
@@ -390,6 +406,9 @@ export function useRentAgreementForm(): UseRentAgreementFormReturn {
 
     // Section completion (Zod-based)
     isSectionComplete,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
 
     // Query methods
     shouldShowError,

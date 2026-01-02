@@ -12,9 +12,11 @@ import { PreviewWrapper } from "../shared/preview-wrapper"
 interface SalarySlipPreviewProps {
   formData: SalarySlipFormData
   calculations: SalarySlipCalculationResult
+  /** Optional max height for preview (e.g. '55vh') */
+  maxHeight?: string
 }
 
-export function SalarySlipPreview({ formData, calculations }: SalarySlipPreviewProps) {
+export function SalarySlipPreview({ formData, calculations, maxHeight }: SalarySlipPreviewProps) {
   const monthLabel = MONTHS.find((m) => m.value === formData.period.month)?.label || "January"
 
   return (
@@ -24,6 +26,7 @@ export function SalarySlipPreview({ formData, calculations }: SalarySlipPreviewP
       dataTestId="salary-slip-preview"
       className="bg-white dark:bg-slate-900 border border-border rounded-lg shadow-lg"
       pdfContentId="salary-slip-pdf-content"
+      maxHeight={maxHeight}
     >
       <div className="p-8 space-y-6 text-sm">
       {/* Company logo (optional) */}

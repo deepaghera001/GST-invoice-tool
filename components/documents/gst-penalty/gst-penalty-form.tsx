@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useCallback } from "react"
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -8,16 +8,18 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Spinner } from '@/components/ui/spinner'
-import { Shield, Download, CheckCircle } from 'lucide-react'
-import { usePayment } from '@/lib/hooks/use-payment'
+import { Shield } from 'lucide-react'
 import { useGSTForm } from '@/lib/hooks/use-gst-form'
 import { GSTPenaltyPreview } from './gst-penalty-preview'
-import { TestScenarioSelector, gstScenarios, isTestMode } from '@/lib/testing'
+import { TestScenarioSelector, gstScenarios } from '@/lib/testing'
+import { PaymentCTA } from '@/components/shared/payment-cta'
+import { useToast } from '@/components/ui/use-toast'
 
 const PDF_PRICE = 199 // ₹199
 
 export function GSTPenaltyForm() {
+  const { toast } = useToast()
+  
   const {
     formData,
     errors,
@@ -27,92 +29,73 @@ export function GSTPenaltyForm() {
     validateFormFull,
     shouldShowError,
     getError,
-    
     resetForm,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
   } = useGSTForm()
 
-  const [downloadingPDF, setDownloadingPDF] = useState(false)
-  const [paymentSuccess, setPaymentSuccess] = useState(false)
-  const [apiError, setApiError] = useState<string | null>(null)
-
-  const { initiatePayment, loading: paymentLoading, error: paymentError } = usePayment()
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setApiError(null)
-    setPaymentSuccess(false)
-
+  // Generate and download PDF
+  const generateAndDownloadPDF = useCallback(async () => {
     const { isValid, errors: validationErrors } = validateFormFull()
-
+    
     if (!isValid) {
       const firstError = Object.values(validationErrors)[0]
-      if (firstError) setApiError(firstError)
-      return
-    }
-
-    // calculations are derived in the hook; no API call here
-  }
-
-  const downloadPDF = async () => {
-    if (!calculations) return
-
-    setDownloadingPDF(true)
-    try {
-      const { captureGSTPenaltyPreviewHTML } = await import('@/lib/utils/dom-capture-utils')
-      const htmlContent = captureGSTPenaltyPreviewHTML()
-
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          htmlContent,
-          filename: `GST-Penalty-Summary-${formData.returnType}-${Date.now()}.pdf`,
-        }),
+      toast({
+        title: "Validation Error",
+        description: firstError || "Please fix the errors in the form",
+        variant: "destructive",
       })
-
-      if (!response.ok) throw new Error('Failed to generate PDF')
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `GST-Penalty-Summary-${formData.returnType}-${Date.now()}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-    } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Failed to download PDF')
-    } finally {
-      setDownloadingPDF(false)
-    }
-  }
-
-  const handlePayAndDownload = () => {
-    if (isTestMode) {
-      downloadPDF()
       return
     }
 
-    initiatePayment({
-      amount: PDF_PRICE,
-      name: 'GST Penalty Summary',
-      description: `GST Penalty Summary - ${formData.returnType}`,
-      onSuccess: (paymentId) => {
-        setPaymentSuccess(true)
-        downloadPDF()
-      },
-      onError: (error) => {
-        console.error('Payment failed:', error)
-      },
-    })
-  }
+    if (!calculations) {
+      toast({
+        title: "Error",
+        description: "Please enter valid data to calculate penalty",
+        variant: "destructive",
+      })
+      return
+    }
 
-  const handleReset = () => {
-    resetForm()
-    setPaymentSuccess(false)
-    setApiError(null)
-  }
+    const { captureGSTPenaltyPreviewHTML } = await import('@/lib/utils/dom-capture-utils')
+    const htmlContent = captureGSTPenaltyPreviewHTML()
+
+    const response = await fetch('/api/generate-pdf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        htmlContent,
+        filename: `GST-Penalty-Summary-${formData.returnType}-${Date.now()}.pdf`,
+      }),
+    })
+
+    if (!response.ok) throw new Error('Failed to generate PDF')
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `GST-Penalty-Summary-${formData.returnType}-${Date.now()}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    toast({
+      title: "Success!",
+      description: "Your GST penalty summary has been downloaded",
+    })
+  }, [validateFormFull, calculations, formData.returnType, toast])
+
+  // Handle payment error
+  const handlePaymentError = useCallback((error: string) => {
+    toast({
+      title: "Error",
+      description: error,
+      variant: "destructive",
+    })
+  }, [toast])
 
   const previewData = calculations
     ? {
@@ -145,7 +128,7 @@ export function GSTPenaltyForm() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-5">
             <div className="space-y-2">
               <Label className="text-sm font-medium text-slate-700">Return Type</Label>
               <RadioGroup value={formData.returnType} onValueChange={(val) => handleChange('returnType', val)}>
@@ -188,68 +171,21 @@ export function GSTPenaltyForm() {
               <Label htmlFor="taxPaidLate" className="font-normal text-sm cursor-pointer text-slate-600">Tax was also paid late (interest applies)</Label>
             </div>
 
-            {(apiError || Object.keys(errors).length > 0) && (
+            {Object.keys(errors).length > 0 && (
               <Alert variant="destructive" className="py-2">
-                <AlertDescription className="text-sm">{apiError || 'Please fix the errors above'}</AlertDescription>
+                <AlertDescription className="text-sm">Please fix the errors above</AlertDescription>
               </Alert>
             )}
 
-            <Button type="submit" className="w-full bg-slate-800 hover:bg-slate-900">Calculate Penalty</Button>
-
-            <div className="pt-3">
-              <Card className="border-slate-200 bg-white">
-                <CardContent className="pt-4 space-y-3">
-                  {paymentSuccess && (
-                    <div className="p-3 bg-green-50 border border-green-200 rounded-md flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <p className="text-sm text-green-800">Payment successful! Downloading PDF...</p>
-                    </div>
-                  )}
-
-                  {paymentError && (
-                    <Alert variant="destructive" className="py-2">
-                      <AlertDescription className="text-sm">{paymentError}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  <Button
-                    className="w-full bg-slate-800 hover:bg-slate-900"
-                    onClick={() => {
-                      const { isValid, errors: validationErrors } = validateFormFull()
-                      if (!isValid) {
-                        const firstError = Object.values(validationErrors)[0]
-                        if (firstError) setApiError(firstError)
-                        return
-                      }
-                      handlePayAndDownload()
-                    }}
-                    disabled={paymentLoading || downloadingPDF || !calculations || Object.keys(errors).length > 0}
-                  >
-                    {paymentLoading || downloadingPDF ? (
-                      <>
-                        <Spinner className="mr-2 h-4 w-4" />
-                        {paymentLoading ? 'Processing...' : 'Generating PDF...'}
-                      </>
-                    ) : (
-                      <>
-                        <Download className="mr-2 h-4 w-4" />
-                        {isTestMode ? 'Download PDF (Test Mode - Free)' : `Download Penalty Summary (₹${PDF_PRICE})`}
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-slate-500 text-center">{isTestMode ? '⚠️ Test mode enabled - PDF downloads are free' : 'Suitable for audit & record keeping'}</p>
-
-                  <Button variant="outline" className="w-full border-slate-300" onClick={handleReset}>Calculate Another</Button>
-                </CardContent>
-              </Card>
-            </div>
-          </form>
+            <Button variant="outline" className="w-full border-slate-300" onClick={resetForm}>Calculate Another</Button>
+          </div>
         </CardContent>
       </Card>
 
-      <div className="space-y-4">
+      {/* Preview + PaymentCTA */}
+      <div className="sticky top-24 self-start space-y-3">
         {previewData ? (
-          <GSTPenaltyPreview data={previewData} />
+          <GSTPenaltyPreview data={previewData} maxHeight="55vh" />
         ) : (
           <Card className="border-slate-200 border-dashed bg-slate-50/50">
             <CardContent className="flex flex-col items-center justify-center h-full py-20">
@@ -259,6 +195,17 @@ export function GSTPenaltyForm() {
             </CardContent>
           </Card>
         )}
+        
+        <PaymentCTA
+          isFormComplete={isFormComplete && !!calculations}
+          completedSections={completedSectionsCount}
+          totalSections={totalSections}
+          onPaymentSuccess={generateAndDownloadPDF}
+          onPaymentError={handlePaymentError}
+          price={PDF_PRICE}
+          documentType="gst-penalty"
+          buttonText="Download Summary"
+        />
       </div>
     </div>
   )

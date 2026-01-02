@@ -18,6 +18,8 @@ interface PreviewWrapperProps {
   topGap?: string
   /** ID for the inner PDF content div (used for PDF capture) */
   pdfContentId?: string
+  /** Optional max height override (e.g. '50vh') - useful when PaymentCTA needs space below */
+  maxHeight?: string
 }
 
 export function PreviewWrapper({
@@ -31,6 +33,7 @@ export function PreviewWrapper({
   bottomOffset = "4rem",
   topGap = "0.5rem",
   pdfContentId,
+  maxHeight,
 }: PreviewWrapperProps) {
   // Measured offsets (in px/rem strings). Default to provided props, then
   // measure actual header/footer heights at runtime to avoid cutoffs.
@@ -62,11 +65,9 @@ export function PreviewWrapper({
     return () => window.removeEventListener("resize", measure)
   }, [topOffset, bottomOffset])
 
-  // Compute the inner maxHeight dynamically so the preview never exceeds viewport
-  // leaving space for the page header and footer. We add a small `topGap` so the
-  // preview doesn't touch the page header. Using inline styles avoids Tailwind
-  // limitations for dynamic calc() values.
-  const innerMaxHeight = `calc(100vh - ( ${measuredTop} + ${topGap} ) - ${measuredBottom} - 30px)`
+  // Use provided maxHeight or compute dynamically
+  // When maxHeight is provided, use it directly (e.g. '50vh' for when PaymentCTA needs space)
+  const innerMaxHeight = maxHeight || `calc(100vh - ( ${measuredTop} + ${topGap} ) - ${measuredBottom} - 30px)`
 
   return (
     <Card className={`sticky ${className ?? ""}`} style={{ top: `calc(${measuredTop} + ${topGap})` }}>

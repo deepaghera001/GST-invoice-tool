@@ -85,8 +85,8 @@ export function PaymentCTA({
   }
 
   return (
-    <div className="space-y-4 pt-4">
-      {/* Progress indicator (shows while form incomplete) */}
+    <div className="space-y-2">
+      {/* Compact progress indicator (shows while form incomplete) */}
       {showProgress && !isFormComplete && (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 ease-out">
           <FormProgress
@@ -97,51 +97,19 @@ export function PaymentCTA({
         </div>
       )}
 
-      {/* Completion celebration (when form is complete) */}
+      {/* Compact completion indicator (when form is complete) */}
       {isFormComplete && (
         <div 
           className={cn(
-            "bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/30",
-            "border border-green-200 dark:border-green-800 rounded-xl p-5 space-y-3 relative",
-            "shadow-lg shadow-green-100/50 dark:shadow-green-900/20",
-            // Satisfying entrance animation (800ms)
-            "animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-700 ease-out"
+            "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/30",
+            "border border-green-200 dark:border-green-800 rounded-lg px-3 py-2",
+            "animate-in fade-in zoom-in-95 duration-500 ease-out"
           )}
         >
-          {/* Success header with bounce animation */}
-          <div className="flex items-center gap-2.5 text-green-700 dark:text-green-400">
-            <div className="relative">
-              <CheckCircle2 
-                className={cn(
-                  "h-6 w-6",
-                  "animate-in zoom-in-0 spin-in-180 duration-700"
-                )} 
-              />
-              {/* Celebration ring pulse */}
-              <div className="absolute inset-0 rounded-full bg-green-400/30 animate-ping" />
-            </div>
-            <span className="font-semibold text-base animate-in fade-in slide-in-from-left-2 duration-500 delay-200">
-              All details verified
-            </span>
-          </div>
-          
-          {/* Benefits list with staggered animation */}
-          <div className="text-sm text-green-600 dark:text-green-500 space-y-2 pl-1">
-            <p className="flex items-center gap-2 animate-in fade-in slide-in-from-left-3 duration-500 delay-300">
-              <Sparkles className="h-4 w-4 animate-pulse" />
-              <span>Professional {documentName} ready</span>
-            </p>
-            <p className="flex items-center gap-2 animate-in fade-in slide-in-from-left-3 duration-500 delay-500">
-              <Download className="h-4 w-4" />
-              <span>{isTestMode ? "Download instantly" : "Download instantly after payment"}</span>
-            </p>
-          </div>
-          
-          {/* Subtle confetti dots */}
-          <div className="absolute top-2 right-2 flex gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-bounce delay-100" />
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce delay-200" />
-            <div className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-bounce delay-300" />
+          <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+            <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">Ready to download</span>
+            <Sparkles className="h-3 w-3 ml-auto animate-pulse" />
           </div>
         </div>
       )}

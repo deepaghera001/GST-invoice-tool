@@ -24,9 +24,11 @@ interface TDSFeePreviewProps {
     interestOnLatePayment?: number
     totalPenalty: number
   }
+  /** Optional max height for preview (e.g. '55vh') */
+  maxHeight?: string
 }
 
-export function TDSFeePreview({ data }: TDSFeePreviewProps) {
+export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -65,7 +67,7 @@ export function TDSFeePreview({ data }: TDSFeePreviewProps) {
   const risk = getRiskLevel()
 
   return (
-    <PreviewWrapper className="border border-slate-200 bg-white overflow-hidden rounded-none" previewId="tds-fee-preview" dataTestId="tds-fee-preview" pdfContentId="tds-fee-pdf-content">
+    <PreviewWrapper className="border border-slate-200 bg-white overflow-hidden rounded-none" previewId="tds-fee-preview" dataTestId="tds-fee-preview" pdfContentId="tds-fee-pdf-content" maxHeight={maxHeight}>
       {/* Header */}
       <div className="bg-blue-800 text-white px-6 py-4">
         <div className="flex items-center justify-between">

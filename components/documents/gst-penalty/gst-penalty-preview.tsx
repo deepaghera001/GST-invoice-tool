@@ -36,9 +36,10 @@ interface GSTPenaltyPreviewProps {
       notification: string
     }
   }
+  maxHeight?: string
 }
 
-export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
+export function GSTPenaltyPreview({ data, maxHeight }: GSTPenaltyPreviewProps) {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -68,7 +69,7 @@ export function GSTPenaltyPreview({ data }: GSTPenaltyPreviewProps) {
   const cardClass = "border border-slate-200 bg-white overflow-hidden rounded-none"
 
   return (
-    <PreviewWrapper className={cardClass} previewId="gst-penalty-preview" dataTestId="gst-penalty-preview" pdfContentId="gst-penalty-pdf-content">
+    <PreviewWrapper className={cardClass} previewId="gst-penalty-preview" dataTestId="gst-penalty-preview" pdfContentId="gst-penalty-pdf-content" maxHeight={maxHeight}>
       {/* Header */}
       <div className="bg-slate-800 text-white px-6 py-4">
         <div className="flex items-center justify-between">
