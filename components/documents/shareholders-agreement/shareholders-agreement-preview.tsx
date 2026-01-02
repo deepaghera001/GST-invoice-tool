@@ -13,6 +13,7 @@ import type { ShareholdersAgreementCalculatedData } from "@/lib/shareholders-agr
 
 interface ShareholdersAgreementPreviewProps {
   calculatedData: ShareholdersAgreementCalculatedData
+  maxHeight?: string
 }
 
 // Helper functions for enum rendering
@@ -171,6 +172,7 @@ const SPECIAL_MAJORITY_MATTER_LABELS: Record<string, string> = {
 
 export function ShareholdersAgreementPreview({
   calculatedData,
+  maxHeight,
 }: ShareholdersAgreementPreviewProps) {
   const { formData: data } = calculatedData
 
@@ -182,6 +184,7 @@ export function ShareholdersAgreementPreview({
         previewId="shareholders-agreement-preview"
         dataTestId="shareholders-agreement-preview"
         pdfContentId="shareholders-agreement-pdf-content"
+        maxHeight={maxHeight}
       >
         <div className="text-center py-12">
           <p className="text-muted-foreground">Loading agreement...</p>
@@ -197,6 +200,7 @@ export function ShareholdersAgreementPreview({
       previewId="shareholders-agreement-preview"
       dataTestId="shareholders-agreement-preview"
       pdfContentId="shareholders-agreement-pdf-content"
+      maxHeight={maxHeight}
     >
       {/* PDF Content - this div gets captured for PDF */}
       <div data-testid="shareholders-agreement-preview" className="space-y-5 text-sm bg-white">

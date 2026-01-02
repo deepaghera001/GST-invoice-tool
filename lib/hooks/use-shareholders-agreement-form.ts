@@ -56,6 +56,11 @@ interface UseShareholdersAgreementFormReturn {
     signatureDetails: boolean
   }
 
+  // Progress metrics for PaymentCTA
+  isFormComplete: boolean
+  completedSectionsCount: number
+  totalSections: number
+
   // Query methods
   shouldShowError: (fieldPath: string) => boolean
   isFieldTouched: (fieldPath: string) => boolean
@@ -153,6 +158,14 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
       formData.signatureDetails.placeOfSigning.trim().length >= 2 &&
       formData.signatureDetails.noOfWitnesses >= 0,
   }), [formData])
+
+  // Derived progress metrics for PaymentCTA
+  const completedSectionsCount = useMemo(
+    () => Object.values(isSectionComplete).filter(Boolean).length,
+    [isSectionComplete]
+  )
+  const totalSections = Object.keys(isSectionComplete).length
+  const isFormComplete = completedSectionsCount === totalSections
 
   /**
    * Set a nested value in form data
@@ -376,6 +389,9 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
     markFieldTouched,
     clearErrors,
     isSectionComplete,
+    isFormComplete,
+    completedSectionsCount,
+    totalSections,
     shouldShowError,
     isFieldTouched,
     resetForm,
