@@ -84,7 +84,7 @@ export function PreviewWrapper({
           id={previewId}
           data-testid={dataTestId}
           className="p-6 space-y-6 bg-white overflow-auto"
-         // style={{ maxHeight: innerMaxHeight }}
+          style={{ maxHeight: innerMaxHeight }}
         >
           {/* PDF content wrapper - this is what gets captured for PDF */}
           <div id={pdfContentId}>
