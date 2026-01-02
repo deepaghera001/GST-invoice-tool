@@ -17,20 +17,22 @@ interface ShareholdersAgreementPreviewProps {
 
 // Helper functions for enum rendering
 function formatCompanyType(value?: string): string {
-  if (!value) return "N/A"
-  switch (value) {
+  // Default to private-limited (has default in constants)
+  const effectiveValue = value || "private-limited"
+  switch (effectiveValue) {
     case "private-limited":
       return "Private Limited"
     case "llp":
       return "LLP"
     default:
-      return value
+      return effectiveValue
   }
 }
 
 function formatShareholderRole(value?: string): string {
-  if (!value) return "N/A"
-  switch (value) {
+  // Default to founder (has default in constants)
+  const effectiveValue = value || "founder"
+  switch (effectiveValue) {
     case "founder":
       return "Founder"
     case "investor":
@@ -38,25 +40,27 @@ function formatShareholderRole(value?: string): string {
     case "employee-shareholder":
       return "Employee-Shareholder"
     default:
-      return value
+      return effectiveValue
   }
 }
 
 function formatVotingBasis(value?: string): string {
-  if (!value) return "N/A"
-  switch (value) {
+  // Default to one-share-one-vote (has default in constants)
+  const effectiveValue = value || "one-share-one-vote"
+  switch (effectiveValue) {
     case "one-share-one-vote":
       return "One share = one vote"
     case "special-voting-rights":
       return "Special voting rights"
     default:
-      return value
+      return effectiveValue
   }
 }
 
 function formatDecisionsRequire(value?: string): string {
-  if (!value) return "N/A"
-  switch (value) {
+  // Default to simple-majority (has default in constants)
+  const effectiveValue = value || "simple-majority"
+  switch (effectiveValue) {
     case "simple-majority":
       return "Simple majority"
     case "special-majority-75":
@@ -64,25 +68,27 @@ function formatDecisionsRequire(value?: string): string {
     case "unanimous":
       return "Unanimous"
     default:
-      return value
+      return effectiveValue
   }
 }
 
 function formatDirectorAppointmentBy(value?: string): string {
-  if (!value) return "N/A"
-  switch (value) {
+  // Default to majority-shareholders (has default in constants)
+  const effectiveValue = value || "majority-shareholders"
+  switch (effectiveValue) {
     case "majority-shareholders":
       return "Majority shareholders"
     case "each-founder":
       return "Each founder"
     default:
-      return value
+      return effectiveValue
   }
 }
 
 function formatDeadlockResolution(value?: string): string {
-  if (!value) return "N/A"
-  switch (value) {
+  // Default to arbitration (has default in constants)
+  const effectiveValue = value || "arbitration"
+  switch (effectiveValue) {
     case "arbitration":
       return "Arbitration"
     case "mediation":
@@ -90,13 +96,14 @@ function formatDeadlockResolution(value?: string): string {
     case "buy-sell-mechanism":
       return "Buy-sell mechanism"
     default:
-      return value
+      return effectiveValue
   }
 }
 
 function formatValuationMethod(value?: string): string {
-  if (!value) return "N/A"
-  switch (value) {
+  // Default to fair-market-value if empty (required field with default)
+  const effectiveValue = value || "fair-market-value"
+  switch (effectiveValue) {
     case "fair-market-value":
       return "Fair market value"
     case "mutual-agreement":
@@ -104,8 +111,63 @@ function formatValuationMethod(value?: string): string {
     case "independent-valuer":
       return "Independent valuer"
     default:
-      return value
+      return effectiveValue
   }
+}
+
+function formatBoardVotingRule(value?: string): string {
+  // Default to simple-majority (has default in constants)
+  const effectiveValue = value || "simple-majority"
+  switch (effectiveValue) {
+    case "simple-majority":
+      return "Simple majority of directors present"
+    case "two-thirds":
+      return "Two-thirds majority of directors present"
+    case "unanimous":
+      return "Unanimous consent of all directors"
+    default:
+      return effectiveValue
+  }
+}
+
+function formatDragAlongPriceCondition(value?: string): string {
+  // Default to fair-market-value if empty (has default in constants)
+  const effectiveValue = value || "fair-market-value"
+  switch (effectiveValue) {
+    case "fair-market-value":
+      return "Fair Market Value"
+    case "board-approved-value":
+      return "Board Approved Value"
+    case "mutually-agreed":
+      return "Mutually Agreed Value"
+    default:
+      return effectiveValue
+  }
+}
+
+function formatBuyoutFundingSource(value?: string): string {
+  // Default to company if empty (has default in constants)
+  const effectiveValue = value || "company"
+  switch (effectiveValue) {
+    case "company":
+      return "Company funds"
+    case "remaining-shareholders":
+      return "Remaining shareholders"
+    case "buyer":
+      return "Buyer"
+    default:
+      return effectiveValue
+  }
+}
+
+// Map special majority matter IDs to labels
+const SPECIAL_MAJORITY_MATTER_LABELS: Record<string, string> = {
+  "amendAoA": "Amendment of Articles of Association",
+  "changeShareCapital": "Change in authorized share capital",
+  "issueNewShares": "Issue of new shares or securities",
+  "mergerAcquisition": "Merger, acquisition, or sale of substantial assets",
+  "windingUp": "Winding up or dissolution of the Company",
+  "relatedPartyTransactions": "Related party transactions above threshold",
 }
 
 export function ShareholdersAgreementPreview({
@@ -210,6 +272,9 @@ export function ShareholdersAgreementPreview({
           <p><strong>Authorized Share Capital:</strong> ₹{data.shareCapital?.authorizedShareCapital?.toLocaleString() || "N/A"}</p>
           <p><strong>Paid-up Share Capital:</strong> ₹{data.shareCapital?.paidUpShareCapital?.toLocaleString() || "N/A"}</p>
           <p><strong>Face Value per Share:</strong> ₹{data.shareCapital?.faceValuePerShare?.toLocaleString() || "N/A"}</p>
+          {data.shareCapital?.paidUpShareCapital && data.shareCapital?.faceValuePerShare && (
+            <p><strong>Total Issued Shares:</strong> {Math.floor(data.shareCapital.paidUpShareCapital / data.shareCapital.faceValuePerShare).toLocaleString()} equity shares of ₹{data.shareCapital.faceValuePerShare} each</p>
+          )}
         </div>
       </div>
 
@@ -219,8 +284,10 @@ export function ShareholdersAgreementPreview({
       <div className="space-y-2">
         <h3 className="font-bold text-foreground">4. BOARD & MANAGEMENT CONTROL</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
-          <p><strong>Total Directors:</strong> {data.boardManagement?.totalDirectors || "N/A"}</p>
+          <p><strong>Total Directors:</strong> {data.boardManagement?.totalDirectors || 1}</p>
           <p><strong>Director Appointment By:</strong> {formatDirectorAppointmentBy(data.boardManagement?.directorAppointmentBy)}</p>
+          <p><strong>Board Quorum:</strong> {data.boardManagement?.boardQuorum || 2} directors</p>
+          <p><strong>Board Voting:</strong> {formatBoardVotingRule(data.boardManagement?.boardVotingRule || "simple-majority")}</p>
           {data.boardManagement?.reservedMatters && data.boardManagement.reservedMatters.length > 0 && (
             <div>
               <p><strong>Reserved Matters:</strong></p>
@@ -245,6 +312,16 @@ export function ShareholdersAgreementPreview({
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><strong>Voting Basis:</strong> {formatVotingBasis(data.votingRights?.votingBasis)}</p>
           <p><strong>Decisions Require:</strong> {formatDecisionsRequire(data.votingRights?.decisionsRequire)}</p>
+          {data.votingRights?.specialMajorityMatters && data.votingRights.specialMajorityMatters.length > 0 && (
+            <div className="mt-2">
+              <p><strong>Special Majority (75%) Required For:</strong></p>
+              <ul className="list-disc list-inside text-muted-foreground ml-2">
+                {data.votingRights.specialMajorityMatters.map((matterId) => (
+                  <li key={matterId}>{SPECIAL_MAJORITY_MATTER_LABELS[matterId] || matterId}</li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 
@@ -269,10 +346,19 @@ export function ShareholdersAgreementPreview({
             <h3 className="font-bold text-foreground">7. TAG-ALONG & DRAG-ALONG</h3>
             <div className="space-y-1 text-xs text-muted-foreground">
               {data.tagAlongDragAlong?.enableTagAlong && (
-                <p><strong>Tag-Along Trigger:</strong> {data.tagAlongDragAlong.tagAlongTriggerPercent}%</p>
+                <>
+                  <p><strong>Tag-Along Rights:</strong> Enabled</p>
+                  <p><strong>Tag-Along Trigger:</strong> {data.tagAlongDragAlong.tagAlongTriggerPercent}%</p>
+                </>
               )}
               {data.tagAlongDragAlong?.enableDragAlong && (
-                <p><strong>Drag-Along Trigger:</strong> {data.tagAlongDragAlong.dragAlongTriggerPercent}%</p>
+                <>
+                  <p><strong>Drag-Along Rights:</strong> Enabled</p>
+                  <p><strong>Drag-Along Trigger:</strong> {data.tagAlongDragAlong.dragAlongTriggerPercent}%</p>
+                  {data.tagAlongDragAlong.dragAlongPriceCondition && (
+                    <p><strong>Minimum Sale Price:</strong> {formatDragAlongPriceCondition(data.tagAlongDragAlong.dragAlongPriceCondition)}</p>
+                  )}
+                </>
               )}
             </div>
           </div>
@@ -295,6 +381,8 @@ export function ShareholdersAgreementPreview({
             </div>
           )}
           <p><strong>Valuation Method:</strong> {formatValuationMethod(data.exitBuyout?.valuationMethod)}</p>
+          <p><strong>Payment Timeline:</strong> {data.exitBuyout?.buyoutPaymentDays || 90} days from agreement on valuation</p>
+          <p><strong>Funding Source:</strong> {formatBuyoutFundingSource(data.exitBuyout?.buyoutFundingSource)}</p>
         </div>
       </div>
 
@@ -397,12 +485,13 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Legal Disclaimer */}
-      <div className="bg-amber-50 border border-amber-200 rounded p-3">
-        <p className="text-[10px] text-amber-900 leading-relaxed">
-          <strong>Legal Disclaimer:</strong> This document is a standard Shareholders Agreement generated based on user inputs. It does not replace professional legal advice and must be reviewed by a qualified legal professional before execution. The user is solely responsible for ensuring compliance with all applicable laws and regulations.
+      {/* Legal Disclaimer - Platform Protection */}
+      <div className="bg-slate-50 border border-slate-200 rounded p-3 mt-4">
+        <p className="text-[10px] text-slate-600 leading-relaxed">
+          <strong>Disclaimer:</strong> This Shareholders Agreement is generated based on user-provided inputs and is intended for general use. It does not constitute legal advice and should be reviewed by a qualified legal professional before execution. The parties are responsible for ensuring compliance with all applicable laws and regulations.
         </p>
       </div>
+
     </div>
     </PreviewWrapper>
   )

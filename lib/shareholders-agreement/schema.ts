@@ -97,6 +97,14 @@ const boardManagementSchema = z.object({
       errorMap: () => ({ message: "Director appointment method is required" }),
     }),
   reservedMatters: z.array(z.string()).optional(),
+  boardQuorum: z
+    .number()
+    .min(1, "Board quorum must be at least 1")
+    .optional(),
+  boardVotingRule: z
+    .enum(["simple-majority", "two-thirds", "unanimous"])
+    .optional()
+    .or(z.literal("")),
 })
 
 // Voting rights schema
@@ -109,6 +117,7 @@ const votingRightsSchema = z.object({
     .enum(["simple-majority", "special-majority-75", "unanimous"], {
       errorMap: () => ({ message: "Decision requirement is required" }),
     }),
+  specialMajorityMatters: z.array(z.string()).optional(),
 })
 
 // Share transfer schema
@@ -135,6 +144,10 @@ const tagAlongDragAlongSchema = z.object({
     .min(0)
     .max(100)
     .optional(),
+  dragAlongPriceCondition: z
+    .enum(["fair-market-value", "board-approved-value", "mutually-agreed"])
+    .optional()
+    .or(z.literal("")),
 })
 
 // Exit buyout schema
@@ -144,6 +157,14 @@ const exitBuyoutSchema = z.object({
     .enum(["fair-market-value", "mutual-agreement", "independent-valuer"], {
       errorMap: () => ({ message: "Valuation method is required" }),
     }),
+  buyoutPaymentDays: z
+    .number()
+    .min(1, "Payment period must be at least 1 day")
+    .optional(),
+  buyoutFundingSource: z
+    .enum(["company", "remaining-shareholders", "buyer"])
+    .optional()
+    .or(z.literal("")),
 })
 
 // Confidentiality schema

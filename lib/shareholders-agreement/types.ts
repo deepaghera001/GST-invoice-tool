@@ -30,11 +30,14 @@ export interface BoardManagementControl {
   totalDirectors: number
   directorAppointmentBy: "majority-shareholders" | "each-founder"
   reservedMatters?: string[] // ["issue-new-shares", "change-business", "borrowing-money", "sale-assets"]
+  boardQuorum?: number // minimum directors for quorum
+  boardVotingRule?: "simple-majority" | "two-thirds" | "unanimous"
 }
 
 export interface VotingRights {
   votingBasis: "one-share-one-vote" | "special-voting-rights"
   decisionsRequire: "simple-majority" | "special-majority-75" | "unanimous"
+  specialMajorityMatters?: string[] // matters requiring 75% approval
 }
 
 export interface ShareTransferRestrictions {
@@ -48,11 +51,14 @@ export interface TagAlongDragAlong {
   tagAlongTriggerPercent?: number // 1-100
   enableDragAlong?: boolean
   dragAlongTriggerPercent?: number // 1-100
+  dragAlongPriceCondition?: "fair-market-value" | "board-approved-value" | "mutually-agreed"
 }
 
 export interface ExitBuyoutClauses {
   exitOptions?: string[] // ["buy-back-company", "sale-third-party", "ipo"]
   valuationMethod: "fair-market-value" | "mutual-agreement" | "independent-valuer"
+  buyoutPaymentDays?: number // payment timeline in days
+  buyoutFundingSource?: "company" | "remaining-shareholders" | "buyer"
 }
 
 export interface ConfidentialityNonCompete {

@@ -219,7 +219,7 @@ export function captureGSTPenaltyPreviewHTML(): string {
  * Capture the HTML content of the shareholders agreement preview
  */
 export function captureShareholdersAgreementPreviewHTML(): string {
-  const previewElement = document.getElementById('shareholders-agreement-preview');
+  const previewElement = document.getElementById('shareholders-agreement-pdf-content');
 
   if (!previewElement) {
     throw new Error('Shareholders agreement PDF content element not found');

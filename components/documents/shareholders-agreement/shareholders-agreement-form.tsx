@@ -11,7 +11,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { useShareholdersAgreementForm } from "@/lib/hooks/use-shareholders-agreement-form"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Download, RotateCcw, AlertCircle, CheckCircle2 } from "lucide-react"
+import { Loader2, Download, RotateCcw, AlertCircle, CheckCircle2, FlaskConical } from "lucide-react"
+import { TestScenarioSelector, shareholdersAgreementScenarios, isTestMode } from "@/lib/testing"
 import {
   CompanyDetails,
   ShareholdersDetails,
@@ -163,10 +164,24 @@ export function ShareholdersAgreementForm() {
           <div className="space-y-3">
             <div className="flex items-center gap-3 flex-wrap">
               <h2 className="text-2xl font-bold text-foreground">Create Your Shareholders Agreement</h2>
+              {isTestMode && (
+                <Badge variant="outline" className="border-amber-500 text-amber-600 gap-1">
+                  <FlaskConical className="h-3 w-3" />
+                  Test Mode
+                </Badge>
+              )}
             </div>
-            <p className="text-muted-foreground text-pretty">
-              Fill in the details below to generate a legally formatted shareholders agreement. Preview updates in real-time.
-            </p>
+            <div className="flex items-center gap-3 flex-wrap">
+              <p className="text-muted-foreground text-pretty">
+                Fill in the details below to generate a legally formatted shareholders agreement. Preview updates in real-time.
+              </p>
+              {/* Test Scenario Selector - only renders in test mode */}
+              <TestScenarioSelector
+                scenarios={shareholdersAgreementScenarios}
+                onApply={(data) => setFormData({ ...formData, ...data } as typeof formData)}
+                label="Test Scenarios"
+              />
+            </div>
 
             {/* Progress Bar */}
             <div className="space-y-2 pt-2">
@@ -279,6 +294,7 @@ export function ShareholdersAgreementForm() {
             formData={formData}
             onChange={handleChange}
             onBlur={handleBlur}
+            onCheckboxChange={handleCheckboxChange}
             errors={errors}
             shouldShowError={shouldShowError}
             isCompleted={isSectionComplete.votingRights}
@@ -352,7 +368,9 @@ export function ShareholdersAgreementForm() {
           {/* Submit Button */}
           <div className="flex flex-col gap-3 pt-4 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="text-center py-2">
-              <p className="text-sm font-medium text-primary">Create a legally formatted agreement in minutes</p>
+              <p className="text-sm font-medium text-primary">
+                {isTestMode ? '⚠️ Test mode enabled - PDF downloads are free' : 'Create a legally formatted agreement in minutes'}
+              </p>
             </div>
 
             <Button
@@ -364,12 +382,14 @@ export function ShareholdersAgreementForm() {
               {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  {isTestMode ? 'Generating PDF...' : 'Processing Payment...'}
                 </>
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Pay ₹{PDF_PRICE} & Download Agreement
+                  {isTestMode 
+                    ? 'Download Agreement (Test Mode - Free)' 
+                    : `Pay ₹${PDF_PRICE} & Download Agreement`}
                 </>
               )}
             </Button>
@@ -379,7 +399,9 @@ export function ShareholdersAgreementForm() {
               </p>
             )}
             <p className="text-xs text-center text-muted-foreground">
-              Secure payment via Razorpay. Agreement generated instantly after payment.
+              {isTestMode 
+                ? 'Test mode: No payment required. Enable NEXT_PUBLIC_TEST_MODE=true to use.'
+                : 'Secure payment via Razorpay. Agreement generated instantly after payment.'}
             </p>
             <p className="text-sm text-center font-medium text-foreground">
               Used by startups & companies across India

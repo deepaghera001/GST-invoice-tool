@@ -175,6 +175,13 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
         processedValue = value === "" ? 0 : parseFloat(value)
       }
       
+      // Handle boolean strings from select dropdowns
+      if (value === "true") {
+        processedValue = true
+      } else if (value === "false") {
+        processedValue = false
+      }
+      
       setNestedFormValue(name, processedValue)
       
       // Clear error when user starts typing

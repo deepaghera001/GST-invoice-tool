@@ -281,7 +281,7 @@ export function FormSection({
                   <select
                     id={field.name}
                     name={field.name}
-                    value={data[field.name] || ""}
+                    value={typeof data[field.name] === "boolean" ? String(data[field.name]) : (data[field.name] || "")}
                     onChange={(e) => {
                       const fullPath = getFullPath(field.name)
                       const value = field.transform ? field.transform(e.target.value) : e.target.value

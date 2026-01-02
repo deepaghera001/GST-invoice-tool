@@ -39,10 +39,13 @@ export const DEFAULT_SHAREHOLDERS_AGREEMENT_DATA: ShareholdersAgreementFormData 
     totalDirectors: 1,
     directorAppointmentBy: "majority-shareholders",
     reservedMatters: [],
+    boardQuorum: 2,
+    boardVotingRule: "simple-majority",
   },
   votingRights: {
     votingBasis: "one-share-one-vote",
     decisionsRequire: "simple-majority",
+    specialMajorityMatters: [],
   },
   shareTransfer: {
     transferAllowed: false,
@@ -54,10 +57,13 @@ export const DEFAULT_SHAREHOLDERS_AGREEMENT_DATA: ShareholdersAgreementFormData 
     tagAlongTriggerPercent: 0,
     enableDragAlong: false,
     dragAlongTriggerPercent: 0,
+    dragAlongPriceCondition: "fair-market-value",
   },
   exitBuyout: {
     exitOptions: [],
     valuationMethod: "fair-market-value",
+    buyoutPaymentDays: 90,
+    buyoutFundingSource: "company",
   },
   confidentialityNonCompete: {
     confidentialityClause: true,

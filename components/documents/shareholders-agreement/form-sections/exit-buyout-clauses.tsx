@@ -9,6 +9,7 @@ import { LogOut, Check } from "lucide-react"
 import { FormField } from "@/components/ui/form-field"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import type { ShareholdersAgreementFormData, ShareholdersAgreementValidationErrors } from "@/lib/shareholders-agreement"
 
 const EXIT_OPTIONS = [
@@ -73,7 +74,7 @@ export function ExitBuyoutClauses({
           <select
             id="valuationMethod"
             value={formData.exitBuyout.valuationMethod}
-            onChange={(e) => onChange({ ...e, target: { ...e.target, name: "exitBuyout.valuationMethod", type: e.target.type } } as any)}
+            onChange={(e) => onChange({ ...e, target: { ...e.target, name: "exitBuyout.valuationMethod", value: e.target.value, type: e.target.type } } as React.ChangeEvent<HTMLSelectElement>)}
             onBlur={(e) => onBlur?.("exitBuyout.valuationMethod", e.target.value)}
             className={`w-full px-3 py-2 border rounded-md text-sm bg-background ${shouldShowError("exitBuyout.valuationMethod") ? "border-destructive" : "border-input"}`}
           >
@@ -101,6 +102,46 @@ export function ExitBuyoutClauses({
             ))}
           </div>
         </div>
+
+        {/* Buyout Payment Period */}
+        <FormField
+          label="Buyout Payment Period (days)"
+          htmlFor="buyoutPaymentDays"
+          error={shouldShowError("exitBuyout.buyoutPaymentDays") ? errors["exitBuyout.buyoutPaymentDays"] : undefined}
+          hint="Number of days to complete payment after valuation agreement"
+        >
+          <Input
+            id="buyoutPaymentDays"
+            type="number"
+            placeholder="90"
+            min="1"
+            value={formData.exitBuyout.buyoutPaymentDays ?? ""}
+            onChange={(e) => onChange({ ...e, target: { ...e.target, name: "exitBuyout.buyoutPaymentDays", type: e.target.type } })}
+            onBlur={() => onBlur?.("exitBuyout.buyoutPaymentDays", formData.exitBuyout.buyoutPaymentDays)}
+            className={shouldShowError("exitBuyout.buyoutPaymentDays") ? "border-destructive" : ""}
+          />
+        </FormField>
+
+        {/* Buyout Funding Source */}
+        <FormField
+          label="Buyout Funding Source"
+          htmlFor="buyoutFundingSource"
+          error={shouldShowError("exitBuyout.buyoutFundingSource") ? errors["exitBuyout.buyoutFundingSource"] : undefined}
+          hint="Who funds the buyout?"
+        >
+          <select
+            id="buyoutFundingSource"
+            value={formData.exitBuyout.buyoutFundingSource || ""}
+            onChange={(e) => onChange({ ...e, target: { ...e.target, name: "exitBuyout.buyoutFundingSource", value: e.target.value, type: e.target.type } } as React.ChangeEvent<HTMLSelectElement>)}
+            onBlur={(e) => onBlur?.("exitBuyout.buyoutFundingSource", e.target.value)}
+            className={`w-full px-3 py-2 border rounded-md text-sm bg-background ${shouldShowError("exitBuyout.buyoutFundingSource") ? "border-destructive" : "border-input"}`}
+          >
+            <option value="">Select funding source</option>
+            <option value="company">Company Funds</option>
+            <option value="remaining-shareholders">Remaining Shareholders</option>
+            <option value="buyer">Buyer</option>
+          </select>
+        </FormField>
       </div>
     </div>
   )

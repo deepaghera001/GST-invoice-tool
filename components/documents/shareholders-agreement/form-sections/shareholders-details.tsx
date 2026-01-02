@@ -14,7 +14,7 @@ import type { ShareholdersAgreementFormData, ShareholdersAgreementValidationErro
 
 interface ShareholdersDetailsProps {
   formData: ShareholdersAgreementFormData
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void
   onBlur?: (fieldName: string, value: any) => void
   onShareholderChange?: (index: number, field: string, value: any) => void
   onAddShareholder?: () => void

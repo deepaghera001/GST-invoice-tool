@@ -31,6 +31,7 @@ export {
   gstScenarios,
   tdsScenarios,
   rentAgreementScenarios,
+  shareholdersAgreementScenarios,
 } from './scenarios';
 
 /**

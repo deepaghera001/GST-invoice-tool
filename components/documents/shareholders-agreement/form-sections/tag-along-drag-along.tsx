@@ -50,6 +50,18 @@ const TAGDRAG_FIELDS: FormFieldConfig[] = [
     max: 100,
     helpText: "Percentage threshold to trigger drag-along rights",
   },
+  {
+    name: "dragAlongPriceCondition",
+    label: "Minimum Sale Price Condition",
+    type: "select",
+    placeholder: "Select condition",
+    helpText: "Minimum price requirement for drag-along sale",
+    options: [
+      { value: "fair-market-value", label: "Fair Market Value" },
+      { value: "board-approved-value", label: "Board Approved Value" },
+      { value: "mutually-agreed", label: "Mutually Agreed Value" },
+    ],
+  },
 ]
 
 interface TagAlongDragAlongProps {

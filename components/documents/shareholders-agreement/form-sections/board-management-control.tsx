@@ -23,7 +23,7 @@ const RESERVED_MATTERS = [
 
 interface BoardManagementControlProps {
   formData: ShareholdersAgreementFormData
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void
   onBlur?: (fieldName: string, value: any) => void
   onCheckboxChange?: (path: string, value: string, checked: boolean) => void
   errors?: ShareholdersAgreementValidationErrors
@@ -96,13 +96,49 @@ export function BoardManagementControl({
             <select
               id="appointmentMethod"
               value={formData.boardManagement.directorAppointmentBy}
-              onChange={(e) => onChange({ ...e, target: { ...e.target, name: "boardManagement.directorAppointmentBy", type: e.target.type } } as any)}
+              onChange={(e) => onChange({ ...e, target: { ...e.target, name: "boardManagement.directorAppointmentBy", value: e.target.value, type: e.target.type } } as React.ChangeEvent<HTMLSelectElement>)}
               onBlur={(e) => onBlur?.("boardManagement.directorAppointmentBy", e.target.value)}
               className={`w-full px-3 py-2 border rounded-md text-sm bg-background ${shouldShowError("boardManagement.directorAppointmentBy") ? "border-destructive" : "border-input"}`}
             >
               <option value="">Select method</option>
               <option value="majority-shareholders">Majority of Shareholders</option>
               <option value="each-founder">Each Founder Appoints</option>
+            </select>
+          </FormField>
+
+          <FormField
+            label="Board Quorum"
+            htmlFor="boardQuorum"
+            error={shouldShowError("boardManagement.boardQuorum") ? errors["boardManagement.boardQuorum"] : undefined}
+          >
+            <Input
+              id="boardQuorum"
+              type="number"
+              placeholder="2"
+              min="1"
+              value={formData.boardManagement.boardQuorum ?? ""}
+              onChange={(e) => onChange({ ...e, target: { ...e.target, name: "boardManagement.boardQuorum", type: e.target.type } })}
+              onBlur={() => onBlur?.("boardManagement.boardQuorum", formData.boardManagement.boardQuorum)}
+              className={shouldShowError("boardManagement.boardQuorum") ? "border-destructive" : ""}
+            />
+          </FormField>
+
+          <FormField
+            label="Board Voting Rule"
+            htmlFor="boardVotingRule"
+            error={shouldShowError("boardManagement.boardVotingRule") ? errors["boardManagement.boardVotingRule"] : undefined}
+          >
+            <select
+              id="boardVotingRule"
+              value={formData.boardManagement.boardVotingRule || ""}
+              onChange={(e) => onChange({ ...e, target: { ...e.target, name: "boardManagement.boardVotingRule", value: e.target.value, type: e.target.type } } as React.ChangeEvent<HTMLSelectElement>)}
+              onBlur={(e) => onBlur?.("boardManagement.boardVotingRule", e.target.value)}
+              className={`w-full px-3 py-2 border rounded-md text-sm bg-background ${shouldShowError("boardManagement.boardVotingRule") ? "border-destructive" : "border-input"}`}
+            >
+              <option value="">Select voting rule</option>
+              <option value="simple-majority">Simple Majority</option>
+              <option value="two-thirds">Two-Thirds Majority</option>
+              <option value="unanimous">Unanimous</option>
             </select>
           </FormField>
         </div>
