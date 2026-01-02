@@ -32,6 +32,7 @@ export {
   tdsScenarios,
   rentAgreementScenarios,
   shareholdersAgreementScenarios,
+  influencerContractScenarios,
 } from './scenarios';
 
 /**
@@ -39,3 +40,4 @@ export {
  * Use this to conditionally render test UI
  */
 export const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
+

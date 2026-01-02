@@ -237,3 +237,26 @@ export function captureShareholdersAgreementPreviewHTML(): string {
   // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'Shareholders Agreement', styles);
 }
+
+/**
+ * Capture the HTML content of the influencer contract preview
+ */
+export function captureInfluencerContractPreviewHTML(): string {
+  const previewElement = document.getElementById('influencer-contract-pdf-content');
+
+  if (!previewElement) {
+    throw new Error('Influencer contract PDF content element not found');
+  }
+
+  // Clone the element to avoid modifying the original
+  const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+
+  // Get the outer HTML
+  const htmlContent = clonedElement.outerHTML;
+
+  // Capture styles
+  const styles = captureStyles();
+
+  // Wrap in a complete HTML document with styles
+  return wrapHTMLWithStyles(htmlContent, 'Influencer-Brand Collaboration Agreement', styles);
+}

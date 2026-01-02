@@ -9,7 +9,7 @@ export interface PaymentCTAProps {
   /** Price in rupees */
   price: number
   /** Document type for display text */
-  documentType: "salary-slip" | "invoice" | "rent-agreement" | "gst-summary" | "tds-certificate" | "shareholders-agreement"
+  documentType: "salary-slip" | "invoice" | "rent-agreement" | "gst-summary" | "tds-certificate" | "shareholders-agreement" | "influencer-contract"
   /** Optional custom CTA text when complete */
   ctaText?: string
   /** Optional custom disabled text */
@@ -52,6 +52,7 @@ export const DOCUMENT_DISPLAY_NAMES: Record<PaymentCTAProps["documentType"], str
   "gst-summary": "GST Summary",
   "tds-certificate": "TDS Certificate",
   "shareholders-agreement": "Shareholders Agreement",
+  "influencer-contract": "Influencer-Brand Contract",
 }
 
 /** Default prices per document type */
@@ -62,4 +63,5 @@ export const DEFAULT_PRICES: Record<PaymentCTAProps["documentType"], number> = {
   "gst-summary": 49,
   "tds-certificate": 49,
   "shareholders-agreement": 199,
+  "influencer-contract": 499,
 }

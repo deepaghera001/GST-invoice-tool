@@ -9,3 +9,4 @@ export { gstScenarios } from './gst';
 export { tdsScenarios } from './tds';
 export { rentAgreementScenarios } from './rent-agreement';
 export { shareholdersAgreementScenarios } from './shareholders-agreement';
+export { influencerContractScenarios } from './influencer-contract';
