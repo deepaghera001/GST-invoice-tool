@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { FileText, Shield, CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock } from "lucide-react"
+import { FileText, Shield, CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock, Users, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -133,6 +133,12 @@ export default function HomePage() {
                 >
                   Rent
                 </Link>
+                <Link
+                  href="/shareholders-agreement"
+                  className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
+                >
+                  SHA
+                </Link>
               </div>
             </nav>
             {/* Mobile menu button - simplified */}
@@ -150,7 +156,7 @@ export default function HomePage() {
                 variant="secondary"
                 className="bg-slate-100 text-slate-600 hover:bg-slate-100"
               >
-                5 Tools for Indian Businesses
+                6 Tools for Indian Businesses
               </Badge>
               <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 leading-tight">
                 Compliance Calculators & Document Generators
@@ -316,6 +322,77 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Advanced / Founder Documents Section */}
+        <section className="py-12 bg-slate-50 border-t border-slate-200">
+          <div className="container mx-auto px-4 space-y-8">
+            <div className="max-w-4xl mx-auto">
+              {/* Divider with text */}
+              <div className="flex items-center gap-4 mb-8">
+                <div className="flex-1 h-px bg-slate-300"></div>
+                <span className="text-sm text-slate-500 font-medium">Looking for advanced company documents?</span>
+                <div className="flex-1 h-px bg-slate-300"></div>
+              </div>
+
+              <div className="text-center mb-6">
+                <h3 className="text-xl font-semibold text-slate-900">Advanced Business & Founder Documents</h3>
+                <p className="text-sm text-slate-600 mt-1">Professional drafts for startups and growing companies</p>
+              </div>
+
+              {/* Shareholders Agreement Card - Featured */}
+              <div className="max-w-lg mx-auto">
+                <Link href="/shareholders-agreement">
+                  <Card className="border-slate-300 border-2 hover:border-slate-400 hover:shadow-lg transition-all bg-white group">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2.5 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors">
+                            <Users className="h-5 w-5 text-amber-700" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-base font-medium text-slate-900">
+                              Shareholders Agreement (Draft Format)
+                            </CardTitle>
+                            <p className="text-xs text-slate-500 mt-0.5">For founders & early-stage companies</p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700 font-semibold">
+                          ₹2,499
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-slate-600">
+                        Comprehensive draft agreement covering equity, vesting, decision-making, and exit clauses.
+                      </p>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                          <span className="text-xs text-slate-600">Editable & lawyer-review ready</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                          <span className="text-xs text-slate-600">Saves legal drafting time</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                          <span className="text-xs text-slate-600">Multi-founder & investor friendly</span>
+                        </div>
+                      </div>
+                      
+                     
+
+                      <Button className="w-full bg-slate-800 hover:bg-slate-900 text-white gap-2">
+                        View Draft Template
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Quick Reference Section */}
         <section className="py-12 bg-slate-50 border-t border-slate-200">
           <div className="container mx-auto px-4 space-y-8">
@@ -419,7 +496,7 @@ export default function HomePage() {
         {/* Footer */}
         <footer className="border-t border-slate-200 bg-white mt-auto">
           <div className="container mx-auto px-4 py-10">
-            <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div className="grid md:grid-cols-5 gap-8 mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-1.5 bg-slate-800 rounded">
@@ -485,6 +562,22 @@ export default function HomePage() {
                       className="text-sm text-slate-500 hover:text-slate-700"
                     >
                       Rent Agreement
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-slate-900 mb-3 text-sm">
+                  Advanced
+                </h4>
+                <ul className="space-y-2">
+                  <li>
+                    <Link
+                      href="/shareholders-agreement"
+                      className="text-sm text-slate-500 hover:text-slate-700"
+                    >
+                      Shareholders Agreement (Draft)
                     </Link>
                   </li>
                 </ul>
