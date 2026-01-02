@@ -199,21 +199,9 @@ export const shareholdersAgreementScenarios: TestScenario<ShareholdersAgreementF
       },
     },
   },
-  {
-    id: 'valid-llp',
-    name: '✅ LLP Agreement',
-    category: 'valid',
-    description: 'Agreement for Limited Liability Partnership',
-    data: {
-      ...VALID_BASE,
-      company: {
-        ...VALID_BASE.company,
-        companyName: "TechPartners LLP",
-        companyType: "llp",
-        cin: "AAA-1234",
-      },
-    },
-  },
+  // NOTE: LLP test scenario removed - LLPs cannot have Shareholders Agreements
+  // LLPs need separate "LLP Partnership Agreement" product
+  // This is legally required under Indian law (LLP Act, 2008)
   {
     id: 'valid-minimal',
     name: '✅ Minimal Valid',

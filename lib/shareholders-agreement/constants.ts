@@ -1,5 +1,13 @@
 /**
  * Shareholders Agreement Constants and Defaults
+ * 
+ * IMPORTANT: This document is ONLY for Private Limited Companies.
+ * LLPs (Limited Liability Partnerships) cannot have Shareholders Agreements.
+ * LLPs require a separate "LLP Partnership Agreement" under the LLP Act, 2008.
+ * 
+ * Key differences:
+ * - Pvt Ltd: Shareholders, Shares, Directors, CIN, Companies Act 2013
+ * - LLP: Partners, Capital Contribution, Designated Partners, LLPIN, LLP Act 2008
  */
 
 import type { ShareholdersAgreementFormData } from "./types"
@@ -7,10 +15,10 @@ import type { ShareholdersAgreementFormData } from "./types"
 export const DEFAULT_SHAREHOLDERS_AGREEMENT_DATA: ShareholdersAgreementFormData = {
   company: {
     companyName: "",
-    cin: "",
+    cin: "", // Corporate Identification Number (for Pvt Ltd companies)
     registeredAddress: "",
     dateOfAgreement: "",
-    companyType: "private-limited",
+    companyType: "private-limited", // ONLY option - LLPs need separate product
   },
   shareholders: [
     {

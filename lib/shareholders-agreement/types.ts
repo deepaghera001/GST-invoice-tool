@@ -5,10 +5,10 @@
 
 export interface CompanyDetails {
   companyName: string
-  cin?: string
+  cin?: string // Corporate Identification Number
   registeredAddress: string
   dateOfAgreement: string // YYYY-MM-DD
-  companyType: "private-limited" | "llp" // | "other"
+  companyType: "private-limited" // Only Private Limited Companies can have Shareholders Agreements
 }
 
 export interface Shareholder {

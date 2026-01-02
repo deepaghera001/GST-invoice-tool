@@ -17,15 +17,14 @@ interface ShareholdersAgreementPreviewProps {
 
 // Helper functions for enum rendering
 function formatCompanyType(value?: string): string {
-  // Default to private-limited (has default in constants)
+  // Only Private Limited Companies can have Shareholders Agreements
+  // LLPs require separate LLP Partnership Agreement
   const effectiveValue = value || "private-limited"
   switch (effectiveValue) {
     case "private-limited":
-      return "Private Limited"
-    case "llp":
-      return "LLP"
+      return "Private Limited Company"
     default:
-      return effectiveValue
+      return "Private Limited Company"
   }
 }
 

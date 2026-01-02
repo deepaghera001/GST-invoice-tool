@@ -40,8 +40,8 @@ const companyDetailsSchema = z.object({
     .string()
     .min(1, "Date of agreement is required"),
   companyType: z
-    .enum(["private-limited", "llp"], {
-      errorMap: () => ({ message: "Company type is required" }),
+    .enum(["private-limited"], {
+      errorMap: () => ({ message: "Company type must be Private Limited" }),
     }),
 })
 

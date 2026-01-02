@@ -42,10 +42,9 @@ const COMPANY_FIELDS: FormFieldConfig[] = [
     type: "select",
     placeholder: "Select company type",
     required: true,
-    helpText: "Select the type of company",
+    helpText: "Shareholders Agreements are for Private Limited Companies only. For LLPs, use our LLP Partnership Agreement.",
     options: [
       { value: "private-limited", label: "Private Limited Company" },
-      { value: "llp", label: "Limited Liability Partnership (LLP)" },
     ],
   },
 ]
