@@ -46,7 +46,7 @@ const DOCUMENTS = [
     description: "Create employee salary statements with tax breakdowns",
     features: ["Tax Calculations", "CTC Breakdown", "PDF Format"],
     href: "/salary-slip",
-    badge: "₹49",
+    badge: "₹99",
   },
   {
     id: "rent-agreement",

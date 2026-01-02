@@ -24,7 +24,7 @@ import { SalarySlipPreview } from "./salary-slip-preview"
 import { PaymentCTA } from "@/components/shared/payment-cta"
 import { TestScenarioSelector, salarySlipScenarios, isTestMode } from "@/lib/testing"
 
-const PDF_PRICE = 49 // ₹49
+const PDF_PRICE = 99 // ₹99
 
 export function SalarySlipForm() {
   const { toast } = useToast()

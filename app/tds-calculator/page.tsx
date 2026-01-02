@@ -16,7 +16,7 @@ import { useState, useCallback } from 'react';
 import Head from "next/head";
 import { PaymentCTA } from '@/components/shared/payment-cta';
 
-const PDF_PRICE = 199; // ₹199
+const PDF_PRICE = 99; // ₹99
 
 export default function TDSCalculatorPage() {
   // Use the TDS form hook (Zod-based validation)

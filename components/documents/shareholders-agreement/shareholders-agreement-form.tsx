@@ -31,7 +31,7 @@ import {
 } from "./form-sections"
 import { ShareholdersAgreementPreview } from "./shareholders-agreement-preview"
 
-const PDF_PRICE = 499 // ₹499 for basic, can vary
+const PDF_PRICE = 2499 // ₹2,499
 
 export function ShareholdersAgreementForm() {
   const { toast } = useToast()

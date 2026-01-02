@@ -15,7 +15,7 @@ import { TestScenarioSelector, gstScenarios } from '@/lib/testing'
 import { PaymentCTA } from '@/components/shared/payment-cta'
 import { useToast } from '@/components/ui/use-toast'
 
-const PDF_PRICE = 199 // ₹199
+const PDF_PRICE = 99 // ₹99
 
 export function GSTPenaltyForm() {
   const { toast } = useToast()
