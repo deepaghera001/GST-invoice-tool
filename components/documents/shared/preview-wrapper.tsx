@@ -70,7 +70,7 @@ export function PreviewWrapper({
   const innerMaxHeight = maxHeight || `calc(100vh - ( ${measuredTop} + ${topGap} ) - ${measuredBottom} - 30px)`
 
   return (
-    <Card className={`sticky ${className ?? ""}`} style={{ top: `calc(${measuredTop} + ${topGap})` }}>
+    <Card className={`${className ?? ""}`}>
       {title && (
         <CardHeader className="bg-primary text-primary-foreground sticky top-0 z-20" style={{ top: 0 }}>
           <div className="flex items-center gap-2">

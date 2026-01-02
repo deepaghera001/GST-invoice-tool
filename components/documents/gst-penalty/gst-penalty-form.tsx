@@ -114,61 +114,72 @@ export function GSTPenaltyForm() {
     : null
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      <Card className="border-slate-200 bg-white h-fit">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base font-medium">Return Details</CardTitle>
-          <CardDescription className="flex items-center gap-2 flex-wrap">
-            Enter your GST return information
+    <div className="grid lg:grid-cols-2 gap-8">
+      {/* Left Column: Form */}
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-3xl font-bold text-foreground text-balance">GST Late Fee Calculator</h2>
             <TestScenarioSelector
               scenarios={gstScenarios}
               onApply={(data) => Object.entries(data).forEach(([k, v]) => handleChange(k, v))}
               label="Test Scenarios"
             />
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-5">
+          </div>
+          <p className="text-muted-foreground text-pretty">
+            Calculate GST late fees and interest based on CGST Act Section 47 & 50. Preview updates in real-time.
+          </p>
+        </div>
+
+        {/* Form Fields */}
+        <Card className="border-border bg-card">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base font-medium">Return Details</CardTitle>
+            <CardDescription>Enter your GST return information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Return Type</Label>
+                <RadioGroup value={formData.returnType} onValueChange={(val) => handleChange('returnType', val)}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="GSTR3B" id="gstr3b" />
+                    <Label htmlFor="gstr3b" className="font-normal text-sm cursor-pointer">GSTR-3B (Monthly/Quarterly)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="GSTR1" id="gstr1" />
+                    <Label htmlFor="gstr1" className="font-normal text-sm cursor-pointer">GSTR-1 (Monthly/Quarterly)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="GSTR9" id="gstr9" />
+                    <Label htmlFor="gstr9" className="font-normal text-sm cursor-pointer">GSTR-9 (Annual Return)</Label>
+                  </div>
+                </RadioGroup>
+                {shouldShowError('returnType') && <p className="text-xs text-destructive">{getError('returnType')}</p>}
+              </div>
+
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-slate-700">Return Type</Label>
-              <RadioGroup value={formData.returnType} onValueChange={(val) => handleChange('returnType', val)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="GSTR3B" id="gstr3b" />
-                  <Label htmlFor="gstr3b" className="font-normal text-sm cursor-pointer">GSTR-3B (Monthly/Quarterly)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="GSTR1" id="gstr1" />
-                  <Label htmlFor="gstr1" className="font-normal text-sm cursor-pointer">GSTR-1 (Monthly/Quarterly)</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="GSTR9" id="gstr9" />
-                  <Label htmlFor="gstr9" className="font-normal text-sm cursor-pointer">GSTR-9 (Annual Return)</Label>
-                </div>
-              </RadioGroup>
-              {shouldShowError('returnType') && <p className="text-xs text-red-500">{getError('returnType')}</p>}
+              <Label htmlFor="taxAmount" className="text-sm font-medium">Tax Amount (₹)</Label>
+              <Input id="taxAmount" type="number" placeholder="50000 (enter 0 for NIL return)" min="0" step="0.01" value={formData.taxAmount} onChange={(e) => handleChange('taxAmount', e.target.value)} onBlur={() => handleBlur('taxAmount')} className={shouldShowError('taxAmount') ? 'border-destructive' : ''} />
+              {shouldShowError('taxAmount') && <p className="text-xs text-destructive">{getError('taxAmount')}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="taxAmount" className="text-sm font-medium text-slate-700">Tax Amount (₹)</Label>
-              <Input id="taxAmount" type="number" placeholder="50000 (enter 0 for NIL return)" min="0" step="0.01" value={formData.taxAmount} onChange={(e) => handleChange('taxAmount', e.target.value)} onBlur={() => handleBlur('taxAmount')} className={`border-slate-300 ${shouldShowError('taxAmount') ? 'border-red-500' : ''}`} />
-              {shouldShowError('taxAmount') && <p className="text-xs text-red-500">{getError('taxAmount')}</p>}
+              <Label htmlFor="dueDate" className="text-sm font-medium">Due Date</Label>
+              <Input id="dueDate" type="date" value={formData.dueDate} onChange={(e) => handleChange('dueDate', e.target.value)} onBlur={() => handleBlur('dueDate')} className={shouldShowError('dueDate') ? 'border-destructive' : ''} />
+              {shouldShowError('dueDate') && <p className="text-xs text-destructive">{getError('dueDate')}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="dueDate" className="text-sm font-medium text-slate-700">Due Date</Label>
-              <Input id="dueDate" type="date" value={formData.dueDate} onChange={(e) => handleChange('dueDate', e.target.value)} onBlur={() => handleBlur('dueDate')} className={`border-slate-300 ${shouldShowError('dueDate') ? 'border-red-500' : ''}`} />
-              {shouldShowError('dueDate') && <p className="text-xs text-red-500">{getError('dueDate')}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="filingDate" className="text-sm font-medium text-slate-700">Filing Date</Label>
-              <Input id="filingDate" type="date" value={formData.filingDate} onChange={(e) => handleChange('filingDate', e.target.value)} onBlur={() => handleBlur('filingDate')} className={`border-slate-300 ${shouldShowError('filingDate') ? 'border-red-500' : ''}`} />
-              {shouldShowError('filingDate') && <p className="text-xs text-red-500">{getError('filingDate')}</p>}
+              <Label htmlFor="filingDate" className="text-sm font-medium">Filing Date</Label>
+              <Input id="filingDate" type="date" value={formData.filingDate} onChange={(e) => handleChange('filingDate', e.target.value)} onBlur={() => handleBlur('filingDate')} className={shouldShowError('filingDate') ? 'border-destructive' : ''} />
+              {shouldShowError('filingDate') && <p className="text-xs text-destructive">{getError('filingDate')}</p>}
             </div>
 
             <div className="flex items-center space-x-2">
               <Checkbox id="taxPaidLate" checked={formData.taxPaidLate} onCheckedChange={(checked) => handleChange('taxPaidLate', checked === true)} />
-              <Label htmlFor="taxPaidLate" className="font-normal text-sm cursor-pointer text-slate-600">Tax was also paid late (interest applies)</Label>
+              <Label htmlFor="taxPaidLate" className="font-normal text-sm cursor-pointer text-muted-foreground">Tax was also paid late (interest applies)</Label>
             </div>
 
             {Object.keys(errors).length > 0 && (
@@ -177,21 +188,22 @@ export function GSTPenaltyForm() {
               </Alert>
             )}
 
-            <Button variant="outline" className="w-full border-slate-300" onClick={resetForm}>Calculate Another</Button>
-          </div>
-        </CardContent>
-      </Card>
+            <Button variant="outline" className="w-full" onClick={resetForm}>Reset Form</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-      {/* Preview + PaymentCTA */}
+      {/* Right Column: Preview + PaymentCTA */}
       <div className="sticky top-24 self-start space-y-3">
         {previewData ? (
           <GSTPenaltyPreview data={previewData} maxHeight="55vh" />
         ) : (
-          <Card className="border-slate-200 border-dashed bg-slate-50/50">
+          <Card className="border-dashed bg-muted/50">
             <CardContent className="flex flex-col items-center justify-center h-full py-20">
-              <Shield className="h-10 w-10 text-slate-300 mb-3" />
-              <p className="text-sm text-slate-500">Enter details to see penalty breakdown</p>
-              <p className="text-xs text-slate-400 mt-1">Preview will appear here</p>
+              <Shield className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <p className="text-sm text-muted-foreground">Enter details to see penalty breakdown</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">Preview will appear here</p>
             </CardContent>
           </Card>
         )}
