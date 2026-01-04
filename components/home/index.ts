@@ -1,0 +1,5 @@
+export { HeroSection } from "./hero-section"
+export { HowItWorksSection } from "./how-it-works-section"
+export { TrustSection } from "./trust-section"
+export { Footer } from "./footer"
+export { PageHeader } from "./page-header"
