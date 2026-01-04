@@ -239,7 +239,11 @@ export function InvoiceForm() {
         {/* Right Column: Preview + PaymentCTA */}
         <div className="lg:block hidden sticky top-24 self-start space-y-3">
           {/* Preview - Uses maxHeight prop to leave room for PaymentCTA */}
-          <InvoicePreview calculatedData={calculatedData} errors={errors} maxHeight="55vh" />
+          <InvoicePreview 
+            calculatedData={calculatedData} 
+            errors={errors} 
+            maxHeight="55vh"
+          />
           
           {/* Psychology-optimized Payment CTA */}
           <PaymentCTA

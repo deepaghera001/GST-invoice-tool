@@ -1,6 +1,9 @@
 /**
  * Influencer Contract Preview Component
- * Real-time preview of the contract that will be generated as PDF
+ * With built-in field highlighting and auto-scroll
+ * 
+ * Simple approach: All highlighting logic is self-contained in this component.
+ * No external hooks needed - just pass formData and it handles everything.
  * 
  * PDF Structure:
  * - Page 1: Title, Parties, Campaign, Timeline
@@ -10,6 +13,7 @@
 
 "use client"
 
+import { useRef, useEffect, useState, useCallback } from "react"
 import type { InfluencerContractFormData } from "@/lib/influencer-contract"
 import type { InfluencerContractCalculations } from "@/lib/influencer-contract"
 import { CONTRACT_CLAUSES, PAYMENT_MODE_OPTIONS } from "@/lib/influencer-contract"
@@ -23,11 +27,149 @@ interface InfluencerContractPreviewProps {
   maxHeight?: string
 }
 
+// Highlight duration in milliseconds
+const HIGHLIGHT_DURATION = 2500
+
+/**
+ * Deep compare two values (handles nested objects and arrays)
+ */
+function hasChanged(prev: any, curr: any): boolean {
+  if (prev === curr) return false
+  if (typeof prev !== typeof curr) return true
+  if (Array.isArray(prev) && Array.isArray(curr)) {
+    if (prev.length !== curr.length) return true
+    return prev.some((v, i) => hasChanged(v, curr[i]))
+  }
+  if (typeof prev === 'object' && prev !== null && curr !== null) {
+    const keys = new Set([...Object.keys(prev), ...Object.keys(curr)])
+    for (const key of keys) {
+      if (hasChanged(prev[key], curr[key])) return true
+    }
+    return false
+  }
+  return prev !== curr
+}
+
 export function InfluencerContractPreview({
   formData,
   calculations,
   maxHeight,
 }: InfluencerContractPreviewProps) {
+  
+  // ===== SIMPLE HIGHLIGHTING LOGIC =====
+  const prevFormDataRef = useRef(formData)
+  const prevCalculationsRef = useRef(calculations)
+  const [highlighted, setHighlighted] = useState<Set<string>>(new Set())
+  const fieldRefs = useRef<Map<string, HTMLElement | null>>(new Map())
+  const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
+
+  // Fields to track for changes
+  useEffect(() => {
+    const prev = prevFormDataRef.current
+    const prevCalc = prevCalculationsRef.current
+    const changed: string[] = []
+
+    // Parties
+    if (prev.parties.influencerName !== formData.parties.influencerName) changed.push('influencerName')
+    if (prev.parties.influencerCity !== formData.parties.influencerCity || 
+        prev.parties.influencerState !== formData.parties.influencerState) changed.push('influencerLocation')
+    if (prev.parties.brandName !== formData.parties.brandName) changed.push('brandName')
+    if (prev.parties.brandCity !== formData.parties.brandCity || 
+        prev.parties.brandState !== formData.parties.brandState) changed.push('brandLocation')
+
+    // Campaign
+    if (hasChanged(prev.campaign.platforms, formData.campaign.platforms)) changed.push('platforms')
+    if (hasChanged(prev.campaign.contentTypes, formData.campaign.contentTypes)) changed.push('contentTypes')
+    if (prev.campaign.deliverables !== formData.campaign.deliverables) changed.push('deliverables')
+    if (prev.campaign.campaignDescription !== formData.campaign.campaignDescription) changed.push('campaignDescription')
+
+    // Timeline
+    if (prev.timeline.contentDeadline !== formData.timeline.contentDeadline) changed.push('contentDeadline')
+    if (prev.timeline.brandApprovalRequired !== formData.timeline.brandApprovalRequired) changed.push('brandApproval')
+
+    // Payment
+    if (prev.payment.totalAmount !== formData.payment.totalAmount) changed.push('totalAmount')
+    if (prev.payment.paymentStructure !== formData.payment.paymentStructure) changed.push('paymentStructure')
+    if (prev.payment.paymentTimeline !== formData.payment.paymentTimeline) changed.push('paymentTimeline')
+    if (prev.payment.customPaymentDate !== formData.payment.customPaymentDate) changed.push('customPaymentDate')
+    if (hasChanged(prev.payment.paymentModes, formData.payment.paymentModes)) changed.push('paymentModes')
+
+    // Usage Rights
+    if (prev.usageRights.usageScope !== formData.usageRights.usageScope) changed.push('usageScope')
+    if (prev.usageRights.usageDuration !== formData.usageRights.usageDuration) changed.push('usageDuration')
+    if (prev.usageRights.creditRequired !== formData.usageRights.creditRequired) changed.push('creditRequired')
+    if (prev.usageRights.contentOwnership !== formData.usageRights.contentOwnership) changed.push('contentOwnership')
+
+    // Exclusivity
+    if (prev.exclusivity.exclusivityPeriod !== formData.exclusivity.exclusivityPeriod) changed.push('exclusivity')
+    if (prev.exclusivity.revisionRounds !== formData.exclusivity.revisionRounds) changed.push('revisionRounds')
+
+    // Legal
+    if (prev.legal.agreementDate !== formData.legal.agreementDate) changed.push('agreementDate')
+    if (prev.legal.cancellationTerms !== formData.legal.cancellationTerms) changed.push('cancellation')
+    if (prev.legal.governingState !== formData.legal.governingState) changed.push('jurisdiction')
+
+    if (changed.length > 0) {
+      setHighlighted(prev => {
+        const next = new Set(prev)
+        changed.forEach(f => next.add(f))
+        return next
+      })
+
+      // Auto-scroll to first changed field (within preview container only)
+      setTimeout(() => {
+        const firstRef = fieldRefs.current.get(changed[0])
+        const scrollContainer = document.getElementById('influencer-contract-preview')
+        if (firstRef && scrollContainer) {
+          // Calculate position relative to scroll container
+          const containerRect = scrollContainer.getBoundingClientRect()
+          const elementRect = firstRef.getBoundingClientRect()
+          const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - (containerRect.height / 2)
+          scrollContainer.scrollTo({ top: scrollTop, behavior: 'smooth' })
+        }
+      }, 50)
+
+      // Clear highlights after duration
+      changed.forEach(field => {
+        const existing = timeoutsRef.current.get(field)
+        if (existing) clearTimeout(existing)
+
+        const timeout = setTimeout(() => {
+          setHighlighted(prev => {
+            const next = new Set(prev)
+            next.delete(field)
+            return next
+          })
+        }, HIGHLIGHT_DURATION)
+        
+        timeoutsRef.current.set(field, timeout)
+      })
+    }
+
+    prevFormDataRef.current = JSON.parse(JSON.stringify(formData))
+    prevCalculationsRef.current = { ...calculations }
+  }, [formData, calculations])
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(t => clearTimeout(t))
+    }
+  }, [])
+
+  // Helper: Get highlight class
+  const hl = useCallback((field: string) => {
+    return highlighted.has(field) 
+      ? 'bg-yellow-200 dark:bg-yellow-800/50 rounded px-1 -mx-1 transition-colors duration-300' 
+      : ''
+  }, [highlighted])
+
+  // Helper: Create ref
+  const setRef = useCallback((field: string) => (el: HTMLElement | null) => {
+    fieldRefs.current.set(field, el)
+  }, [])
+  // ===== END HIGHLIGHTING LOGIC =====
+
   const getPaymentModeLabels = (modes: string[]) => {
     return modes.map((m) => {
       const option = PAYMENT_MODE_OPTIONS.find((o) => o.value === m)
@@ -58,7 +200,7 @@ export function InfluencerContractPreview({
 
         {/* Agreement Date */}
         <div className="text-center text-sm text-slate-600">
-          <p>Dated: <strong>{calculations.formattedAgreementDate || "_______________"}</strong></p>
+          <p>Dated: <strong ref={setRef('agreementDate')} className={hl('agreementDate')}>{calculations.formattedAgreementDate || "_______________"}</strong></p>
         </div>
 
         {/* Parties Section */}
@@ -68,16 +210,16 @@ export function InfluencerContractPreview({
           <div className="space-y-2 text-slate-700">
             <p>
               <strong>INFLUENCER:</strong><br />
-              {formData.parties.influencerName || "[Influencer Name]"}<br />
-              {calculations.influencerLocation || "[City, State]"}
+              <span ref={setRef('influencerName')} className={hl('influencerName')}>{formData.parties.influencerName || "[Influencer Name]"}</span><br />
+              <span ref={setRef('influencerLocation')} className={hl('influencerLocation')}>{calculations.influencerLocation || "[City, State]"}</span>
             </p>
             
             <p className="text-center text-slate-500">AND</p>
             
             <p>
               <strong>BRAND / COMPANY:</strong><br />
-              {formData.parties.brandName || "[Brand Name]"}<br />
-              {calculations.brandLocation || "[City, State]"}
+              <span ref={setRef('brandName')} className={hl('brandName')}>{formData.parties.brandName || "[Brand Name]"}</span><br />
+              <span ref={setRef('brandLocation')} className={hl('brandLocation')}>{calculations.brandLocation || "[City, State]"}</span>
             </p>
           </div>
         </div>
@@ -89,24 +231,32 @@ export function InfluencerContractPreview({
           <div className="space-y-2 text-slate-700">
             <p>
               <strong>Platform(s):</strong>{" "}
-              {calculations.platformNames.length > 0 
-                ? calculations.platformNames.join(", ") 
-                : "[Platform]"}
+              <span ref={setRef('platforms')} className={hl('platforms')}>
+                {calculations.platformNames.length > 0 
+                  ? calculations.platformNames.join(", ") 
+                  : "[Platform]"}
+              </span>
             </p>
             <p>
               <strong>Content Type(s):</strong>{" "}
-              {calculations.contentTypeNames.length > 0 
-                ? calculations.contentTypeNames.join(", ") 
-                : "[Content Type]"}
+              <span ref={setRef('contentTypes')} className={hl('contentTypes')}>
+                {calculations.contentTypeNames.length > 0 
+                  ? calculations.contentTypeNames.join(", ") 
+                  : "[Content Type]"}
+              </span>
             </p>
             <p>
               <strong>Deliverables:</strong>{" "}
-              {formData.campaign.deliverables || "[Number and type of deliverables]"}
+              <span ref={setRef('deliverables')} className={hl('deliverables')}>
+                {formData.campaign.deliverables || "[Number and type of deliverables]"}
+              </span>
             </p>
             {formData.campaign.campaignDescription && (
               <p>
                 <strong>Campaign Description:</strong>{" "}
-                {formData.campaign.campaignDescription}
+                <span ref={setRef('campaignDescription')} className={hl('campaignDescription')}>
+                  {formData.campaign.campaignDescription}
+                </span>
               </p>
             )}
           </div>
@@ -119,11 +269,15 @@ export function InfluencerContractPreview({
           <div className="space-y-2 text-slate-700">
             <p>
               <strong>Content Posting Deadline:</strong>{" "}
-              {calculations.formattedDeadline || "[Date]"}
+              <span ref={setRef('contentDeadline')} className={hl('contentDeadline')}>
+                {calculations.formattedDeadline || "[Date]"}
+              </span>
             </p>
             <p>
               <strong>Brand Approval Required:</strong>{" "}
-              {formData.timeline.brandApprovalRequired ? "Yes" : "No"}
+              <span ref={setRef('brandApproval')} className={hl('brandApproval')}>
+                {formData.timeline.brandApprovalRequired ? "Yes" : "No"}
+              </span>
             </p>
             {formData.timeline.brandApprovalRequired && (
               <p className="text-xs text-slate-600 italic">
@@ -144,11 +298,15 @@ export function InfluencerContractPreview({
           <div className="space-y-2 text-slate-700">
             <p className="text-lg">
               <strong>Total Payment:</strong>{" "}
-              <span className="text-green-700 font-bold">{calculations.formattedAmount || "₹_____"}</span>
+              <span ref={setRef('totalAmount')} className={`text-green-700 font-bold ${hl('totalAmount')}`}>
+                {calculations.formattedAmount || "₹_____"}
+              </span>
             </p>
             <p>
               <strong>Payment Structure:</strong>{" "}
-              {calculations.paymentStructureLabel}
+              <span ref={setRef('paymentStructure')} className={hl('paymentStructure')}>
+                {calculations.paymentStructureLabel}
+              </span>
             </p>
             {formData.payment.paymentStructure === "half-advance" && (
               <div className="pl-4 text-sm border-l-2 border-green-300">
@@ -158,13 +316,17 @@ export function InfluencerContractPreview({
             )}
             <p>
               <strong>Payment Timeline:</strong>{" "}
-              {formData.payment.paymentTimeline === "custom" 
-                ? `Custom Date: ${formData.payment.customPaymentDate}` 
-                : calculations.paymentTimelineLabel}
+              <span ref={setRef('paymentTimeline')} className={hl('paymentTimeline')}>
+                {formData.payment.paymentTimeline === "custom" 
+                  ? <span>Custom Date: <span ref={setRef('customPaymentDate')} className={hl('customPaymentDate')}>{formData.payment.customPaymentDate}</span></span>
+                  : calculations.paymentTimelineLabel}
+              </span>
             </p>
             <p>
               <strong>Payment Mode:</strong>{" "}
-              {getPaymentModeLabels(formData.payment.paymentModes) || "[Payment Mode]"}
+              <span ref={setRef('paymentModes')} className={hl('paymentModes')}>
+                {getPaymentModeLabels(formData.payment.paymentModes) || "[Payment Mode]"}
+              </span>
             </p>
           </div>
         </div>
@@ -178,21 +340,29 @@ export function InfluencerContractPreview({
           <div className="space-y-2 text-slate-700">
             <p>
               <strong>Usage Scope:</strong>{" "}
-              {calculations.usageScopeLabel}
+              <span ref={setRef('usageScope')} className={hl('usageScope')}>
+                {calculations.usageScopeLabel}
+              </span>
             </p>
             <p>
               <strong>Usage Duration:</strong>{" "}
-              {calculations.usageDurationLabel}
+              <span ref={setRef('usageDuration')} className={hl('usageDuration')}>
+                {calculations.usageDurationLabel}
+              </span>
             </p>
             <p>
               <strong>Credit to Influencer:</strong>{" "}
-              {formData.usageRights.creditRequired 
-                ? "Required (Brand must credit/tag Influencer)" 
-                : "Not Required"}
+              <span ref={setRef('creditRequired')} className={hl('creditRequired')}>
+                {formData.usageRights.creditRequired 
+                  ? "Required (Brand must credit/tag Influencer)" 
+                  : "Not Required"}
+              </span>
             </p>
             <p>
               <strong>Content Ownership:</strong>{" "}
-              {calculations.contentOwnershipLabel}
+              <span ref={setRef('contentOwnership')} className={hl('contentOwnership')}>
+                {calculations.contentOwnershipLabel}
+              </span>
             </p>
           </div>
         </div>
@@ -208,7 +378,9 @@ export function InfluencerContractPreview({
           <div className="space-y-2 text-slate-700">
             <p>
               <strong>Exclusivity Period:</strong>{" "}
-              {calculations.exclusivityLabel}
+              <span ref={setRef('exclusivity')} className={hl('exclusivity')}>
+                {calculations.exclusivityLabel}
+              </span>
             </p>
             {formData.exclusivity.exclusivityPeriod !== "none" && (
               <p className="text-xs text-slate-600 italic pl-4">
@@ -217,7 +389,9 @@ export function InfluencerContractPreview({
             )}
             <p>
               <strong>Revision Rounds:</strong>{" "}
-              {formData.exclusivity.revisionRounds} revision(s) allowed
+              <span ref={setRef('revisionRounds')} className={hl('revisionRounds')}>
+                {formData.exclusivity.revisionRounds} revision(s) allowed
+              </span>
             </p>
           </div>
         </div>
@@ -246,11 +420,15 @@ export function InfluencerContractPreview({
           <div className="space-y-2 text-slate-700">
             <p>
               <strong>Cancellation Terms:</strong>{" "}
-              {calculations.cancellationLabel}
+              <span ref={setRef('cancellation')} className={hl('cancellation')}>
+                {calculations.cancellationLabel}
+              </span>
             </p>
             <p>
               <strong>Governing Jurisdiction:</strong>{" "}
-              Courts of {calculations.governingStateName || "[State]"}, India
+              <span ref={setRef('jurisdiction')} className={hl('jurisdiction')}>
+                Courts of {calculations.governingStateName || "[State]"}, India
+              </span>
             </p>
             <p className="text-xs text-slate-600 italic">
               Any disputes arising from this agreement shall be subject to the exclusive 
