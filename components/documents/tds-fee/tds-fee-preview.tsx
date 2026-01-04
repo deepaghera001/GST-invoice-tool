@@ -2,6 +2,7 @@
  * TDS Fee Preview Component
  * Renders exactly what will appear in the PDF
  * Used for both preview and PDF generation
+ * With built-in field highlighting and auto-scroll
  * 
  * Design convention:
  * - Outer card: NO rounded corners (document feel)
@@ -10,7 +11,11 @@
 
 "use client"
 
+import { useRef, useEffect, useState, useCallback } from "react"
 import { PreviewWrapper } from "../shared/preview-wrapper"
+
+// Highlight duration in milliseconds
+const HIGHLIGHT_DURATION = 2500
 
 interface TDSFeePreviewProps {
   data: {
@@ -29,6 +34,76 @@ interface TDSFeePreviewProps {
 }
 
 export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
+  // ===== SIMPLE HIGHLIGHTING LOGIC =====
+  const prevDataRef = useRef(data)
+  const [highlighted, setHighlighted] = useState<Set<string>>(new Set())
+  const fieldRefs = useRef<Map<string, HTMLElement | null>>(new Map())
+  const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
+
+  useEffect(() => {
+    const prev = prevDataRef.current
+    const changed: string[] = []
+
+    if (prev.tdsSection !== data.tdsSection && data.tdsSection) changed.push('tdsSection')
+    if (prev.tdsAmount !== data.tdsAmount && data.tdsAmount) changed.push('tdsAmount')
+    if (prev.dueDate !== data.dueDate && data.dueDate) changed.push('dueDate')
+    if (prev.filingDate !== data.filingDate && data.filingDate) changed.push('filingDate')
+    if (prev.daysLate !== data.daysLate) changed.push('daysLate')
+    if (prev.lateFee !== data.lateFee) changed.push('lateFee')
+    if (prev.totalPenalty !== data.totalPenalty) changed.push('totalPenalty')
+
+    if (changed.length > 0) {
+      setHighlighted(prev => {
+        const next = new Set(prev)
+        changed.forEach(f => next.add(f))
+        return next
+      })
+
+      setTimeout(() => {
+        const firstRef = fieldRefs.current.get(changed[0])
+        const scrollContainer = document.getElementById('tds-fee-preview')
+        if (firstRef && scrollContainer) {
+          const containerRect = scrollContainer.getBoundingClientRect()
+          const elementRect = firstRef.getBoundingClientRect()
+          const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - (containerRect.height / 2)
+          scrollContainer.scrollTo({ top: scrollTop, behavior: 'smooth' })
+        }
+      }, 50)
+
+      changed.forEach(field => {
+        const existing = timeoutsRef.current.get(field)
+        if (existing) clearTimeout(existing)
+        const timeout = setTimeout(() => {
+          setHighlighted(prev => {
+            const next = new Set(prev)
+            next.delete(field)
+            return next
+          })
+        }, HIGHLIGHT_DURATION)
+        timeoutsRef.current.set(field, timeout)
+      })
+    }
+
+    prevDataRef.current = { ...data }
+  }, [data])
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(t => clearTimeout(t))
+    }
+  }, [])
+
+  const hl = useCallback((field: string) => {
+    return highlighted.has(field) 
+      ? 'bg-yellow-100 dark:bg-yellow-900/40 rounded px-1 -mx-1 transition-colors duration-300' 
+      : ''
+  }, [highlighted])
+
+  const setRef = useCallback((field: string) => (el: HTMLElement | null) => {
+    fieldRefs.current.set(field, el)
+  }, [])
+  // ===== END HIGHLIGHTING LOGIC =====
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -90,19 +165,19 @@ export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="p-3 bg-slate-50 rounded-lg col-span-2">
               <p className="text-xs text-slate-500 mb-1">TDS Section</p>
-              <p className="font-semibold text-slate-900">{getSectionName(data.tdsSection)}</p>
+              <p ref={setRef('tdsSection')} className={`font-semibold text-slate-900 ${hl('tdsSection')}`}>{getSectionName(data.tdsSection)}</p>
             </div>
             <div className="p-3 bg-slate-50 rounded-lg">
               <p className="text-xs text-slate-500 mb-1">TDS Amount</p>
-              <p className="font-semibold text-slate-900">{formatCurrency(data.tdsAmount)}</p>
+              <p ref={setRef('tdsAmount')} className={`font-semibold text-slate-900 ${hl('tdsAmount')}`}>{formatCurrency(data.tdsAmount)}</p>
             </div>
             <div className="p-3 bg-slate-50 rounded-lg">
               <p className="text-xs text-slate-500 mb-1">Due Date</p>
-              <p className="font-semibold text-slate-900">{formatDate(data.dueDate)}</p>
+              <p ref={setRef('dueDate')} className={`font-semibold text-slate-900 ${hl('dueDate')}`}>{formatDate(data.dueDate)}</p>
             </div>
             <div className="p-3 bg-slate-50 rounded-lg col-span-2">
               <p className="text-xs text-slate-500 mb-1">Actual Filing Date</p>
-              <p className="font-semibold text-slate-900">{formatDate(data.filingDate)}</p>
+              <p ref={setRef('filingDate')} className={`font-semibold text-slate-900 ${hl('filingDate')}`}>{formatDate(data.filingDate)}</p>
             </div>
           </div>
         </div>
@@ -125,14 +200,14 @@ export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
           <div className="border border-slate-200 rounded-lg overflow-hidden">
             <div className="flex justify-between items-center px-4 py-3 bg-slate-50 border-b border-slate-200">
               <span className="text-sm text-slate-600">Days Late</span>
-              <span className="font-semibold text-slate-900">{data.daysLate} days</span>
+              <span ref={setRef('daysLate')} className={`font-semibold text-slate-900 ${hl('daysLate')}`}>{data.daysLate} days</span>
             </div>
             <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
               <div>
                 <span className="text-sm text-slate-600">Late Fee (Section 234E)</span>
                 <p className="text-xs text-slate-400">₹200/day, max = TDS amount</p>
               </div>
-              <span className="font-semibold text-slate-900">{formatCurrency(data.lateFee)}</span>
+              <span ref={setRef('lateFee')} className={`font-semibold text-slate-900 ${hl('lateFee')}`}>{formatCurrency(data.lateFee)}</span>
             </div>
             {(data.interestOnLateDeduction ?? 0) > 0 && (
               <div className="flex justify-between items-center px-4 py-3 border-b border-slate-200">
@@ -154,7 +229,7 @@ export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
             )}
             <div className="flex justify-between items-center px-4 py-3 bg-blue-800 text-white">
               <span className="font-medium">Total Penalty</span>
-              <span className="text-xl font-bold">{formatCurrency(data.totalPenalty)}</span>
+              <span ref={setRef('totalPenalty')} className={`text-xl font-bold ${hl('totalPenalty')}`}>{formatCurrency(data.totalPenalty)}</span>
             </div>
           </div>
         </div>

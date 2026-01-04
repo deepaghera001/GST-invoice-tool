@@ -1,10 +1,12 @@
 /**
  * Rent Agreement Preview Component
  * Full legal document preview matching the PDF output
+ * With built-in field highlighting and auto-scroll
  */
 
 "use client"
 
+import { useRef, useEffect, useState, useCallback } from "react"
 import { Separator } from "@/components/ui/separator"
 import { FileText, AlertTriangle } from "lucide-react"
 import { PreviewWrapper } from "../shared/preview-wrapper"
@@ -19,6 +21,9 @@ import {
   PAYMENT_MODES,
   STANDARD_CLAUSES,
 } from "@/lib/rent-agreement"
+
+// Highlight duration in milliseconds
+const HIGHLIGHT_DURATION = 2500
 
 interface RentAgreementPreviewProps {
   calculatedData: RentAgreementCalculatedData
@@ -62,6 +67,107 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
   // Generate document ID
   const documentId = `RA-${Date.now().toString(36).toUpperCase().slice(-8)}`
 
+  // ===== SIMPLE HIGHLIGHTING LOGIC =====
+  const prevFormDataRef = useRef(formData)
+  const [highlighted, setHighlighted] = useState<Set<string>>(new Set())
+  const fieldRefs = useRef<Map<string, HTMLElement | null>>(new Map())
+  const timeoutsRef = useRef<Map<string, NodeJS.Timeout>>(new Map())
+
+  useEffect(() => {
+    const prev = prevFormDataRef.current
+    const changed: string[] = []
+
+    // Check landlord fields
+    if (prev.landlord.name !== landlord.name && landlord.name) changed.push('landlordName')
+    if (prev.landlord.address !== landlord.address && landlord.address) changed.push('landlordAddress')
+    if (prev.landlord.phone !== landlord.phone && landlord.phone) changed.push('landlordPhone')
+    if (prev.landlord.email !== landlord.email && landlord.email) changed.push('landlordEmail')
+    if (prev.landlord.panNumber !== landlord.panNumber && landlord.panNumber) changed.push('landlordPan')
+    if (prev.landlord.aadharNumber !== landlord.aadharNumber && landlord.aadharNumber) changed.push('landlordAadhar')
+
+    // Check tenant fields
+    if (prev.tenant.name !== tenant.name && tenant.name) changed.push('tenantName')
+    if (prev.tenant.address !== tenant.address && tenant.address) changed.push('tenantAddress')
+    if (prev.tenant.phone !== tenant.phone && tenant.phone) changed.push('tenantPhone')
+    if (prev.tenant.email !== tenant.email && tenant.email) changed.push('tenantEmail')
+    if (prev.tenant.panNumber !== tenant.panNumber && tenant.panNumber) changed.push('tenantPan')
+    if (prev.tenant.aadharNumber !== tenant.aadharNumber && tenant.aadharNumber) changed.push('tenantAadhar')
+
+    // Check property fields
+    if (prev.property.address !== property.address && property.address) changed.push('propertyAddress')
+    if (prev.property.city !== property.city && property.city) changed.push('propertyCity')
+    if (prev.property.state !== property.state && property.state) changed.push('propertyState')
+    if (prev.property.pincode !== property.pincode && property.pincode) changed.push('propertyPincode')
+    if (prev.property.propertyType !== property.propertyType) changed.push('propertyType')
+    if (prev.property.furnishingStatus !== property.furnishingStatus) changed.push('furnishingStatus')
+    if (prev.property.area !== property.area && property.area) changed.push('propertyArea')
+    if (prev.property.floor !== property.floor && property.floor) changed.push('propertyFloor')
+
+    // Check rent terms
+    if (prev.rentTerms.monthlyRent !== rentTerms.monthlyRent && rentTerms.monthlyRent) changed.push('monthlyRent')
+    if (prev.rentTerms.securityDeposit !== rentTerms.securityDeposit && rentTerms.securityDeposit) changed.push('securityDeposit')
+    if (prev.rentTerms.maintenanceCharges !== rentTerms.maintenanceCharges) changed.push('maintenanceCharges')
+    if (prev.rentTerms.agreementDuration !== rentTerms.agreementDuration) changed.push('agreementDuration')
+    if (prev.rentTerms.agreementStartDate !== rentTerms.agreementStartDate && rentTerms.agreementStartDate) changed.push('agreementStartDate')
+    if (prev.rentTerms.rentDueDay !== rentTerms.rentDueDay) changed.push('rentDueDay')
+    if (prev.rentTerms.noticePeriod !== rentTerms.noticePeriod) changed.push('noticePeriod')
+    if (prev.rentTerms.paymentMode !== rentTerms.paymentMode) changed.push('paymentMode')
+    if (prev.rentTerms.rentIncrementPercent !== rentTerms.rentIncrementPercent) changed.push('rentIncrement')
+
+    if (changed.length > 0) {
+      setHighlighted(prev => {
+        const next = new Set(prev)
+        changed.forEach(f => next.add(f))
+        return next
+      })
+
+      // Auto-scroll within preview container
+      setTimeout(() => {
+        const firstRef = fieldRefs.current.get(changed[0])
+        const scrollContainer = document.getElementById('rent-agreement-preview')
+        if (firstRef && scrollContainer) {
+          const containerRect = scrollContainer.getBoundingClientRect()
+          const elementRect = firstRef.getBoundingClientRect()
+          const scrollTop = scrollContainer.scrollTop + (elementRect.top - containerRect.top) - (containerRect.height / 2)
+          scrollContainer.scrollTo({ top: scrollTop, behavior: 'smooth' })
+        }
+      }, 50)
+
+      // Clear highlights after duration
+      changed.forEach(field => {
+        const existing = timeoutsRef.current.get(field)
+        if (existing) clearTimeout(existing)
+        const timeout = setTimeout(() => {
+          setHighlighted(prev => {
+            const next = new Set(prev)
+            next.delete(field)
+            return next
+          })
+        }, HIGHLIGHT_DURATION)
+        timeoutsRef.current.set(field, timeout)
+      })
+    }
+
+    prevFormDataRef.current = JSON.parse(JSON.stringify(formData))
+  }, [formData, landlord, tenant, property, rentTerms])
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(t => clearTimeout(t))
+    }
+  }, [])
+
+  const hl = useCallback((field: string) => {
+    return highlighted.has(field) 
+      ? 'bg-yellow-100 dark:bg-yellow-900/40 rounded px-1 -mx-1 transition-colors duration-300' 
+      : ''
+  }, [highlighted])
+
+  const setRef = useCallback((field: string) => (el: HTMLElement | null) => {
+    fieldRefs.current.set(field, el)
+  }, [])
+  // ===== END HIGHLIGHTING LOGIC =====
+
   return (
     <PreviewWrapper className="overflow-hidden" title="Agreement Preview" icon={<FileText className="h-5 w-5" />} previewId="rent-agreement-preview" dataTestId="rent-agreement-preview" pdfContentId="rent-agreement-pdf-content" maxHeight={maxHeight}>
         {/* LEGAL DOCUMENT - This is what gets captured for PDF */}
@@ -78,11 +184,11 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           <div className="space-y-3 leading-relaxed text-xs text-muted-foreground">
             <p>
               This <strong className="text-foreground">RENT AGREEMENT</strong> is made and executed on this{" "}
-              <strong className="text-foreground">
+              <strong ref={setRef('agreementStartDate')} className={`text-foreground ${hl('agreementStartDate')}`}>
                 {formatAgreementDate(rentTerms.agreementStartDate) || "____________________"}
               </strong>
-              {" "}at <strong className="text-foreground">{property.city || "____________________"}</strong>,{" "}
-              <strong className="text-foreground">{getStateName(property.state)}</strong>.
+              {" "}at <strong ref={setRef('propertyCity')} className={`text-foreground ${hl('propertyCity')}`}>{property.city || "____________________"}</strong>,{" "}
+              <strong ref={setRef('propertyState')} className={`text-foreground ${hl('propertyState')}`}>{getStateName(property.state)}</strong>.
             </p>
           </div>
 
@@ -90,12 +196,12 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           <div className="space-y-2">
             <p className="font-bold text-center text-foreground">BETWEEN</p>
             <div className="bg-muted/40 border border-border rounded p-3 space-y-1 text-xs">
-              <p><strong>Name:</strong> {landlord.name || "____________________"}</p>
-              <p><strong>Address:</strong> {landlord.address || "____________________"}</p>
-              <p><strong>Phone:</strong> {landlord.phone || "____________________"}</p>
-              {landlord.email && <p><strong>Email:</strong> {landlord.email}</p>}
-              {landlord.panNumber && <p><strong>PAN:</strong> {landlord.panNumber}</p>}
-              {landlord.aadharNumber && <p><strong>Aadhar:</strong> {landlord.aadharNumber}</p>}
+              <p><strong>Name:</strong> <span ref={setRef('landlordName')} className={hl('landlordName')}>{landlord.name || "____________________"}</span></p>
+              <p><strong>Address:</strong> <span ref={setRef('landlordAddress')} className={hl('landlordAddress')}>{landlord.address || "____________________"}</span></p>
+              <p><strong>Phone:</strong> <span ref={setRef('landlordPhone')} className={hl('landlordPhone')}>{landlord.phone || "____________________"}</span></p>
+              {landlord.email && <p><strong>Email:</strong> <span ref={setRef('landlordEmail')} className={hl('landlordEmail')}>{landlord.email}</span></p>}
+              {landlord.panNumber && <p><strong>PAN:</strong> <span ref={setRef('landlordPan')} className={hl('landlordPan')}>{landlord.panNumber}</span></p>}
+              {landlord.aadharNumber && <p><strong>Aadhar:</strong> <span ref={setRef('landlordAadhar')} className={hl('landlordAadhar')}>{landlord.aadharNumber}</span></p>}
             </div>
             <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
               (Hereinafter referred to as the <strong>"LANDLORD/LESSOR"</strong>, which expression shall, unless repugnant to the context or meaning thereof, include their heirs, executors, administrators, legal representatives, and assigns of the First Part)
@@ -106,12 +212,12 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           <div className="space-y-2">
             <p className="font-bold text-center text-foreground">AND</p>
             <div className="bg-muted/40 border border-border rounded p-3 space-y-1 text-xs">
-              <p><strong>Name:</strong> {tenant.name || "____________________"}</p>
-              <p><strong>Address:</strong> {tenant.address || "____________________"}</p>
-              <p><strong>Phone:</strong> {tenant.phone || "____________________"}</p>
-              {tenant.email && <p><strong>Email:</strong> {tenant.email}</p>}
-              {tenant.panNumber && <p><strong>PAN:</strong> {tenant.panNumber}</p>}
-              {tenant.aadharNumber && <p><strong>Aadhar:</strong> {tenant.aadharNumber}</p>}
+              <p><strong>Name:</strong> <span ref={setRef('tenantName')} className={hl('tenantName')}>{tenant.name || "____________________"}</span></p>
+              <p><strong>Address:</strong> <span ref={setRef('tenantAddress')} className={hl('tenantAddress')}>{tenant.address || "____________________"}</span></p>
+              <p><strong>Phone:</strong> <span ref={setRef('tenantPhone')} className={hl('tenantPhone')}>{tenant.phone || "____________________"}</span></p>
+              {tenant.email && <p><strong>Email:</strong> <span ref={setRef('tenantEmail')} className={hl('tenantEmail')}>{tenant.email}</span></p>}
+              {tenant.panNumber && <p><strong>PAN:</strong> <span ref={setRef('tenantPan')} className={hl('tenantPan')}>{tenant.panNumber}</span></p>}
+              {tenant.aadharNumber && <p><strong>Aadhar:</strong> <span ref={setRef('tenantAadhar')} className={hl('tenantAadhar')}>{tenant.aadharNumber}</span></p>}
             </div>
             <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
               (Hereinafter referred to as the <strong>"TENANT/LESSEE"</strong>, which expression shall, unless repugnant to the context or meaning thereof, include their heirs, executors, administrators, legal representatives, and assigns of the Second Part)
@@ -128,30 +234,30 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
             <div className="bg-muted/30 rounded p-3 text-xs space-y-1">
               <div className="grid grid-cols-3 gap-1">
                 <span className="text-muted-foreground font-medium">Property Address:</span>
-                <span className="col-span-2">{property.address || "____________________"}</span>
+                <span ref={setRef('propertyAddress')} className={`col-span-2 ${hl('propertyAddress')}`}>{property.address || "____________________"}</span>
               </div>
               <div className="grid grid-cols-3 gap-1">
                 <span className="text-muted-foreground font-medium">City & State:</span>
-                <span className="col-span-2">{property.city || "____"}, {getStateName(property.state)} - {property.pincode || "______"}</span>
+                <span className="col-span-2"><span className={hl('propertyCity')}>{property.city || "____"}</span>, <span className={hl('propertyState')}>{getStateName(property.state)}</span> - <span ref={setRef('propertyPincode')} className={hl('propertyPincode')}>{property.pincode || "______"}</span></span>
               </div>
               <div className="grid grid-cols-3 gap-1">
                 <span className="text-muted-foreground font-medium">Property Type:</span>
-                <span className="col-span-2">{getPropertyTypeName(property.propertyType)}</span>
+                <span ref={setRef('propertyType')} className={`col-span-2 ${hl('propertyType')}`}>{getPropertyTypeName(property.propertyType)}</span>
               </div>
               <div className="grid grid-cols-3 gap-1">
                 <span className="text-muted-foreground font-medium">Furnishing Status:</span>
-                <span className="col-span-2">{getFurnishingName(property.furnishingStatus)}</span>
+                <span ref={setRef('furnishingStatus')} className={`col-span-2 ${hl('furnishingStatus')}`}>{getFurnishingName(property.furnishingStatus)}</span>
               </div>
               {property.area && (
                 <div className="grid grid-cols-3 gap-1">
                   <span className="text-muted-foreground font-medium">Area:</span>
-                  <span className="col-span-2">{property.area} sq. ft.</span>
+                  <span ref={setRef('propertyArea')} className={`col-span-2 ${hl('propertyArea')}`}>{property.area} sq. ft.</span>
                 </div>
               )}
               {property.floor && (
                 <div className="grid grid-cols-3 gap-1">
                   <span className="text-muted-foreground font-medium">Floor:</span>
-                  <span className="col-span-2">{property.floor}</span>
+                  <span ref={setRef('propertyFloor')} className={`col-span-2 ${hl('propertyFloor')}`}>{property.floor}</span>
                 </div>
               )}
               {property.parking && (
@@ -174,7 +280,7 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Monthly Rent</div>
                 <div className="p-2">
-                  <strong>{formatCurrency(rentTerms.monthlyRent || 0)}</strong>
+                  <strong ref={setRef('monthlyRent')} className={hl('monthlyRent')}>{formatCurrency(rentTerms.monthlyRent || 0)}</strong>
                   <br />
                   <span className="text-[10px] text-muted-foreground italic">({amountToWords(rentTerms.monthlyRent || 0)})</span>
                 </div>
@@ -182,7 +288,7 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Security Deposit</div>
                 <div className="p-2">
-                  <strong>{formatCurrency(rentTerms.securityDeposit || 0)}</strong>
+                  <strong ref={setRef('securityDeposit')} className={hl('securityDeposit')}>{formatCurrency(rentTerms.securityDeposit || 0)}</strong>
                   <br />
                   <span className="text-[10px] text-muted-foreground italic">({amountToWords(rentTerms.securityDeposit || 0)})</span>
                 </div>
@@ -190,19 +296,21 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Maintenance Charges</div>
                 <div className="p-2">
-                  {rentTerms.maintenanceIncluded 
-                    ? "Included in rent" 
-                    : `${formatCurrency(rentTerms.maintenanceCharges ?? 0)} per month (payable separately)`
-                  }
+                  <span ref={setRef('maintenanceCharges')} className={hl('maintenanceCharges')}>
+                    {rentTerms.maintenanceIncluded 
+                      ? "Included in rent" 
+                      : `${formatCurrency(rentTerms.maintenanceCharges ?? 0)} per month (payable separately)`
+                    }
+                  </span>
                 </div>
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Agreement Duration</div>
-                <div className="p-2">{getDurationText(rentTerms.agreementDuration)}</div>
+                <div className="p-2"><span ref={setRef('agreementDuration')} className={hl('agreementDuration')}>{getDurationText(rentTerms.agreementDuration)}</span></div>
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Commencement Date</div>
-                <div className="p-2">{formatAgreementDate(rentTerms.agreementStartDate)}</div>
+                <div className="p-2"><span className={hl('agreementStartDate')}>{formatAgreementDate(rentTerms.agreementStartDate)}</span></div>
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Expiry Date</div>
@@ -210,20 +318,20 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Rent Due Day</div>
-                <div className="p-2">{rentTerms.rentDueDay}{getOrdinalSuffix(rentTerms.rentDueDay)} of every month</div>
+                <div className="p-2"><span ref={setRef('rentDueDay')} className={hl('rentDueDay')}>{rentTerms.rentDueDay}{getOrdinalSuffix(rentTerms.rentDueDay)}</span> of every month</div>
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Notice Period</div>
-                <div className="p-2">{rentTerms.noticePeriod} month(s)</div>
+                <div className="p-2"><span ref={setRef('noticePeriod')} className={hl('noticePeriod')}>{rentTerms.noticePeriod}</span> month(s)</div>
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Payment Mode</div>
-                <div className="p-2">{getPaymentModeName(rentTerms.paymentMode)}</div>
+                <div className="p-2"><span ref={setRef('paymentMode')} className={hl('paymentMode')}>{getPaymentModeName(rentTerms.paymentMode)}</span></div>
               </div>
               {(rentTerms.rentIncrementPercent ?? 0) > 0 && (
                 <div className="grid grid-cols-2">
                   <div className="bg-muted/50 p-2 font-medium border-r border-border">Annual Rent Increment</div>
-                  <div className="p-2">{rentTerms.rentIncrementPercent}% on renewal</div>
+                  <div className="p-2"><span ref={setRef('rentIncrement')} className={hl('rentIncrement')}>{rentTerms.rentIncrementPercent}%</span> on renewal</div>
                 </div>
               )}
             </div>
