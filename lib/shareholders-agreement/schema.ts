@@ -78,13 +78,17 @@ const shareholderSchema = z.object({
 const shareCapitalSchema = z.object({
   authorizedShareCapital: z
     .number()
-    .min(0, "Authorized share capital cannot be negative"),
+    .min(1, "Authorized share capital must be at least ₹1"),
   paidUpShareCapital: z
     .number()
-    .min(0, "Paid-up capital cannot be negative"),
+    .min(1, "Paid-up capital must be at least ₹1"),
   faceValuePerShare: z
     .number()
     .min(1, "Face value per share must be at least ₹1"),
+  issuedShares: z
+    .number()
+    .int("Issued shares must be a whole number")
+    .min(1, "At least 1 share must be issued"),
 })
 
 // Board management schema
@@ -275,6 +279,16 @@ export const shareholdersAgreementSchema = baseShareholdersAgreementSchema.refin
   },
   {
     message: "Paid-up capital cannot exceed authorized capital",
+    path: ["shareCapital"],
+  }
+).refine(
+  (data) => {
+    // Validate that Issued Shares × Face Value = Paid-up Capital (within ₹1 tolerance for rounding)
+    const calculated = data.shareCapital.issuedShares * data.shareCapital.faceValuePerShare
+    return Math.abs(calculated - data.shareCapital.paidUpShareCapital) < 1
+  },
+  {
+    message: "Paid-up capital must equal issued shares × face value per share",
     path: ["shareCapital"],
   }
 )

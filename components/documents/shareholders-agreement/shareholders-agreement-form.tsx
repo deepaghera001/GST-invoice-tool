@@ -126,7 +126,7 @@ export function ShareholdersAgreementForm() {
       {/* Left Column: Form Sections */}
       <div className="space-y-6">
         {/* Header with progress */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-2xl font-bold text-foreground">Create Your Shareholders Agreement</h2>
             {isTestMode && (
@@ -136,9 +136,51 @@ export function ShareholdersAgreementForm() {
               </Badge>
             )}
           </div>
+
+          {/* Value Statement */}
+          <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 font-medium">
+            Avoid future founder disputes with a structured shareholders agreement.
+          </p>
+
+          {/* Who This Is For */}
+          <div className="text-sm space-y-2">
+            <p className="font-semibold text-foreground">Who this is for:</p>
+            <ul className="space-y-1 text-muted-foreground ml-4">
+              <li>• For <strong>Private Limited companies</strong></li>
+              <li>• 2–4 founders</li>
+              <li>• Early-stage / bootstrapped businesses</li>
+            </ul>
+          </div>
+
+          {/* Why ₹2,499? - Price Justification */}
+          <div className="bg-slate-50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-700 rounded-lg p-3 space-y-2">
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">Why ₹2,499?</p>
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Typical lawyer drafting costs ₹10,000–₹25,000. This tool gives you a professionally structured agreement instantly.
+            </p>
+          </div>
+
+          {/* Payment Reassurance Block */}
+          <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+            <div className="space-y-1 text-xs text-green-700 dark:text-green-400">
+              <div className="flex gap-2">
+                <span>✓</span>
+                <span>Preview exactly what you'll download</span>
+              </div>
+              <div className="flex gap-2">
+                <span>✓</span>
+                <span>No login. No data saved.</span>
+              </div>
+              <div className="flex gap-2">
+                <span>✓</span>
+                <span>Instant PDF after payment</span>
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3 flex-wrap">
             <p className="text-muted-foreground text-pretty">
-              Fill in the details below to generate a legally formatted shareholders agreement. Preview updates in real-time.
+              Fill in the details below to generate a professionally structured shareholders agreement. Preview updates in real-time.
             </p>
             {/* Test Scenario Selector - only renders in test mode */}
             <TestScenarioSelector
@@ -289,6 +331,13 @@ export function ShareholdersAgreementForm() {
           shouldShowError={shouldShowError}
           isCompleted={isSectionComplete.signatureDetails}
         />
+
+        {/* Scope Limitation Notice */}
+        <div className="border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 rounded-lg p-3">
+          <p className="text-xs text-blue-800 dark:text-blue-400">
+            <strong>Note:</strong> Not suitable for listed companies or complex VC-negotiated agreements. For specialized cases, consult a lawyer.
+          </p>
+        </div>
 
         {/* Reset Form at bottom for consistency */}
         <Button type="button" variant="outline" className="w-full" onClick={resetForm}>Reset Form</Button>

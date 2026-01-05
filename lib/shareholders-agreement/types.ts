@@ -24,6 +24,7 @@ export interface ShareCapitalOwnership {
   authorizedShareCapital: number // ₹
   paidUpShareCapital: number // ₹
   faceValuePerShare: number // ₹
+  issuedShares: number // Number of shares issued (must equal paidUpCapital / faceValuePerShare)
 }
 
 export interface BoardManagementControl {

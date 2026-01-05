@@ -137,7 +137,12 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
       formData.shareCapital.authorizedShareCapital > 0 &&
       formData.shareCapital.paidUpShareCapital > 0 &&
       formData.shareCapital.faceValuePerShare > 0 &&
-      formData.shareCapital.paidUpShareCapital <= formData.shareCapital.authorizedShareCapital,
+      formData.shareCapital.issuedShares > 0 &&
+      formData.shareCapital.paidUpShareCapital <= formData.shareCapital.authorizedShareCapital &&
+      Math.abs(
+        formData.shareCapital.issuedShares * formData.shareCapital.faceValuePerShare - 
+        formData.shareCapital.paidUpShareCapital
+      ) < 1, // Allow ₹1 tolerance for rounding
     boardManagement:
       formData.boardManagement.totalDirectors > 0 &&
       !!formData.boardManagement.directorAppointmentBy, // enum - just check if has value
@@ -195,7 +200,29 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
         processedValue = false
       }
       
-      setNestedFormValue(name, processedValue)
+      setFormData((prev) => {
+        let updated = setNestedValueHelper(prev, name, processedValue)
+        
+        // Auto-calculation logic for share capital fields
+        // Rule: Issued Shares × Face Value = Paid-up Capital
+        if (name.startsWith("shareCapital.")) {
+          const field = name.replace("shareCapital.", "")
+          const { issuedShares, faceValuePerShare, paidUpShareCapital } = updated.shareCapital
+          
+          if (field === "issuedShares") {
+            // When issued shares changes, recalculate paid-up capital
+            updated.shareCapital.paidUpShareCapital = issuedShares * faceValuePerShare
+          } else if (field === "faceValuePerShare") {
+            // When face value changes, recalculate paid-up capital
+            updated.shareCapital.paidUpShareCapital = issuedShares * faceValuePerShare
+          } else if (field === "paidUpShareCapital") {
+            // When paid-up capital changes, recalculate issued shares (rounded down to whole number)
+            updated.shareCapital.issuedShares = Math.floor(paidUpShareCapital / faceValuePerShare)
+          }
+        }
+        
+        return updated
+      })
       
       // Clear error when user starts typing
       if (errors[name]) {
@@ -206,7 +233,7 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
         })
       }
     },
-    [setNestedFormValue, errors]
+    [errors]
   )
 
   /**

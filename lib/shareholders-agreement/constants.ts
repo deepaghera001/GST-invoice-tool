@@ -42,6 +42,7 @@ export const DEFAULT_SHAREHOLDERS_AGREEMENT_DATA: ShareholdersAgreementFormData 
     authorizedShareCapital: 0,
     paidUpShareCapital: 0,
     faceValuePerShare: 10,
+    issuedShares: 0,
   },
   boardManagement: {
     totalDirectors: 1,

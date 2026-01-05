@@ -16,7 +16,7 @@ const SHARE_CAPITAL_FIELDS: FormFieldConfig[] = [
     type: "number",
     placeholder: "Amount in rupees",
     required: true,
-    min: 100000,
+    min: 1,
     helpText: "Total authorized share capital of the company",
   },
   {
@@ -29,12 +29,21 @@ const SHARE_CAPITAL_FIELDS: FormFieldConfig[] = [
     helpText: "Face value of each share",
   },
   {
+    name: "issuedShares",
+    label: "Issued Shares (Number)",
+    type: "number",
+    placeholder: "10",
+    required: true,
+    min: 1,
+    helpText: "Total number of shares issued (must be whole number)",
+  },
+  {
     name: "paidUpShareCapital",
     label: "Paid-up Capital (₹)",
     type: "number",
     placeholder: "Amount in rupees",
     required: true,
-    helpText: "Amount paid by shareholders so far",
+    helpText: "Amount paid by shareholders (auto-calculated: issued shares × face value)",
   },
 ]
 
