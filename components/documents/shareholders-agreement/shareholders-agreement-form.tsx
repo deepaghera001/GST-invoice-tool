@@ -199,13 +199,36 @@ export function ShareholdersAgreementForm() {
           </div>
         </div>
 
-        {/* Errors Summary */}
+        {/* Errors Summary - Shows specific errors with context */}
         {errorCount > 0 && (
           <div className="bg-red-50/80 border border-red-200 rounded-lg p-4 flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-red-900">Please fix the errors</p>
-              <p className="text-sm text-red-700 mt-0.5">{errorCount} field{errorCount !== 1 ? 's' : ''} need attention</p>
+            <div className="flex-1">
+              <p className="font-medium text-red-900">Validation errors - please review sections below</p>
+              <ul className="text-sm text-red-700 mt-2 space-y-1">
+                {Object.entries(errors)
+                  .filter(([key]) => shouldShowError(key))
+                  .map(([key, message]) => {
+                    // Only show field-level errors in summary, not cross-field errors
+                    // Cross-field errors are shown in their respective sections
+                    if (key === 'shareholders' || key === 'shareCapital') {
+                      return null
+                    }
+                    return (
+                      <li key={key} className="flex gap-2">
+                        <span className="text-red-600">•</span>
+                        <span>
+                          {typeof message === 'string' ? message : `Error in ${key}`}
+                        </span>
+                      </li>
+                    )
+                  })}
+              </ul>
+              {Object.keys(errors).filter(k => (k === 'shareholders' || k === 'shareCapital') && shouldShowError(k)).length > 0 && (
+                <p className="text-xs text-red-600 mt-2 italic">
+                  See the highlighted sections below for detailed error information.
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -232,14 +255,16 @@ export function ShareholdersAgreementForm() {
           isCompleted={isSectionComplete.shareholders}
         />
 
-        <ShareCapitalOwnership
-          formData={formData}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          errors={errors}
-          shouldShowError={shouldShowError}
-          isCompleted={isSectionComplete.shareCapital}
-        />
+        <div id="share-capital-section">
+          <ShareCapitalOwnership
+            formData={formData}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            errors={errors}
+            shouldShowError={shouldShowError}
+            isCompleted={isSectionComplete.shareCapital}
+          />
+        </div>
 
         <BoardManagementControl
           formData={formData}

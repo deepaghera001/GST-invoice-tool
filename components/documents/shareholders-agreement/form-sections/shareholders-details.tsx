@@ -37,6 +37,8 @@ export function ShareholdersDetails({
 }: ShareholdersDetailsProps) {
   const totalShares = formData.shareholders.reduce((sum: number, sh: any) => sum + (sh.shareholding || 0), 0)
   const isSharesBalanced = totalShares === 100
+  const hasCrossFieldError = shouldShowError('shareholders') && errors['shareholders']
+  const totalSharesHeld = formData.shareholders.reduce((sum: number, sh: any) => sum + (sh.noOfShares || 0), 0)
 
   return (
     <div
@@ -82,6 +84,19 @@ export function ShareholdersDetails({
             <p className="text-xs mt-1">Must equal 100% to proceed</p>
           )}
         </div>
+
+        {/* Cross-field validation error - Capital Structure Mismatch */}
+        {hasCrossFieldError && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+            <p className="text-sm font-medium text-red-900 mb-1">⚠️ Capital Structure Issue</p>
+            <p className="text-sm text-red-800">
+              {errors['shareholders']}
+            </p>
+            <p className="text-xs text-red-700 mt-2 font-medium">
+              Total Shares Held: <span className="font-bold text-red-900">{totalSharesHeld}</span>
+            </p>
+          </div>
+        )}
 
         {/* Shareholders List */}
         <div className="space-y-4">

@@ -261,6 +261,7 @@ export const shareholdersAgreementFieldSchema = baseShareholdersAgreementSchema.
 
 /**
  * Full schema with cross-field validations
+ * CRITICAL: Validates capital structure math to prevent legal errors
  */
 export const shareholdersAgreementSchema = baseShareholdersAgreementSchema.refine(
   (data) => {
@@ -283,13 +284,36 @@ export const shareholdersAgreementSchema = baseShareholdersAgreementSchema.refin
   }
 ).refine(
   (data) => {
-    // Validate that Issued Shares × Face Value = Paid-up Capital (within ₹1 tolerance for rounding)
+    // CRITICAL VALIDATION: Issued Shares × Face Value = Paid-up Capital
+    // This is a BLOCKING validation - fatal if broken
     const calculated = data.shareCapital.issuedShares * data.shareCapital.faceValuePerShare
     return Math.abs(calculated - data.shareCapital.paidUpShareCapital) < 1
   },
   {
-    message: "Paid-up capital must equal issued shares × face value per share",
+    message: "FATAL: Paid-up capital must equal issued shares × face value per share. Fix: Ensure issued shares × ₹(face value) = ₹(paid-up capital)",
     path: ["shareCapital"],
+  }
+).refine(
+  (data) => {
+    // Validate that total shares issued matches shareholder share count
+    // Sum of individual shareholder shares should equal or match issued shares
+    if (!data.shareholders || data.shareholders.length === 0) return true
+    
+    const totalSharesHeld = data.shareholders.reduce((sum, sh) => sum + (sh.noOfShares || 0), 0)
+    
+    // If total shares held is 0, skip this validation (shareholders haven't been assigned shares yet)
+    if (totalSharesHeld === 0) return true
+    
+    // Total shares held should not exceed issued shares
+    return totalSharesHeld <= data.shareCapital.issuedShares
+  },
+  (data) => {
+    const totalSharesHeld = data.shareholders.reduce((sum, sh) => sum + (sh.noOfShares || 0), 0)
+    const issuedShares = data.shareCapital.issuedShares
+    return {
+      message: `Capital Structure Mismatch: Total shareholder shares (${totalSharesHeld}) exceed issued shares (${issuedShares}). Fix: Increase 'Issued Shares' in Share Capital section or reduce individual shareholder share allocations.`,
+      path: ["shareholders"],
+    }
   }
 )
 

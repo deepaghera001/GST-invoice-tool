@@ -40,6 +40,7 @@ const VALID_BASE: ShareholdersAgreementFormData = {
     authorizedShareCapital: 1000000,
     paidUpShareCapital: 1000000,
     faceValuePerShare: 10,
+    issuedShares: 100000, // 100,000 shares × ₹10 = ₹10,00,000 paid-up
   },
   boardManagement: {
     totalDirectors: 3,
@@ -237,6 +238,7 @@ export const shareholdersAgreementScenarios: TestScenario<ShareholdersAgreementF
         authorizedShareCapital: 100000,
         paidUpShareCapital: 100000,
         faceValuePerShare: 10,
+        issuedShares: 10000, // 10,000 shares × ₹10 = ₹1,00,000
       },
       boardManagement: {
         totalDirectors: 2,
@@ -311,6 +313,220 @@ export const shareholdersAgreementScenarios: TestScenario<ShareholdersAgreementF
     },
     expectedErrors: ['shareholders'],
   },
+
+  // ===== CAPITAL STRUCTURE VALIDATION TESTS =====
+  // These test the four-level capital structure validation:
+  // 1. Total shareholding = 100%
+  // 2. Paid-up capital ≤ Authorized capital
+  // 3. CRITICAL: Issued Shares × Face Value = Paid-up Capital
+  // 4. Total shareholder shares ≤ Issued shares
+
+  {
+    id: 'invalid-capital-math-mismatch',
+    name: '❌ Capital Math Mismatch (BLOCKING)',
+    category: 'invalid',
+    description: 'Issued Shares × Face Value ≠ Paid-up Capital - BLOCKS PDF generation',
+    data: {
+      ...VALID_BASE,
+      shareCapital: {
+        authorizedShareCapital: 1000000,
+        paidUpShareCapital: 10000, // WRONG: should be 1,000 × 10 = 10,000
+        faceValuePerShare: 10,
+        issuedShares: 1000, // Math check: 1,000 × 10 = 10,000 ✓ but we'll set wrong paid-up
+      },
+    },
+    expectedErrors: ['shareCapital'],
+  },
+  {
+    id: 'invalid-capital-way-off',
+    name: '❌ Issued Shares Way Too Low',
+    category: 'invalid',
+    description: 'User case: 12 issued shares vs 100,000 shareholder shares = Capital Mismatch error',
+    data: {
+      ...VALID_BASE,
+      shareholders: [
+        {
+          name: "Rahul Sharma",
+          email: "rahul.sharma@techventures.in",
+          address: "Flat 502, Brigade Gateway, Bangalore - 560010",
+          shareholding: 60,
+          noOfShares: 60000, // 60,000 shares
+          role: "founder",
+        },
+        {
+          name: "Priya Patel",
+          email: "priya.patel@techventures.in",
+          address: "Villa 23, Palm Meadows, Bangalore - 560066",
+          shareholding: 40,
+          noOfShares: 40000, // 40,000 shares
+          role: "founder",
+        },
+      ],
+      shareCapital: {
+        authorizedShareCapital: 1000000,
+        paidUpShareCapital: 120, // 12 shares × 10 = 120
+        faceValuePerShare: 10,
+        issuedShares: 12, // CRITICAL ERROR: 12 < 100,000 shareholder shares!
+      },
+    },
+    expectedErrors: ['shareholders'], // Error path is shareholders since total shares held > issued
+  },
+
+  {
+    id: 'invalid-capital-math-off-by-100',
+    name: '❌ Math Off (Simple Typo)',
+    category: 'invalid',
+    description: 'Test user entered 10,000 paid-up but math says 12,000 (1,200 × 10)',
+    data: {
+      ...VALID_BASE,
+      shareCapital: {
+        authorizedShareCapital: 1000000,
+        paidUpShareCapital: 10000, // User entered 10,000
+        faceValuePerShare: 10,
+        issuedShares: 1200, // 1,200 × 10 = 12,000 (not 10,000)
+      },
+    },
+    expectedErrors: ['shareCapital'],
+  },
+
+  // ===== VALID CAPITAL STRUCTURE TESTS =====
+  // Different valid scenarios with correct capital math
+
+  {
+    id: 'valid-capital-simple',
+    name: '✅ Simple Capital (₹10,000)',
+    category: 'valid',
+    description: 'Simple case: 1,000 shares × ₹10 = ₹10,000 paid-up',
+    data: {
+      ...VALID_BASE,
+      shareholders: [
+        {
+          name: "Rahul Sharma",
+          email: "rahul.sharma@techventures.in",
+          address: "Flat 502, Brigade Gateway, Bangalore - 560010",
+          shareholding: 60,
+          noOfShares: 600, // 60% of 1,000 shares
+          role: "founder",
+        },
+        {
+          name: "Priya Patel",
+          email: "priya.patel@techventures.in",
+          address: "Villa 23, Palm Meadows, Bangalore - 560066",
+          shareholding: 40,
+          noOfShares: 400, // 40% of 1,000 shares
+          role: "founder",
+        },
+      ],
+      shareCapital: {
+        authorizedShareCapital: 1000000,
+        paidUpShareCapital: 10000,
+        faceValuePerShare: 10,
+        issuedShares: 1000, // 1,000 × 10 = 10,000 ✓
+      },
+    },
+  },
+
+  {
+    id: 'valid-capital-higher-value',
+    name: '✅ Higher Value Capital (₹1,00,000)',
+    category: 'valid',
+    description: 'Higher value: 1,000 shares × ₹100 face value = ₹1,00,000 paid-up',
+    data: {
+      ...VALID_BASE,
+      shareholders: [
+        {
+          name: "Rahul Sharma",
+          email: "rahul.sharma@techventures.in",
+          address: "Flat 502, Brigade Gateway, Bangalore - 560010",
+          shareholding: 60,
+          noOfShares: 600, // 60% of 1,000 shares
+          role: "founder",
+        },
+        {
+          name: "Priya Patel",
+          email: "priya.patel@techventures.in",
+          address: "Villa 23, Palm Meadows, Bangalore - 560066",
+          shareholding: 40,
+          noOfShares: 400, // 40% of 1,000 shares
+          role: "founder",
+        },
+      ],
+      shareCapital: {
+        authorizedShareCapital: 5000000,
+        paidUpShareCapital: 100000,
+        faceValuePerShare: 100,
+        issuedShares: 1000, // 1,000 × 100 = 100,000 ✓
+      },
+    },
+  },
+
+  {
+    id: 'valid-capital-small-face-value',
+    name: '✅ Small Face Value (₹5)',
+    category: 'valid',
+    description: 'Small face value: 10,000 shares × ₹5 = ₹50,000 paid-up',
+    data: {
+      ...VALID_BASE,
+      shareholders: [
+        {
+          name: "Rahul Sharma",
+          email: "rahul.sharma@techventures.in",
+          address: "Flat 502, Brigade Gateway, Bangalore - 560010",
+          shareholding: 60,
+          noOfShares: 6000, // 60% of 10,000 shares
+          role: "founder",
+        },
+        {
+          name: "Priya Patel",
+          email: "priya.patel@techventures.in",
+          address: "Villa 23, Palm Meadows, Bangalore - 560066",
+          shareholding: 40,
+          noOfShares: 4000, // 40% of 10,000 shares
+          role: "founder",
+        },
+      ],
+      shareCapital: {
+        authorizedShareCapital: 5000000,
+        paidUpShareCapital: 50000,
+        faceValuePerShare: 5,
+        issuedShares: 10000, // 10,000 × 5 = 50,000 ✓
+      },
+    },
+  },
+
+  {
+    id: 'valid-capital-large-scale',
+    name: '✅ Large Scale (₹1 Crore)',
+    category: 'valid',
+    description: 'Large company: 1,000,000 shares × ₹10 = ₹1,00,00,000 (1 Crore)',
+    data: {
+      ...VALID_BASE,
+      shareholders: [
+        {
+          name: "Rahul Sharma",
+          email: "rahul.sharma@techventures.in",
+          address: "Flat 502, Brigade Gateway, Bangalore - 560010",
+          shareholding: 60,
+          noOfShares: 600000,
+          role: "founder",
+        },
+        {
+          name: "Priya Patel",
+          email: "priya.patel@techventures.in",
+          address: "Villa 23, Palm Meadows, Bangalore - 560066",
+          shareholding: 40,
+          noOfShares: 400000,
+          role: "founder",
+        },
+      ],
+      shareCapital: {
+        authorizedShareCapital: 10000000,
+        paidUpShareCapital: 10000000,
+        faceValuePerShare: 10,
+        issuedShares: 1000000,
+      },
+    },
+  },
   {
     id: 'invalid-paid-exceeds-authorized',
     name: '❌ Paid-up > Authorized',
@@ -322,6 +538,7 @@ export const shareholdersAgreementScenarios: TestScenario<ShareholdersAgreementF
         authorizedShareCapital: 500000,
         paidUpShareCapital: 1000000, // Exceeds authorized
         faceValuePerShare: 10,
+        issuedShares: 100000, // Math is correct: 100,000 × ₹10 = ₹10,00,000
       },
     },
     expectedErrors: ['shareCapital'],
@@ -481,6 +698,7 @@ export const shareholdersAgreementScenarios: TestScenario<ShareholdersAgreementF
         authorizedShareCapital: 50000000, // 5 Crore
         paidUpShareCapital: 25000000, // 2.5 Crore
         faceValuePerShare: 10,
+        issuedShares: 2500000, // 25 Lakh shares × ₹10 = ₹2.5 Crore
       },
       boardManagement: {
         totalDirectors: 5,

@@ -183,10 +183,54 @@ export function InfluencerContractPreview({
       icon={<FileText className="h-5 w-5" />}
       previewId="influencer-contract-preview"
       dataTestId="influencer-contract-preview"
+      /* NOTE: className styles (rounded-lg, shadow-lg) apply ONLY to preview UI wrapper.
+         They do not leak into PDF capture. PDF styling is controlled exclusively by <style> block. */
       className="bg-white dark:bg-slate-900 border border-border rounded-lg shadow-lg"
       pdfContentId="influencer-contract-pdf-content"
       maxHeight={maxHeight}
     >
+      <style>{`
+        @page {
+          size: A4;
+          margin: 25mm 25mm 30mm 25mm;
+        }
+        
+        .ic-payment-section {
+          break-before: page;
+          page-break-before: always;
+          margin-top: 40px;
+        }
+        
+        .ic-termination-section {
+          margin-top: 20px;
+        }
+        
+        .ic-signature-section {
+          break-before: page;
+          page-break-before: always;
+          margin-top: 40px;
+        }
+        
+        .ic-clause {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        
+        .ic-payment-block {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        
+        .ic-signature-block {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        
+        h2 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+      `}</style>
       <div className="space-y-6 text-sm" style={{ fontFamily: "Georgia, serif" }}>
         {/* ===== PAGE 1: Title, Parties, Campaign, Timeline ===== */}
         
@@ -290,7 +334,7 @@ export function InfluencerContractPreview({
         {/* ===== PAGE 2: Payment Terms & Usage Rights (Highlighted) ===== */}
         
         {/* Payment Terms - Highlighted Box */}
-        <div className="border-2 border-green-500 rounded-lg p-4 bg-green-50">
+        <div className="ic-payment-section border-2 border-green-500 rounded-lg p-4 bg-green-50">
           <h2 className="font-bold text-green-800 border-b border-green-300 pb-1 mb-3">
             4. PAYMENT TERMS
           </h2>
@@ -412,7 +456,7 @@ export function InfluencerContractPreview({
         </div>
 
         {/* Termination & Jurisdiction */}
-        <div className="space-y-3">
+        <div className="ic-termination-section space-y-3">
           <h2 className="font-bold text-slate-800 border-b border-slate-200 pb-1">
             8. TERMINATION & JURISDICTION
           </h2>
@@ -445,7 +489,7 @@ export function InfluencerContractPreview({
         </div>
 
         {/* Signature Block */}
-        <div className="space-y-6 pt-4 border-t-2 border-slate-300">
+        <div className="ic-signature-section space-y-6 pt-4 border-t-2 border-slate-300">
           <h2 className="font-bold text-slate-800 text-center">SIGNATURES</h2>
           
           <p className="text-xs text-slate-600 text-center">

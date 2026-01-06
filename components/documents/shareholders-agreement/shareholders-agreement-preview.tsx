@@ -335,6 +335,34 @@ export function ShareholdersAgreementPreview({
       pdfContentId="shareholders-agreement-pdf-content"
       maxHeight={maxHeight}
     >
+      <style>{`
+        @page {
+          size: A4;
+          margin: 25mm 25mm 30mm 25mm;
+        }
+
+        h3 {
+          break-after: avoid;
+          page-break-after: avoid;
+        }
+
+        .sha-section {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+
+        .sha-signature-section {
+          break-before: page;
+          page-break-before: always;
+          margin-top: 40px;
+        }
+
+        .sha-witness-block {
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+      `}</style>
+
       {/* PDF Content - this div gets captured for PDF */}
       <div data-testid="shareholders-agreement-preview" className="space-y-5 text-sm bg-white">
         {/* Document Header */}
@@ -348,9 +376,10 @@ export function ShareholdersAgreementPreview({
         <Separator />
 
       {/* Table of Contents */}
-      <div className="space-y-3">
+      <div className="sha-section space-y-3">
         <h3 className="font-bold text-center text-foreground">TABLE OF CONTENTS</h3>
         <ol className="text-xs space-y-1 text-muted-foreground list-decimal list-inside ml-4">
+          <li>Definitions and Interpretation</li>
           <li>Company Details</li>
           <li>Shareholders Details</li>
           <li>Share Capital & Ownership</li>
@@ -362,15 +391,35 @@ export function ShareholdersAgreementPreview({
           <li>Confidentiality & Non-Compete</li>
           <li>Deadlock & Dispute Resolution</li>
           <li>Termination</li>
-          <li>Signature Details</li>
+          <li>Execution & Signatures</li>
         </ol>
       </div>
 
       <Separator />
 
-      {/* Section 1: Company Details */}
+      {/* Section 1: Definitions and Interpretation */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">1. COMPANY DETAILS</h3>
+        <h3 className="font-bold text-foreground">1. DEFINITIONS AND INTERPRETATION</h3>
+        <div className="space-y-2 text-xs text-muted-foreground">
+          <p>In this Agreement, unless the context otherwise requires, the following terms shall have the meanings set forth below:</p>
+          <div className="space-y-1 ml-4">
+            <p><strong>"Agreement"</strong> means this Shareholders Agreement, including all schedules and attachments thereto.</p>
+            <p><strong>"Board"</strong> means the Board of Directors of the Company.</p>
+            <p><strong>"Company"</strong> means <span ref={setRef('companyName')} className={hl('companyName')}>{data.company?.companyName || "the company as stated in Schedule A"}</span>, a Private Limited Company registered under the Companies Act, 2013.</p>
+            <p><strong>"Shares"</strong> means equity shares of the Company, having such rights and obligations as are conferred and imposed by the Articles of Association and this Agreement.</p>
+            <p><strong>"Shareholders"</strong> means the parties to this Agreement who are shareholders of the Company.</p>
+            <p><strong>"Fair Market Value"</strong> means the price at which a share of the Company would change hands between a willing buyer and a willing seller, neither under any compulsion to buy or sell, and having reasonable knowledge of relevant facts.</p>
+            <p><strong>"Reserved Matters"</strong> means those decisions requiring unanimous or special majority approval as specified in Section 5 of this Agreement.</p>
+            <p><strong>"Deadlock"</strong> means a situation where the Board is unable to reach a decision on any matter due to equal division of voting power or inability to obtain the required majority.</p>
+          </div>
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Section 2: Company Details */}
+      <div className="space-y-2">
+        <h3 className="font-bold text-foreground">2. COMPANY DETAILS</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><strong>Company Name:</strong> <span ref={setRef('companyName')} className={hl('companyName')}>{data.company?.companyName || "N/A"}</span></p>
           <p><strong>CIN/Registration No.:</strong> <span ref={setRef('companyCin')} className={hl('companyCin')}>{data.company?.cin || "N/A"}</span></p>
@@ -382,9 +431,9 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Section 2: Shareholders Details */}
+      {/* Section 3: Shareholders Details */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">2. SHAREHOLDERS DETAILS</h3>
+        <h3 className="font-bold text-foreground">3. SHAREHOLDERS DETAILS</h3>
         <div ref={setRef('shareholders')} className={`space-y-3 text-xs ${hl('shareholders')}`}>
           {data.shareholders?.map((shareholder, index) => (
             <div key={index} className="bg-muted/40 border border-border rounded p-2 space-y-1">
@@ -401,24 +450,24 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Section 3: Share Capital & Ownership */}
+      {/* Section 4: Share Capital & Ownership */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">3. SHARE CAPITAL & OWNERSHIP</h3>
+        <h3 className="font-bold text-foreground">4. SHARE CAPITAL & OWNERSHIP</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><strong>Authorized Share Capital:</strong> <span ref={setRef('authorizedShareCapital')} className={hl('authorizedShareCapital')}>₹{data.shareCapital?.authorizedShareCapital?.toLocaleString() || "N/A"}</span></p>
           <p><strong>Paid-up Share Capital:</strong> <span ref={setRef('paidUpShareCapital')} className={hl('paidUpShareCapital')}>₹{data.shareCapital?.paidUpShareCapital?.toLocaleString() || "N/A"}</span></p>
           <p><strong>Face Value per Share:</strong> <span ref={setRef('faceValuePerShare')} className={hl('faceValuePerShare')}>₹{data.shareCapital?.faceValuePerShare?.toLocaleString() || "N/A"}</span></p>
-          {data.shareCapital?.paidUpShareCapital && data.shareCapital?.faceValuePerShare && (
-            <p><strong>Total Issued Shares:</strong> {Math.floor(data.shareCapital.paidUpShareCapital / data.shareCapital.faceValuePerShare).toLocaleString()} equity shares of ₹{data.shareCapital.faceValuePerShare} each</p>
+          {data.shareCapital?.issuedShares && data.shareCapital?.faceValuePerShare && (
+            <p><strong>Total Issued Shares:</strong> <span ref={setRef('issuedShares')} className={hl('issuedShares')}>{data.shareCapital.issuedShares.toLocaleString()}</span> equity shares of ₹{data.shareCapital.faceValuePerShare} each</p>
           )}
         </div>
       </div>
 
       <Separator />
 
-      {/* Section 4: Board & Management Control */}
+      {/* Section 5: Board & Management Control */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">4. BOARD & MANAGEMENT CONTROL</h3>
+        <h3 className="font-bold text-foreground">5. BOARD & MANAGEMENT CONTROL</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><strong>Total Directors:</strong> <span ref={setRef('totalDirectors')} className={hl('totalDirectors')}>{data.boardManagement?.totalDirectors || 1}</span></p>
           <p><strong>Director Appointment By:</strong> <span ref={setRef('directorAppointmentBy')} className={hl('directorAppointmentBy')}>{formatDirectorAppointmentBy(data.boardManagement?.directorAppointmentBy)}</span></p>
@@ -442,9 +491,9 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Section 5: Voting Rights */}
+      {/* Section 6: Voting Rights */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">5. VOTING RIGHTS</h3>
+        <h3 className="font-bold text-foreground">6. VOTING RIGHTS</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><strong>Voting Basis:</strong> <span ref={setRef('votingBasis')} className={hl('votingBasis')}>{formatVotingBasis(data.votingRights?.votingBasis)}</span></p>
           <p><strong>Decisions Require:</strong> <span ref={setRef('decisionsRequire')} className={hl('decisionsRequire')}>{formatDecisionsRequire(data.votingRights?.decisionsRequire)}</span></p>
@@ -463,9 +512,9 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Section 6: Share Transfer Restrictions */}
+      {/* Section 7: Share Transfer Restrictions */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">6. SHARE TRANSFER RESTRICTIONS</h3>
+        <h3 className="font-bold text-foreground">7. SHARE TRANSFER RESTRICTIONS</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><strong>Transfer Allowed:</strong> <span ref={setRef('transferAllowed')} className={hl('transferAllowed')}>{data.shareTransfer?.transferAllowed ? "Yes" : "No"}</span></p>
           <p><strong>Right of First Refusal:</strong> <span ref={setRef('rightOfFirstRefusal')} className={hl('rightOfFirstRefusal')}>{data.shareTransfer?.rightOfFirstRefusal ? "Yes" : "No"}</span></p>
@@ -479,7 +528,7 @@ export function ShareholdersAgreementPreview({
       {(data.tagAlongDragAlong?.enableTagAlong || data.tagAlongDragAlong?.enableDragAlong) && (
         <>
           <div className="space-y-2">
-            <h3 className="font-bold text-foreground">7. TAG-ALONG & DRAG-ALONG</h3>
+            <h3 className="font-bold text-foreground">8. TAG-ALONG & DRAG-ALONG</h3>
             <div className="space-y-1 text-xs text-muted-foreground">
               {data.tagAlongDragAlong?.enableTagAlong && (
                 <>
@@ -502,9 +551,9 @@ export function ShareholdersAgreementPreview({
         </>
       )}
 
-      {/* Section 8: Exit & Buyout */}
+      {/* Section 9: Exit & Buyout */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">8. EXIT & BUYOUT CLAUSES</h3>
+        <h3 className="font-bold text-foreground">9. EXIT & BUYOUT CLAUSES</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           {data.exitBuyout?.exitOptions && data.exitBuyout.exitOptions.length > 0 && (
             <div ref={setRef('exitOptions')} className={hl('exitOptions')}>
@@ -524,14 +573,21 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Section 9: Confidentiality & Non-Compete */}
+      {/* Section 10: Confidentiality & Non-Compete */}
       {(data.confidentialityNonCompete?.confidentialityClause || data.confidentialityNonCompete?.nonSolicitation) && (
         <>
           <div className="space-y-2">
-            <h3 className="font-bold text-foreground">9. CONFIDENTIALITY & NON-COMPETE</h3>
-            <div className="space-y-1 text-xs text-muted-foreground">
+            <h3 className="font-bold text-foreground">10. CONFIDENTIALITY & NON-COMPETE</h3>
+            <div className="space-y-2 text-xs text-muted-foreground">
               <p><strong>Confidentiality Clause:</strong> <span ref={setRef('confidentialityClause')} className={hl('confidentialityClause')}>{data.confidentialityNonCompete?.confidentialityClause ? "Yes" : "No"}</span></p>
-              <p><strong>Non-Compete Duration:</strong> <span ref={setRef('nonCompeteDuration')} className={hl('nonCompeteDuration')}>{data.confidentialityNonCompete?.nonCompeteDuration || 0}</span> months</p>
+              {data.confidentialityNonCompete?.nonCompeteDuration && data.confidentialityNonCompete.nonCompeteDuration > 0 && (
+                <div>
+                  <p><strong>Non-Compete Duration:</strong> <span ref={setRef('nonCompeteDuration')} className={hl('nonCompeteDuration')}>{data.confidentialityNonCompete.nonCompeteDuration} months</span> <strong>to the extent permitted by law</strong></p>
+                  <p className="text-[10px] italic text-slate-600 mt-1 bg-amber-50 p-2 rounded border-l-2 border-amber-300">
+                    <strong>India Legal Notice:</strong> Non-compete covenants post-termination of employment/directorship are enforceable under Indian law (Contract Act, 1872, Section 27) only to the extent they: (a) protect legitimate business interests; (b) are reasonable in time, area, and line of business; and (c) are not deemed restraint of trade. This clause is expressly subject to "to the extent permitted under applicable law."
+                  </p>
+                </div>
+              )}
               <p><strong>Non-Solicitation:</strong> <span ref={setRef('nonSolicitation')} className={hl('nonSolicitation')}>{data.confidentialityNonCompete?.nonSolicitation ? "Yes" : "No"}</span></p>
             </div>
           </div>
@@ -539,9 +595,9 @@ export function ShareholdersAgreementPreview({
         </>
       )}
 
-      {/* Section 10: Deadlock & Dispute Resolution */}
+      {/* Section 11: Deadlock & Dispute Resolution */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">10. DEADLOCK & DISPUTE RESOLUTION</h3>
+        <h3 className="font-bold text-foreground">11. DEADLOCK & DISPUTE RESOLUTION</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           <p><strong>Deadlock Resolution:</strong> <span ref={setRef('deadlockResolutionMethod')} className={hl('deadlockResolutionMethod')}>{formatDeadlockResolution(data.deadlockResolution?.deadlockResolution)}</span></p>
           <p><strong>Arbitration Location:</strong> <span ref={setRef('arbitrationLocation')} className={hl('arbitrationLocation')}>{data.deadlockResolution?.arbitrationLocation || "N/A"}</span></p>
@@ -551,9 +607,9 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Section 11: Termination */}
+      {/* Section 12: Termination */}
       <div className="space-y-2">
-        <h3 className="font-bold text-foreground">11. TERMINATION</h3>
+        <h3 className="font-bold text-foreground">12. TERMINATION</h3>
         <div className="space-y-1 text-xs text-muted-foreground">
           {data.termination?.terminationConditions && data.termination.terminationConditions.length > 0 && (
             <div ref={setRef('terminationConditions')} className={hl('terminationConditions')}>
@@ -571,31 +627,59 @@ export function ShareholdersAgreementPreview({
 
       <Separator />
 
-      {/* Section 12: Signatures */}
-      <div className="space-y-3">
-        <h3 className="font-bold text-foreground">12. SIGNATURES</h3>
-        <div className="space-y-1 text-xs text-muted-foreground">
+      {/* LEGAL DISCLAIMER - Before Signatures */}
+      <div className="bg-red-50 border-2 border-red-300 rounded p-3 my-4">
+        <p className="text-[10px] text-red-900 leading-relaxed font-semibold">
+          ⚠️ <strong>IMPORTANT DISCLAIMER & LEGAL NOTICE:</strong>
+        </p>
+        <p className="text-[10px] text-red-800 leading-relaxed mt-2">
+          This Shareholders Agreement is generated based on user-provided inputs for general informational purposes. <strong>It is NOT a substitute for legal advice from a qualified lawyer.</strong> Before execution, all parties MUST:
+        </p>
+        <ul className="text-[10px] text-red-800 list-disc list-inside ml-2 mt-1 space-y-1">
+          <li>Review this agreement with an independent legal professional licensed in India</li>
+          <li>Verify compliance with Companies Act, 2013, and applicable state laws</li>
+          <li>Ensure all capital structure details are mathematically correct</li>
+          <li>Understand all rights, obligations, and restrictions contained herein</li>
+        </ul>
+        <p className="text-[10px] text-red-900 leading-relaxed mt-2">
+          <strong>The parties execute this agreement at their own risk and are solely responsible for legal compliance.</strong>
+        </p>
+      </div>
+
+      <Separator />
+
+      {/* Section 13: Execution & Signatures */}
+      <div className="sha-signature-section space-y-4">
+        <h3 className="font-bold text-foreground">13. EXECUTION & SIGNATURES</h3>
+        <div className="space-y-2 text-xs text-muted-foreground">
+          <p>
+            In witness whereof, the parties hereto have set their hands to this Agreement on the date(s) and place(s) mentioned below. 
+            Each signatory confirms they have read and understood all terms of this Agreement and consent to be legally bound by them.
+          </p>
           <p><strong>Place of Signing:</strong> <span ref={setRef('placeOfSigning')} className={hl('placeOfSigning')}>{data.signatureDetails?.placeOfSigning || "N/A"}</span></p>
           <p><strong>Date of Signing:</strong> <span className={hl('dateOfAgreement')}>{data.company?.dateOfAgreement || "N/A"}</span></p>
         </div>
 
         {/* Shareholder Signatures */}
-        <div className="space-y-3 mt-4">
+        <div className="space-y-4 mt-4">
+          <p className="text-xs font-bold text-foreground border-b pb-2">FOR AND ON BEHALF OF THE SHAREHOLDERS:</p>
           {data.shareholders?.map((shareholder, index) => (
-            <div key={index} className="border-t pt-3">
+            <div key={index} className="sha-witness-block border-l-4 border-gray-300 pl-3">
               <p className="text-xs font-semibold text-foreground">Shareholder {index + 1}</p>
               <p className="text-xs text-muted-foreground">{shareholder.name || "N/A"}</p>
-              <div className="mt-2 pt-4 border-t border-foreground/30 w-24">
+              <p className="text-[10px] text-muted-foreground">Role: {formatShareholderRole(shareholder.role)}</p>
+              <div className="mt-3 pt-3 border-t-2 border-foreground w-32">
                 <p className="text-[10px] text-muted-foreground">Signature</p>
               </div>
+              <p className="text-[10px] text-muted-foreground mt-1">Date: ______________</p>
             </div>
           ))}
         </div>
 
         {/* Witnesses */}
         {(data.signatureDetails?.noOfWitnesses || 0) > 0 && (
-          <div ref={setRef('noOfWitnesses')} className={`space-y-3 mt-4 border-t pt-3 ${hl('noOfWitnesses')}`}>
-            <p className="text-xs font-semibold text-foreground">Witnesses</p>
+          <div ref={setRef('noOfWitnesses')} className={`space-y-4 mt-4 border-t-2 pt-4 ${hl('noOfWitnesses')}`}>
+            <p className="text-xs font-bold text-foreground">WITNESSED BY:</p>
             {Array.from({ length: data.signatureDetails?.noOfWitnesses || 0 }).map((_, index) => {
               // Handle witnessNames as either string (comma-separated) or array
               const witnessNamesValue = data.signatureDetails?.witnessNames
@@ -607,25 +691,17 @@ export function ShareholdersAgreementPreview({
                 witnessName = names[index] || `Witness ${index + 1}`
               }
               return (
-                <div key={index} ref={index === 0 ? setRef('witnessNames') : undefined} className={index === 0 ? hl('witnessNames') : ''}>
+                <div key={index} ref={index === 0 ? setRef('witnessNames') : undefined} className={`sha-witness-block border-l-4 border-gray-300 pl-3 ${index === 0 ? hl('witnessNames') : ''}`}>
                   <p className="text-xs font-semibold text-foreground">{witnessName}</p>
-                  <div className="mt-2 pt-4 border-t border-foreground/30 w-24">
+                  <div className="mt-3 pt-3 border-t-2 border-foreground w-32">
                     <p className="text-[10px] text-muted-foreground">Signature</p>
                   </div>
+                  <p className="text-[10px] text-muted-foreground mt-1">Date: ______________</p>
                 </div>
               )
             })}
           </div>
         )}
-      </div>
-
-      <Separator />
-
-      {/* Legal Disclaimer - Platform Protection */}
-      <div className="bg-slate-50 border border-slate-200 rounded p-3 mt-4">
-        <p className="text-[10px] text-slate-600 leading-relaxed">
-          <strong>Disclaimer:</strong> This Shareholders Agreement is generated based on user-provided inputs and is intended for general use. It does not constitute legal advice and should be reviewed by a qualified legal professional before execution. The parties are responsible for ensuring compliance with all applicable laws and regulations.
-        </p>
       </div>
 
     </div>
