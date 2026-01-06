@@ -58,43 +58,54 @@ export function RentAgreementForm() {
         description: "Please fix the errors in the form before submitting",
         variant: "destructive",
       })
-      return
+      throw new Error("Form validation failed")
     }
 
-    // Capture HTML from preview
-    const { captureRentAgreementPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-    const htmlContent = captureRentAgreementPreviewHTML()
+    try {
+      // 1. Capture HTML from preview
+      const { captureRentAgreementPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
+      const htmlContent = captureRentAgreementPreviewHTML()
 
-    // Generate PDF
-    const pdfResponse = await fetch("/api/generate-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        htmlContent,
-        filename: `rent-agreement-${Date.now()}.pdf`,
-      }),
-    })
+      // 2. Send to PDF generator
+      const pdfResponse = await fetch("/api/generate-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          htmlContent,
+          filename: `rent-agreement-${formData.tenant.name.replace(/\s+/g, "-").toLowerCase()}.pdf`,
+        }),
+      })
 
-    if (!pdfResponse.ok) {
-      throw new Error("Failed to generate PDF")
+      if (!pdfResponse.ok) {
+        const error = await pdfResponse.text()
+        throw new Error(`PDF generation failed: ${error}`)
+      }
+
+      const blob = await pdfResponse.blob()
+      
+      // 3. Download PDF
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `rent-agreement-${formData.tenant.name.replace(/\s+/g, "-").toLowerCase()}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+      toast({
+        title: "Success!",
+        description: "Your rent agreement has been generated and downloaded",
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF"
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
+      throw error
     }
-
-    const blob = await pdfResponse.blob()
-    
-    // Download PDF
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `rent-agreement-${formData.tenant.name.replace(/\s+/g, "-").toLowerCase()}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(a)
-
-    toast({
-      title: "Success!",
-      description: "Your rent agreement has been generated and downloaded",
-    })
   }, [validateForm, errors, markFieldTouched, toast, formData.tenant.name])
 
   // Handle payment error

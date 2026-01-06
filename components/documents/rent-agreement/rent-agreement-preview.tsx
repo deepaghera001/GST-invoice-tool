@@ -170,10 +170,94 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
 
   return (
     <PreviewWrapper className="overflow-hidden" title="Agreement Preview" icon={<FileText className="h-5 w-5" />} previewId="rent-agreement-preview" dataTestId="rent-agreement-preview" pdfContentId="rent-agreement-pdf-content" maxHeight={maxHeight}>
+        <style>{`
+          /* Rent Agreement PDF-Only CSS Rules */
+          
+          /* Global, consistent page margins (never override per-page) */
+          @page {
+            size: A4;
+            margin: 25mm 25mm 30mm 25mm; /* Top Right Bottom Left */
+          }
+          
+          /* Hide preview-only elements from PDF */
+          @media print {
+            .no-print {
+              display: none !important;
+            }
+          }
+          
+          .ra-title {
+            margin-top: 0;
+            margin-bottom: 18px;
+          }
+          .ra-section-heading {
+            margin-top: 24px;
+            margin-bottom: 12px;
+            break-after: avoid;
+            page-break-after: avoid;
+          }
+          .ra-no-break {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .ra-page-break {
+            break-before: page;
+            page-break-before: always;
+          }
+          .ra-party-block {
+            margin-bottom: 16px;
+          }
+          .ra-party-definition {
+            margin-top: 8px;
+            line-height: 1.5;
+          }
+          .ra-schedule-item {
+            margin-bottom: 10px;
+          }
+          .ra-amount {
+            font-weight: 600;
+          }
+          .ra-covenants {
+            margin-top: 12px;
+          }
+          .ra-covenants li {
+            margin-bottom: 10px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .ra-signature-section {
+            break-before: page;
+            page-break-before: always;
+            margin-top: 40px;
+          }
+          .ra-signature {
+            margin-top: 60px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .ra-signature-name {
+            margin-top: 8px;
+            font-weight: 600;
+          }
+          .ra-witness-section {
+            break-before: page;
+            page-break-before: always;
+          }
+          .ra-witness {
+            margin-top: 20px;
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          .ra-meta {
+            margin-top: 24px;
+            font-size: 10px;
+            color: #555;
+          }
+        `}</style>
         {/* LEGAL DOCUMENT - This is what gets captured for PDF */}
         <div data-testid="rent-agreement-preview" className="p-6 space-y-5 text-sm bg-white">
           {/* Title */}
-          <div className="text-center space-y-1 border-b-2 border-foreground pb-4">
+          <div className="text-center space-y-2 border-b-2 border-foreground pb-6 mb-4 ra-title">
             <h2 className="text-xl font-bold text-foreground tracking-wide">RENT AGREEMENT</h2>
             <p className="text-xs text-muted-foreground">
               Under Section 107 of the Transfer of Property Act, 1882
@@ -193,7 +277,7 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           </div>
 
           {/* Landlord Details */}
-          <div className="space-y-2">
+          <div className="space-y-2 ra-no-break ra-party-block" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
             <p className="font-bold text-center text-foreground">BETWEEN</p>
             <div className="bg-muted/40 border border-border rounded p-3 space-y-1 text-xs">
               <p><strong>Name:</strong> <span ref={setRef('landlordName')} className={hl('landlordName')}>{landlord.name || "____________________"}</span></p>
@@ -203,13 +287,13 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
               {landlord.panNumber && <p><strong>PAN:</strong> <span ref={setRef('landlordPan')} className={hl('landlordPan')}>{landlord.panNumber}</span></p>}
               {landlord.aadharNumber && <p><strong>Aadhar:</strong> <span ref={setRef('landlordAadhar')} className={hl('landlordAadhar')}>{landlord.aadharNumber}</span></p>}
             </div>
-            <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+            <p className="text-[10px] text-muted-foreground text-center leading-relaxed ra-party-definition">
               (Hereinafter referred to as the <strong>"LANDLORD/LESSOR"</strong>, which expression shall, unless repugnant to the context or meaning thereof, include their heirs, executors, administrators, legal representatives, and assigns of the First Part)
             </p>
           </div>
 
           {/* Tenant Details */}
-          <div className="space-y-2">
+          <div className="space-y-2 ra-no-break ra-party-block" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
             <p className="font-bold text-center text-foreground">AND</p>
             <div className="bg-muted/40 border border-border rounded p-3 space-y-1 text-xs">
               <p><strong>Name:</strong> <span ref={setRef('tenantName')} className={hl('tenantName')}>{tenant.name || "____________________"}</span></p>
@@ -219,7 +303,7 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
               {tenant.panNumber && <p><strong>PAN:</strong> <span ref={setRef('tenantPan')} className={hl('tenantPan')}>{tenant.panNumber}</span></p>}
               {tenant.aadharNumber && <p><strong>Aadhar:</strong> <span ref={setRef('tenantAadhar')} className={hl('tenantAadhar')}>{tenant.aadharNumber}</span></p>}
             </div>
-            <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+            <p className="text-[10px] text-muted-foreground text-center leading-relaxed ra-party-definition">
               (Hereinafter referred to as the <strong>"TENANT/LESSEE"</strong>, which expression shall, unless repugnant to the context or meaning thereof, include their heirs, executors, administrators, legal representatives, and assigns of the Second Part)
             </p>
           </div>
@@ -227,8 +311,8 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           <Separator />
 
           {/* Schedule of Property */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-foreground uppercase text-xs tracking-wide border-b border-muted pb-1">
+          <div className="space-y-2 ra-no-break">
+            <h3 className="font-bold text-foreground uppercase text-xs tracking-wide border-b border-muted pb-1 ra-section-heading">
               Schedule of Property
             </h3>
             <div className="bg-muted/30 rounded p-3 text-xs space-y-1">
@@ -272,9 +356,9 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           <Separator />
 
           {/* Terms and Conditions Table */}
-          <div className="space-y-2">
-            <h3 className="font-bold text-foreground uppercase text-xs tracking-wide border-b border-muted pb-1">
-              Terms and Conditions
+          <div className="space-y-3 break-inside-avoid ra-page-break">
+            <h3 className="font-bold text-foreground uppercase text-xs tracking-wide border-b-2 border-foreground pb-2 ra-section-heading">
+              SCHEDULE OF TERMS AND CONDITIONS
             </h3>
             <div className="border border-border rounded overflow-hidden text-xs">
               <div className="grid grid-cols-2 border-b border-border">
@@ -322,7 +406,7 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Notice Period</div>
-                <div className="p-2"><span ref={setRef('noticePeriod')} className={hl('noticePeriod')}>{rentTerms.noticePeriod}</span> month(s)</div>
+                <div className="p-2"><span ref={setRef('noticePeriod')} className={hl('noticePeriod')}>{rentTerms.noticePeriod}</span> {rentTerms.noticePeriod === 1 ? 'month' : 'months'}</div>
               </div>
               <div className="grid grid-cols-2 border-b border-border">
                 <div className="bg-muted/50 p-2 font-medium border-r border-border">Payment Mode</div>
@@ -342,32 +426,32 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           {/* Terms and Covenants */}
           {(clauses.noSubLetting || clauses.propertyInspection || clauses.repairsResponsibility || 
             clauses.utilityPayment || clauses.peacefulUse || clauses.noIllegalActivity || clauses.lockInPeriod) && (
-            <div className="space-y-2">
-              <h3 className="font-bold text-foreground uppercase text-xs tracking-wide border-b border-muted pb-1">
+            <div className="space-y-2 ra-covenants">
+              <h3 className="font-bold text-foreground uppercase text-xs tracking-wide border-b border-muted pb-1 ra-section-heading">
                 Terms and Covenants
               </h3>
               <p className="text-xs text-muted-foreground">The Tenant hereby agrees to the following terms and conditions:</p>
               <ol className="list-decimal list-outside ml-4 space-y-2 text-xs text-muted-foreground">
                 {clauses.noSubLetting && (
-                  <li><strong className="text-foreground">No Sub-letting:</strong> {STANDARD_CLAUSES.noSubLetting}</li>
+                  <li className="ra-no-break"><strong className="text-foreground">No Sub-letting:</strong> {STANDARD_CLAUSES.noSubLetting}</li>
                 )}
                 {clauses.propertyInspection && (
-                  <li><strong className="text-foreground">Property Inspection:</strong> {STANDARD_CLAUSES.propertyInspection}</li>
+                  <li className="ra-no-break"><strong className="text-foreground">Property Inspection:</strong> {STANDARD_CLAUSES.propertyInspection}</li>
                 )}
                 {clauses.repairsResponsibility && (
-                  <li><strong className="text-foreground">Repairs & Maintenance:</strong> {STANDARD_CLAUSES.repairsResponsibility}</li>
+                  <li className="ra-no-break"><strong className="text-foreground">Repairs & Maintenance:</strong> {STANDARD_CLAUSES.repairsResponsibility}</li>
                 )}
                 {clauses.utilityPayment && (
-                  <li><strong className="text-foreground">Utility Payment:</strong> {STANDARD_CLAUSES.utilityPayment}</li>
+                  <li className="ra-no-break"><strong className="text-foreground">Utility Payment:</strong> {STANDARD_CLAUSES.utilityPayment}</li>
                 )}
                 {clauses.peacefulUse && (
-                  <li><strong className="text-foreground">Peaceful Use:</strong> {STANDARD_CLAUSES.peacefulUse}</li>
+                  <li className="ra-no-break"><strong className="text-foreground">Peaceful Use:</strong> {STANDARD_CLAUSES.peacefulUse}</li>
                 )}
                 {clauses.noIllegalActivity && (
-                  <li><strong className="text-foreground">No Illegal Activity:</strong> {STANDARD_CLAUSES.noIllegalActivity}</li>
+                  <li className="ra-no-break"><strong className="text-foreground">No Illegal Activity:</strong> {STANDARD_CLAUSES.noIllegalActivity}</li>
                 )}
                 {clauses.lockInPeriod && (clauses.lockInMonths ?? 0) > 0 && (
-                  <li><strong className="text-foreground">Lock-in Period:</strong> Both parties agree to a lock-in period of {clauses.lockInMonths} month(s) during which neither party can terminate the agreement except for breach of terms.</li>
+                  <li className="ra-no-break"><strong className="text-foreground">Lock-in Period:</strong> Both parties agree to a lock-in period of {clauses.lockInMonths} {clauses.lockInMonths === 1 ? 'month' : 'months'} during which neither party can terminate the agreement except for breach of terms.</li>
                 )}
               </ol>
             </div>
@@ -388,22 +472,22 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           <Separator />
 
           {/* Signature Section */}
-          <div className="space-y-3">
+          <div className="space-y-3 ra-signature-section" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
             <p className="text-xs text-muted-foreground">
               <strong className="text-foreground">IN WITNESS WHEREOF</strong>, the parties have signed this Agreement on the date first mentioned above, in the presence of the following witnesses:
             </p>
             
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="text-center">
+              <div className="text-center ra-signature" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <div className="border-t border-foreground pt-2 mt-10">
-                  <p className="font-bold text-xs">LANDLORD/LESSOR</p>
-                  <p className="text-xs text-muted-foreground">{landlord.name || "____________________"}</p>
+                  <p className="font-bold text-xs whitespace-nowrap">LANDLORD/LESSOR</p>
+                  <p className="text-xs text-muted-foreground whitespace-nowrap ra-signature-name">{landlord.name || "____________________"}</p>
                 </div>
               </div>
-              <div className="text-center">
+              <div className="text-center ra-signature" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <div className="border-t border-foreground pt-2 mt-10">
-                  <p className="font-bold text-xs">TENANT/LESSEE</p>
-                  <p className="text-xs text-muted-foreground">{tenant.name || "____________________"}</p>
+                  <p className="font-bold text-xs whitespace-nowrap">TENANT/LESSEE</p>
+                  <p className="text-xs text-muted-foreground whitespace-nowrap ra-signature-name">{tenant.name || "____________________"}</p>
                 </div>
               </div>
             </div>
@@ -412,17 +496,17 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           <Separator />
 
           {/* Witnesses */}
-          <div className="space-y-3">
+          <div className="space-y-3 ra-witness-section" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
             <p className="font-bold text-xs">WITNESSES:</p>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2 text-xs text-muted-foreground">
+              <div className="space-y-2 text-xs text-muted-foreground ra-witness" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <p>1. Name: ____________________</p>
                 <p>Address: ____________________</p>
                 <div className="border-t border-muted pt-2 mt-6 text-center">
                   <p className="text-[10px]">Signature</p>
                 </div>
               </div>
-              <div className="space-y-2 text-xs text-muted-foreground">
+              <div className="space-y-2 text-xs text-muted-foreground ra-witness" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
                 <p>2. Name: ____________________</p>
                 <p>Address: ____________________</p>
                 <div className="border-t border-muted pt-2 mt-6 text-center">
@@ -433,28 +517,24 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           </div>
 
           {/* Document Footer - Just reference ID */}
-          <div className="text-center pt-4 border-t border-muted">
+          <div className="text-center pt-4 border-t border-muted ra-meta">
             <p className="text-[10px] text-muted-foreground">
               Document ID: {documentId}
             </p>
           </div>
         </div>
 
-        {/* Platform Guidance - OUTSIDE the document */}
-        <div className="bg-amber-50 border-t border-amber-200 p-4 space-y-3">
+        {/* Platform Instructions - SEPARATE from document, preview-only */}
+        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3 no-print">
           <div className="flex items-start gap-2">
-            <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div className="space-y-2 text-xs">
-              <p className="font-medium text-amber-800">Before You Print:</p>
-              <ul className="text-amber-700 space-y-1 list-disc list-inside">
+            <div className="space-y-2">
+              <p className="font-semibold text-blue-900">Print Instructions (Not in PDF)</p>
+              <ul className="text-blue-800 space-y-1 list-disc list-inside text-sm">
                 <li>Print this agreement on appropriate <strong>stamp paper</strong> as per the applicable State Stamp Act</li>
                 <li>Estimated stamp duty: <strong>{formatCurrency(calculations.stampDutyEstimate)}</strong></li>
                 <li>Both parties must <strong>sign</strong> in presence of <strong>two witnesses</strong></li>
                 <li>Registration is typically required for agreements of 12 months or more in most states</li>
               </ul>
-              <p className="text-amber-600 text-[10px] pt-1">
-                This note will not appear in your downloaded PDF. The PDF contains only the legal agreement.
-              </p>
             </div>
           </div>
         </div>
