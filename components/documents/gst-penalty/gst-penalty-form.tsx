@@ -14,6 +14,7 @@ import { GSTPenaltyPreview } from './gst-penalty-preview'
 import { TestScenarioSelector, gstScenarios } from '@/lib/testing'
 import { PaymentCTA } from '@/components/shared/payment-cta'
 import { useToast } from '@/components/ui/use-toast'
+import { generateAndDownloadPDF } from '@/lib/utils/pdf-download-utils'
 
 const PDF_PRICE = 99 // ₹99
 
@@ -36,7 +37,7 @@ export function GSTPenaltyForm() {
   } = useGSTForm()
 
   // Generate and download PDF
-  const generateAndDownloadPDF = useCallback(async () => {
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
     const { isValid, errors: validationErrors } = validateFormFull()
     
     if (!isValid) {
@@ -46,7 +47,7 @@ export function GSTPenaltyForm() {
         description: firstError || "Please fix the errors in the form",
         variant: "destructive",
       })
-      return
+      throw new Error("Form validation failed")
     }
 
     if (!calculations) {
@@ -55,37 +56,31 @@ export function GSTPenaltyForm() {
         description: "Please enter valid data to calculate penalty",
         variant: "destructive",
       })
-      return
+      throw new Error("Calculations not available")
     }
 
-    const { captureGSTPenaltyPreviewHTML } = await import('@/lib/utils/dom-capture-utils')
-    const htmlContent = captureGSTPenaltyPreviewHTML()
+    try {
+      const { captureGSTPenaltyPreviewHTML } = await import('@/lib/utils/dom-capture-utils')
+      const htmlContent = captureGSTPenaltyPreviewHTML()
 
-    const response = await fetch('/api/generate-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      await generateAndDownloadPDF(
         htmlContent,
-        filename: `GST-Penalty-Summary-${formData.returnType}-${Date.now()}.pdf`,
-      }),
-    })
+        `GST-Penalty-Summary-${formData.returnType}-${Date.now()}.pdf`
+      )
 
-    if (!response.ok) throw new Error('Failed to generate PDF')
-
-    const blob = await response.blob()
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `GST-Penalty-Summary-${formData.returnType}-${Date.now()}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(a)
-
-    toast({
-      title: "Success!",
-      description: "Your GST penalty summary has been downloaded",
-    })
+      toast({
+        title: "Success! 🎉",
+        description: "Your GST penalty summary has been downloaded",
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF"
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
+      throw error
+    }
   }, [validateFormFull, calculations, formData.returnType, toast])
 
   // Handle payment error
@@ -212,11 +207,10 @@ export function GSTPenaltyForm() {
           isFormComplete={isFormComplete && !!calculations}
           completedSections={completedSectionsCount}
           totalSections={totalSections}
-          onPaymentSuccess={generateAndDownloadPDF}
+          onPaymentSuccess={handleGenerateAndDownloadPDF}
           onPaymentError={handlePaymentError}
           price={PDF_PRICE}
           documentType="gst-penalty"
-          buttonText="Download Summary"
         />
       </div>
     </div>

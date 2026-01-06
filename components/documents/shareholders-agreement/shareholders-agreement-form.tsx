@@ -15,6 +15,7 @@ import { AlertCircle, FlaskConical, FileText } from "lucide-react"
 import { TestScenarioSelector, shareholdersAgreementScenarios, isTestMode } from "@/lib/testing"
 import { Card, CardContent } from "@/components/ui/card"
 import { PaymentCTA } from "@/components/shared/payment-cta"
+import { generateAndDownloadPDF } from "@/lib/utils/pdf-download-utils"
 import {
   CompanyDetails,
   ShareholdersDetails,
@@ -60,48 +61,41 @@ export function ShareholdersAgreementForm() {
   /**
    * Generate and download PDF - called by PaymentCTA after successful payment
    */
-  const generateAndDownloadPDF = useCallback(async () => {
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
     const { isValid } = validateForm()
 
     if (!isValid) {
       Object.keys(errors).forEach((field) => markFieldTouched(field))
-      throw new Error("Please fix the errors in the form before submitting")
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors in the form before submitting",
+        variant: "destructive",
+      })
+      throw new Error("Form validation failed")
     }
 
-    // Capture HTML from preview
-    const { captureShareholdersAgreementPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-    const htmlContent = captureShareholdersAgreementPreviewHTML()
+    try {
+      const { captureShareholdersAgreementPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
+      const htmlContent = captureShareholdersAgreementPreviewHTML()
 
-    // Generate PDF
-    const pdfResponse = await fetch("/api/generate-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      await generateAndDownloadPDF(
         htmlContent,
-        filename: `shareholders-agreement-${Date.now()}.pdf`,
-      }),
-    })
+        `shareholders-agreement-${formData.company.companyName.replace(/\s+/g, "-").toLowerCase()}.pdf`
+      )
 
-    if (!pdfResponse.ok) {
-      throw new Error("Failed to generate PDF")
+      toast({
+        title: "Success! 🎉",
+        description: "Your Shareholders Agreement has been generated and downloaded",
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF"
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
+      throw error
     }
-
-    const blob = await pdfResponse.blob()
-    
-    // Download PDF
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `shareholders-agreement-${formData.company.companyName.replace(/\s+/g, "-").toLowerCase()}.pdf`
-    document.body.appendChild(a)
-    a.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(a)
-
-    toast({
-      title: "Success!",
-      description: "Your shareholders agreement has been generated and downloaded",
-    })
   }, [validateForm, errors, markFieldTouched, toast, formData.company.companyName])
 
   /**
@@ -353,7 +347,7 @@ export function ShareholdersAgreementForm() {
               price={PDF_PRICE}
               documentType="shareholders-agreement"
               isTestMode={isTestMode}
-              onPaymentSuccess={generateAndDownloadPDF}
+              onPaymentSuccess={handleGenerateAndDownloadPDF}
               onPaymentError={handlePaymentError}
               completedSections={completedSectionsCount}
               totalSections={totalSections}

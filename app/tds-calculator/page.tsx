@@ -15,6 +15,7 @@ import { useState, useCallback } from 'react';
 import Head from "next/head";
 import { PaymentCTA } from '@/components/shared/payment-cta';
 import { PageHeader, Footer } from '@/components/home';
+import { generateAndDownloadPDF } from '@/lib/utils/pdf-download-utils';
 
 const PDF_PRICE = 99; // ₹99
 
@@ -61,36 +62,24 @@ export default function TDSCalculatorPage() {
   /**
    * Generate and download PDF - called by PaymentCTA after successful payment
    */
-  const generateAndDownloadPDF = useCallback(async () => {
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
     if (!calculations) {
       throw new Error('No calculations available');
     }
 
-    // Capture HTML from the preview component (same as what user sees)
-    const htmlContent = captureTDSFeePreviewHTML();
+    try {
+      // Capture HTML from the preview component (same as what user sees)
+      const htmlContent = captureTDSFeePreviewHTML();
 
-    const response = await fetch('/api/generate-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      await generateAndDownloadPDF(
         htmlContent,
-        filename: `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to generate PDF');
+        `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`
+      );
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to generate PDF';
+      setApiError(message);
+      throw error;
     }
-
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `TDS-Fee-Summary-${formData.deductionType}-${Date.now()}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
   }, [calculations, formData.deductionType]);
 
   /**
@@ -330,7 +319,7 @@ export default function TDSCalculatorPage() {
                       price={PDF_PRICE}
                       documentType="tds-certificate"
                       isTestMode={isTestMode}
-                      onPaymentSuccess={generateAndDownloadPDF}
+                      onPaymentSuccess={handleGenerateAndDownloadPDF}
                       onPaymentError={handlePaymentError}
                       completedSections={completedSectionsCount}
                       totalSections={totalSections}

@@ -12,6 +12,7 @@ import { useRentAgreementForm } from "@/lib/hooks/use-rent-agreement-form"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { RotateCcw, FlaskConical } from "lucide-react"
+import { generateAndDownloadPDF } from "@/lib/utils/pdf-download-utils"
 import {
   LandlordDetails,
   TenantDetails,
@@ -48,7 +49,7 @@ export function RentAgreementForm() {
   } = useRentAgreementForm()
 
   // Generate and download PDF
-  const generateAndDownloadPDF = useCallback(async () => {
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
     const { isValid } = validateForm()
 
     if (!isValid) {
@@ -62,39 +63,16 @@ export function RentAgreementForm() {
     }
 
     try {
-      // 1. Capture HTML from preview
       const { captureRentAgreementPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
       const htmlContent = captureRentAgreementPreviewHTML()
 
-      // 2. Send to PDF generator
-      const pdfResponse = await fetch("/api/generate-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          htmlContent,
-          filename: `rent-agreement-${formData.tenant.name.replace(/\s+/g, "-").toLowerCase()}.pdf`,
-        }),
-      })
-
-      if (!pdfResponse.ok) {
-        const error = await pdfResponse.text()
-        throw new Error(`PDF generation failed: ${error}`)
-      }
-
-      const blob = await pdfResponse.blob()
-      
-      // 3. Download PDF
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `rent-agreement-${formData.tenant.name.replace(/\s+/g, "-").toLowerCase()}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      await generateAndDownloadPDF(
+        htmlContent,
+        `rent-agreement-${formData.tenant.name.replace(/\s+/g, "-").toLowerCase()}.pdf`
+      )
 
       toast({
-        title: "Success!",
+        title: "Success! 🎉",
         description: "Your rent agreement has been generated and downloaded",
       })
     } catch (error) {
@@ -203,7 +181,7 @@ export function RentAgreementForm() {
               price={PDF_PRICE}
               documentType="rent-agreement"
               isTestMode={isTestMode}
-              onPaymentSuccess={generateAndDownloadPDF}
+              onPaymentSuccess={handleGenerateAndDownloadPDF}
               onPaymentError={handlePaymentError}
               completedSections={completedSectionsCount}
               totalSections={totalSections}

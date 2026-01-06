@@ -23,6 +23,7 @@ import { useSuggestions } from "@/lib/hooks/use-suggestions"
 import { GSTIN_REGEX } from "@/lib/invoice"
 import { TestScenarioSelector, invoiceScenarios, isTestMode } from "@/lib/testing"
 import { PaymentCTA } from "@/components/shared/payment-cta"
+import { generateAndDownloadPDF } from "@/lib/utils/pdf-download-utils"
 
 const PDF_PRICE = 99 // ₹99
 
@@ -54,7 +55,7 @@ export function InvoiceForm() {
   /**
    * Generate and download PDF - called by PaymentCTA after successful payment
    */
-  const generateAndDownloadPDF = useCallback(async () => {
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
     if (!isSellerGSTINValid) {
       toast({
         title: "Invalid Seller GSTIN",
@@ -76,32 +77,26 @@ export function InvoiceForm() {
       throw new Error("Form validation failed")
     }
 
-    // Capture HTML from preview
-    const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-    const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber)
+    try {
+      // Capture HTML from preview
+      const { captureInvoicePreviewHTML } = await import("@/lib/utils/dom-capture-utils")
+      const htmlContent = captureInvoicePreviewHTML(formData.invoiceNumber)
 
-    const pdfResponse = await fetch("/api/generate-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        htmlContent,
-        filename: `invoice-${formData.invoiceNumber}.pdf`,
-      }),
-    })
+      await generateAndDownloadPDF(htmlContent, `invoice-${formData.invoiceNumber}.pdf`)
 
-    if (!pdfResponse.ok) {
-      const errorText = await pdfResponse.text()
-      console.error("PDF generation API error:", errorText)
-      throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
+      toast({
+        title: "Success! 🎉",
+        description: "Your invoice has been generated and downloaded",
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF"
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
+      throw error
     }
-
-    const blob = await pdfResponse.blob()
-    downloadPDF(blob, formData.invoiceNumber)
-
-    toast({
-      title: "Success! 🎉",
-      description: "Your invoice has been generated and downloaded",
-    })
   }, [formData, isSellerGSTINValid, validateForm, errors, markFieldTouched, toast])
 
   /**
@@ -251,7 +246,7 @@ export function InvoiceForm() {
             price={PDF_PRICE}
             documentType="invoice"
             isTestMode={isTestMode}
-            onPaymentSuccess={generateAndDownloadPDF}
+            onPaymentSuccess={handleGenerateAndDownloadPDF}
             onPaymentError={handlePaymentError}
             completedSections={completedSectionsCount}
             totalSections={totalSections}
@@ -261,18 +256,4 @@ export function InvoiceForm() {
       </div>
     </>
   )
-}
-
-/**
- * Helper function to download PDF
- */
-function downloadPDF(blob: Blob, invoiceNumber: string) {
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = `invoice-${invoiceNumber}.pdf`
-  document.body.appendChild(a)
-  a.click()
-  window.URL.revokeObjectURL(url)
-  document.body.removeChild(a)
 }

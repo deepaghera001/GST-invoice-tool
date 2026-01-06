@@ -29,22 +29,9 @@ import {
 import { InfluencerContractPreview } from "./influencer-contract-preview"
 import { PaymentCTA } from "@/components/shared/payment-cta"
 import { TestScenarioSelector, influencerContractScenarios, isTestMode } from "@/lib/testing"
+import { generateAndDownloadPDF } from "@/lib/utils/pdf-download-utils"
 
 const PDF_PRICE = 499 // ₹499
-
-/**
- * Download blob as file
- */
-function downloadPDF(blob: Blob, filename: string) {
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = filename
-  document.body.appendChild(a)
-  a.click()
-  window.URL.revokeObjectURL(url)
-  document.body.removeChild(a)
-}
 
 export function InfluencerContractForm() {
   const { toast } = useToast()
@@ -75,7 +62,7 @@ export function InfluencerContractForm() {
   /**
    * Generate and download PDF - called by PaymentCTA after successful payment
    */
-  const generateAndDownloadPDF = useCallback(async () => {
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
     // Validate form before generating
     const { isValid } = validateFormFull()
     if (!isValid) {
@@ -88,35 +75,28 @@ export function InfluencerContractForm() {
       throw new Error("Form validation failed")
     }
 
-    // Capture HTML from preview
-    const { captureInfluencerContractPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-    const htmlContent = captureInfluencerContractPreviewHTML()
+    try {
+      const { captureInfluencerContractPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
+      const htmlContent = captureInfluencerContractPreviewHTML()
 
-    const pdfResponse = await fetch("/api/generate-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      await generateAndDownloadPDF(
         htmlContent,
-        filename: `influencer-contract-${formData.parties.influencerName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.pdf`,
-      }),
-    })
+        `influencer-contract-${formData.parties.influencerName.replace(/\s+/g, "-").toLowerCase()}-${Date.now()}.pdf`
+      )
 
-    if (!pdfResponse.ok) {
-      const errorText = await pdfResponse.text()
-      console.error("PDF generation API error:", errorText)
-      throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
+      toast({
+        title: "Success! 🎉",
+        description: "Your Influencer-Brand Contract has been generated and downloaded.",
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF"
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
+      throw error
     }
-
-    const blob = await pdfResponse.blob()
-    downloadPDF(
-      blob,
-      `influencer-contract-${formData.parties.influencerName.replace(/\s+/g, "-").toLowerCase()}.pdf`
-    )
-
-    toast({
-      title: "Success! 🎉",
-      description: "Your Influencer-Brand Contract has been generated and downloaded.",
-    })
   }, [validateFormFull, errors, markFieldTouched, toast, formData.parties.influencerName])
 
   /**
@@ -295,7 +275,7 @@ export function InfluencerContractForm() {
                 price={PDF_PRICE}
                 documentType="influencer-contract"
                 isTestMode={isTestMode}
-                onPaymentSuccess={generateAndDownloadPDF}
+                onPaymentSuccess={handleGenerateAndDownloadPDF}
                 onPaymentError={handlePaymentError}
                 completedSections={completedSectionsCount}
                 totalSections={totalSections}

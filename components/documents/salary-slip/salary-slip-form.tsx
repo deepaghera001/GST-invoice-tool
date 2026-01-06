@@ -9,6 +9,7 @@
 "use client"
 
 import type React from "react"
+import { useCallback } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { useSalarySlipForm } from "@/lib/hooks/use-salary-slip-form"
 import { Badge } from "@/components/ui/badge"
@@ -23,6 +24,7 @@ import { BankingDetails } from "./form-sections/banking-details"
 import { SalarySlipPreview } from "./salary-slip-preview"
 import { PaymentCTA } from "@/components/shared/payment-cta"
 import { TestScenarioSelector, salarySlipScenarios, isTestMode } from "@/lib/testing"
+import { generateAndDownloadPDF } from "@/lib/utils/pdf-download-utils"
 
 const PDF_PRICE = 99 // ₹99
 
@@ -63,7 +65,7 @@ export function SalarySlipForm() {
   /**
    * Generate and download PDF - called by PaymentCTA after successful payment
    */
-  const generateAndDownloadPDF = async () => {
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
     // Validate form before generating
     const { isValid } = validateFormFull()
     if (!isValid) {
@@ -76,33 +78,29 @@ export function SalarySlipForm() {
       throw new Error("Form validation failed")
     }
 
-    // Capture HTML from preview
-    const { captureSalarySlipPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
-    const htmlContent = captureSalarySlipPreviewHTML()
+    try {
+      const { captureSalarySlipPreviewHTML } = await import("@/lib/utils/dom-capture-utils")
+      const htmlContent = captureSalarySlipPreviewHTML()
 
-    const pdfResponse = await fetch("/api/generate-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+      await generateAndDownloadPDF(
         htmlContent,
-        filename: `salary-slip-${formData.employee.employeeId}.pdf`,
-      }),
-    })
+        `salary-slip-${formData.employee.employeeId}.pdf`
+      )
 
-    if (!pdfResponse.ok) {
-      const errorText = await pdfResponse.text()
-      console.error("PDF generation API error:", errorText)
-      throw new Error(`API Error: ${pdfResponse.status} - ${errorText}`)
+      toast({
+        title: "Success! 🎉",
+        description: "Your salary slip has been generated and downloaded.",
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF"
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
+      throw error
     }
-
-    const blob = await pdfResponse.blob()
-    downloadPDF(blob, formData.employee.employeeId)
-
-    toast({
-      title: "Success! 🎉",
-      description: "Your salary slip has been generated and downloaded.",
-    })
-  }
+  }, [validateFormFull, errors, markFieldTouched, toast, formData.employee.employeeId])
 
   /**
    * Handle payment errors from PaymentCTA
@@ -257,7 +255,7 @@ export function SalarySlipForm() {
             price={PDF_PRICE}
             documentType="salary-slip"
             isTestMode={isTestMode}
-            onPaymentSuccess={generateAndDownloadPDF}
+            onPaymentSuccess={handleGenerateAndDownloadPDF}
             onPaymentError={handlePaymentError}
             completedSections={completedSectionsCount}
             totalSections={totalSections}
@@ -267,18 +265,4 @@ export function SalarySlipForm() {
       </div>
     </>
   )
-}
-
-/**
- * Helper function to download PDF
- */
-function downloadPDF(blob: Blob, employeeId: string) {
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = `salary-slip-${employeeId}.pdf`
-  document.body.appendChild(a)
-  a.click()
-  window.URL.revokeObjectURL(url)
-  document.body.removeChild(a)
 }
