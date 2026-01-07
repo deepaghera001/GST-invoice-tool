@@ -70,6 +70,7 @@ export function RentTerms({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             label="Monthly Rent (₹)"
+            htmlFor="rentTerms.monthlyRent"
             error={shouldShowError("rentTerms.monthlyRent") ? errors["rentTerms.monthlyRent"] : undefined}
             required
           >
@@ -86,6 +87,7 @@ export function RentTerms({
 
           <FormField
             label="Security Deposit (₹)"
+            htmlFor="rentTerms.securityDeposit"
             error={shouldShowError("rentTerms.securityDeposit") ? errors["rentTerms.securityDeposit"] : undefined}
             required
           >
@@ -103,7 +105,7 @@ export function RentTerms({
 
         {/* Maintenance */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField label="Maintenance Charges (₹/month)">
+          <FormField label="Maintenance Charges (₹/month)" htmlFor="rentTerms.maintenanceCharges">
             <Input
               name="rentTerms.maintenanceCharges"
               type="number"
@@ -115,7 +117,7 @@ export function RentTerms({
             />
           </FormField>
 
-          <FormField label="Maintenance">
+          <FormField label="Maintenance" htmlFor="maintenanceIncluded">
             <div className="flex items-center h-10 space-x-2">
               <Checkbox
                 id="maintenanceIncluded"
@@ -133,6 +135,7 @@ export function RentTerms({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             label="Agreement Start Date"
+            htmlFor="rentTerms.agreementStartDate"
             error={shouldShowError("rentTerms.agreementStartDate") ? errors["rentTerms.agreementStartDate"] : undefined}
             required
           >
@@ -145,7 +148,7 @@ export function RentTerms({
             />
           </FormField>
 
-          <FormField label="Agreement Duration" required>
+          <FormField label="Agreement Duration" htmlFor="rentTerms.agreementDuration" required>
             <select
               name="rentTerms.agreementDuration"
               value={rentTerms.agreementDuration}
@@ -163,7 +166,7 @@ export function RentTerms({
 
         {/* Rent Due Day & Notice Period */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField label="Rent Due Day" required>
+          <FormField label="Rent Due Day" htmlFor="rentTerms.rentDueDay" required>
             <select
               name="rentTerms.rentDueDay"
               value={rentTerms.rentDueDay}
@@ -178,7 +181,7 @@ export function RentTerms({
             </select>
           </FormField>
 
-          <FormField label="Notice Period" required>
+          <FormField label="Notice Period" htmlFor="rentTerms.noticePeriod" required>
             <select
               name="rentTerms.noticePeriod"
               value={rentTerms.noticePeriod}
@@ -196,7 +199,7 @@ export function RentTerms({
 
         {/* Payment Mode & Rent Increment */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField label="Payment Mode" required>
+          <FormField label="Payment Mode" htmlFor="rentTerms.paymentMode" required>
             <select
               name="rentTerms.paymentMode"
               value={rentTerms.paymentMode}
@@ -211,7 +214,7 @@ export function RentTerms({
             </select>
           </FormField>
 
-          <FormField label="Annual Rent Increment (%)">
+          <FormField label="Annual Rent Increment (%)" htmlFor="rentTerms.rentIncrementPercent">
             <Input
               name="rentTerms.rentIncrementPercent"
               type="number"

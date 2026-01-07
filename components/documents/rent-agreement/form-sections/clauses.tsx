@@ -121,7 +121,7 @@ export function Clauses({
 
           {clauses.lockInPeriod && (
             <div className="ml-6">
-              <FormField label="Lock-in Duration (months)">
+              <FormField label="Lock-in Duration (months)" htmlFor="clauses.lockInMonths">
                 <Input
                   name="clauses.lockInMonths"
                   type="number"
@@ -140,6 +140,7 @@ export function Clauses({
         {/* Additional Clauses */}
         <FormField
           label="Additional Clauses (Optional)"
+          htmlFor="clauses.additionalClauses"
           error={shouldShowError("clauses.additionalClauses") ? errors["clauses.additionalClauses"] : undefined}
         >
           <Textarea

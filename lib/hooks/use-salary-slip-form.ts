@@ -45,6 +45,7 @@ export interface UseSalarySlipFormReturn {
   fillTestData: () => void
   shouldShowError: (field: string) => boolean
   getError: (field: string) => string | undefined
+  resetForm: () => void
   /** Section-level completion checks using Zod schemas */
   isSectionComplete: SectionCompletionStatus
   /** Whether all sections are complete (form ready to submit) */

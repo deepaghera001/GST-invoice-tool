@@ -108,7 +108,7 @@ export const rentAgreementScenarios: TestScenario<RentAgreementFormData>[] = [
       ...VALID_BASE,
       property: {
         ...VALID_BASE.property,
-        furnishingStatus: "fully-furnished",
+        furnishingStatus: "furnished",
         area: "1800",
       },
       rentTerms: {
@@ -222,7 +222,7 @@ export const rentAgreementScenarios: TestScenario<RentAgreementFormData>[] = [
       ...VALID_BASE,
       property: {
         ...VALID_BASE.property,
-        propertyType: "penthouse",
+        propertyType: "apartment",
         area: "4000",
       },
       rentTerms: {

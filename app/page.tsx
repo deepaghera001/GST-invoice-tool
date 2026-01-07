@@ -73,14 +73,14 @@ export default function HomePage() {
   return (
     <>
       <Head>
-        <title>ComplianceKit - GST & TDS Calculators, Invoices, Salary Slips</title>
+        <title>ComplianceKit - GST & TDS Calculators, Invoice & Document Generators</title>
         <meta
           name="description"
-          content="ComplianceKit offers GST penalty calculators, TDS late fee calculators, and professional document generators like invoices and salary slips. Simplify compliance today!"
+          content="ComplianceKit offers free GST penalty calculators, TDS late fee calculators, and professional document generators like invoices, salary slips, rent agreements and contracts for Indian businesses."
         />
         <meta
           name="keywords"
-          content="GST calculator, TDS calculator, invoice generator, salary slip generator, compliance tools"
+          content="GST calculator, TDS calculator, invoice generator, salary slip generator, rent agreement, compliance tools India"
         />
       </Head>
       <div className="min-h-screen bg-slate-50 flex flex-col">

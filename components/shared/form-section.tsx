@@ -86,7 +86,7 @@ export interface FormSectionProps {
   /** Current form data */
   data: Record<string, any>
   /** Validation errors object */
-  errors: Record<string, string>
+  errors?: Partial<Record<string, string>>
   /** Change handler */
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   /** Blur handler for validation */
@@ -150,12 +150,14 @@ export function FormSection({
   
   // Helper to get error for field (checks prefixed path)
   const getFieldError = (fieldName: string) => {
+    if (!errors) return undefined
     const fullPath = getFullPath(fieldName)
     return errors[fullPath] || errors[fieldName]
   }
   
   // Helper to check if should show error (uses prefixed path)
   const checkShouldShowError = (fieldName: string) => {
+    if (!shouldShowError) return false
     const fullPath = getFullPath(fieldName)
     return shouldShowError(fullPath)
   }

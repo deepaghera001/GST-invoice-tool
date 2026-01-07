@@ -68,6 +68,7 @@ export function PropertyDetails({
         {/* Property Address */}
         <FormField
           label="Property Address"
+          htmlFor="property.address"
           error={shouldShowError("property.address") ? errors["property.address"] : undefined}
           required
         >
@@ -85,6 +86,7 @@ export function PropertyDetails({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField
             label="City"
+            htmlFor="property.city"
             error={shouldShowError("property.city") ? errors["property.city"] : undefined}
             required
           >
@@ -99,6 +101,7 @@ export function PropertyDetails({
 
           <FormField
             label="State"
+            htmlFor="property.state"
             error={shouldShowError("property.state") ? errors["property.state"] : undefined}
             required
           >
@@ -120,6 +123,7 @@ export function PropertyDetails({
 
           <FormField
             label="Pincode"
+            htmlFor="property.pincode"
             error={shouldShowError("property.pincode") ? errors["property.pincode"] : undefined}
             required
           >
@@ -136,7 +140,7 @@ export function PropertyDetails({
 
         {/* Property Type & Furnishing */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField label="Property Type" required>
+          <FormField label="Property Type" htmlFor="property.propertyType" required>
             <select
               name="property.propertyType"
               value={property.propertyType}
@@ -151,7 +155,7 @@ export function PropertyDetails({
             </select>
           </FormField>
 
-          <FormField label="Furnishing Status" required>
+          <FormField label="Furnishing Status" htmlFor="property.furnishingStatus" required>
             <select
               name="property.furnishingStatus"
               value={property.furnishingStatus}
@@ -169,7 +173,7 @@ export function PropertyDetails({
 
         {/* Area, Floor, Parking */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField label="Area (sq. ft.)">
+          <FormField label="Area (sq. ft.)" htmlFor="property.area">
             <Input
               name="property.area"
               value={property.area || ""}
@@ -178,7 +182,7 @@ export function PropertyDetails({
             />
           </FormField>
 
-          <FormField label="Floor">
+          <FormField label="Floor" htmlFor="property.floor">
             <Input
               name="property.floor"
               value={property.floor || ""}
@@ -187,7 +191,7 @@ export function PropertyDetails({
             />
           </FormField>
 
-          <FormField label="Parking">
+          <FormField label="Parking" htmlFor="property.parking">
             <div className="flex items-center h-10 space-x-2">
               <Checkbox
                 id="parking"
