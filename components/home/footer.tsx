@@ -43,6 +43,12 @@ const FOOTER_COLUMNS: FooterColumn[] = [
       { label: "Terms of Service", href: "#" },
     ],
   },
+  {
+    title: "Support",
+    links: [
+      { label: "Request a Document", href: "/request-document" },
+    ],
+  },
 ]
 
 export function Footer() {

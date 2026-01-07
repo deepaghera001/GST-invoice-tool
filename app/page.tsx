@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock, Users, UserCheck } from "lucide-react"
+import { CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock, Users, UserCheck, Sparkles, MessageSquarePlus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -291,6 +291,64 @@ export default function HomePage() {
                   </Card>
                 </Link>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Request New Document CTA Section */}
+        <section className="py-16 bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                <CardContent className="relative pt-10 pb-10 px-8">
+                  <div className="text-center space-y-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
+                      <MessageSquarePlus className="h-8 w-8 text-white" />
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <h2 className="text-3xl font-bold text-slate-900">
+                        Can't Find What You Need?
+                      </h2>
+                      <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                        We're constantly expanding our library. Request a new document and we'll prioritize building it based on demand!
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span>Free to request</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span>Get notified when ready</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                        <span>Shape our roadmap</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-4">
+                      <Link href="/request-document">
+                        <Button 
+                          size="lg" 
+                          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 h-12 text-base group"
+                        >
+                          <Sparkles className="mr-2 h-5 w-5" />
+                          Request a New Document
+                          <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </Link>
+                      <p className="text-xs text-slate-500 mt-3">
+                        Popular requests: Employment Agreement • NDA • Purchase Order • Quotation
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
