@@ -17,8 +17,15 @@ export interface PaymentCTAProps {
   /** Whether in test mode (free download) */
   isTestMode?: boolean
   /** 
+   * Called to pre-generate PDF before payment
+   * Should return HTML content for PDF generation
+   * Return null to use legacy flow (onPaymentSuccess callback)
+   */
+  getHTMLContent?: () => string | null
+  /** 
    * Called when payment is successful (or test mode download clicked)
    * Should return a Promise that resolves when PDF is generated/downloaded
+   * Legacy: Used when getHTMLContent is not provided
    */
   onPaymentSuccess: () => Promise<void>
   /** Optional callback when payment fails */
@@ -29,6 +36,8 @@ export interface PaymentCTAProps {
   totalSections?: number
   /** Payment description (for Razorpay checkout) */
   paymentDescription?: string
+  /** Filename for the PDF */
+  filename?: string
 }
 
 export interface FormProgressProps {

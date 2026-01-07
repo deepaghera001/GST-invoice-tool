@@ -30,14 +30,17 @@ export function PaymentCTA({
   ctaText,
   incompleteText,
   isTestMode = false,
+  getHTMLContent,
   onPaymentSuccess,
   onPaymentError,
   completedSections,
   totalSections,
   paymentDescription,
+  filename = "document.pdf",
 }: PaymentCTAProps) {
   const documentName = DOCUMENT_DISPLAY_NAMES[documentType]
   const [isGenerating, setIsGenerating] = useState(false)
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null)
   const { initiatePayment, loading: paymentLoading } = usePayment()
   
   // Combined processing state
@@ -47,12 +50,82 @@ export function PaymentCTA({
   const showProgress = completedSections !== undefined && totalSections !== undefined
 
   /**
-   * Handle button click - manages payment flow internally
+   * NEW SIMPLE FLOW: Generate PDF → Store in memory → Show payment → Download
+   * Uses existing /api/generate-pdf endpoint
    */
   const handleClick = async () => {
     if (!isFormComplete || isProcessing) return
 
-    // Test mode: Skip payment, directly generate PDF
+    // NEW FLOW: Use getHTMLContent if provided (simple in-memory storage)
+    if (getHTMLContent) {
+      setIsGenerating(true)
+      
+      try {
+        // STEP 1: Get HTML content
+        const htmlContent = getHTMLContent()
+        if (!htmlContent) {
+          throw new Error("Failed to generate HTML content")
+        }
+
+        // STEP 2: Generate PDF silently using EXISTING API
+        console.log("[CTA] Pre-generating PDF...")
+        const response = await fetch('/api/generate-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ htmlContent, filename }),
+        })
+
+        if (!response.ok) {
+          throw new Error('PDF generation failed')
+        }
+
+        // Store blob in browser memory
+        const blob = await response.blob()
+        setPdfBlob(blob)
+        console.log("[CTA] PDF ready in memory")
+
+        setIsGenerating(false)
+
+        // Test mode: Download immediately without payment
+        if (isTestMode) {
+          downloadBlob(blob, filename)
+          return
+        }
+
+        // STEP 3: PDF ready, now show payment modal
+        initiatePayment({
+          amount: price,
+          name: documentName,
+          description: paymentDescription || `${documentName} - Professional Document`,
+          onSuccess: async (paymentId, orderId) => {
+            console.log("[CTA] Payment successful, downloading PDF...")
+            // STEP 4: Download the blob we already have
+            downloadBlob(blob, filename)
+            setPdfBlob(null)
+          },
+          onError: (error) => {
+            console.error("[CTA] Payment failed:", error)
+            onPaymentError?.(error)
+            // Keep blob in memory so user can retry payment
+          },
+        })
+        
+      } catch (error) {
+        // PDF generation failed BEFORE payment - user NOT charged
+        console.error("[CTA] PDF generation failed before payment:", error)
+        setIsGenerating(false)
+        setPdfBlob(null)
+        
+        const errorMessage = error instanceof Error 
+          ? error.message 
+          : "Failed to generate PDF. Please try again."
+        
+        onPaymentError?.(errorMessage)
+      }
+      return
+    }
+
+    // OLD FLOW: Legacy support for existing forms
     if (isTestMode) {
       setIsGenerating(true)
       try {
@@ -63,7 +136,7 @@ export function PaymentCTA({
       return
     }
 
-    // Production mode: Initiate Razorpay payment
+    // OLD FLOW: Payment first, then generate
     initiatePayment({
       amount: price,
       name: documentName,
@@ -82,6 +155,20 @@ export function PaymentCTA({
         onPaymentError?.(error)
       },
     })
+  }
+
+  /**
+   * Simple blob download helper
+   */
+  const downloadBlob = (blob: Blob, name: string) => {
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = name
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
   }
 
   return (
