@@ -19,7 +19,7 @@ A modular, extensible PDF generation web app for Indian freelancers and small bu
 - **Frontend**: Next.js 16 (App Router), React 19, TypeScript
 - **UI**: shadcn/ui components, Tailwind CSS v4
 - **Validation**: Zod schema validation
-- **PDF Generation**: jsPDF with autotable
+- **PDF Generation**: HTML-to-PDF conversion via Playwright
 - **Payment**: Razorpay
 - **Deployment**: Vercel
 
@@ -204,6 +204,10 @@ See [lib/services/payment/README.md](lib/services/payment/README.md) for details
 // 3. Create PDF generator in lib/services/generators/quotation-pdf-generator.ts
 // 4. Register in GeneratorFactory
 ```
+
+The system supports two PDF generation approaches:
+- HTML-to-PDF: Capture HTML preview and convert to PDF (current default)
+- jsPDF: Direct PDF generation from code (legacy option)
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for complete guide.
 

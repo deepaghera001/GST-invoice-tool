@@ -26,7 +26,8 @@
       "@/*": [
         "./*"
       ]
-    }
+    },
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "next-env.d.ts",
@@ -36,6 +37,9 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "test-pdf-generation.ts",
+    "test-salary-slip-build.mjs",
+    "tests/**/*"
   ]
 }

@@ -1,41 +1,135 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { documentService } from "@/lib/services/document-service"
+import { chromium } from "@playwright/test"
+
+// Get browser launch configuration
+function getBrowserLaunchConfig() {
+  return {
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--single-process',
+      '--disable-gpu'
+    ]
+  };
+}
+
+// Get PDF generation options
+function getPDFGenerationOptions() {
+  return {
+    format: "A4" as const,
+    printBackground: true,
+    margin: {
+      top: "0",
+      right: "0",
+      bottom: "0",
+      left: "0",
+    },
+    displayHeaderFooter: false,
+    preferCSSPageSize: true,
+  };
+}
 
 export async function POST(request: NextRequest) {
+  let browser = null;
+  
   try {
-    const { paymentId, orderId, signature, invoiceData, documentType = "invoice", skipPayment = false } = await request.json()
+    const body = await request.json();
+    const { htmlContent, filename = "document.pdf" } = body;
     
-    console.log("[API] Received PDF generation request:", { paymentId, orderId, signature, documentType, skipPayment });
-    console.log("[API] Invoice data:", invoiceData);
-
-    let pdfBuffer: Buffer
-
-    if (skipPayment) {
-      // In development mode, skip payment verification and generate PDF directly
-      console.log("[API] Skipping payment verification, generating document directly");
-      pdfBuffer = await documentService.generateDocument(invoiceData, documentType)
-    } else {
-      // Production mode - verify payment before generating PDF
-      console.log("[API] Verifying payment before generating document");
-      pdfBuffer = await documentService.verifyAndGenerateDocument(
-        { paymentId, orderId, signature },
-        invoiceData,
-        documentType,
-        "razorpay",
-      )
+    // Validate inputs
+    if (!htmlContent || typeof htmlContent !== "string") {
+      return NextResponse.json(
+        { error: "htmlContent is required and must be a string" },
+        { status: 400 }
+      );
     }
-    
-    console.log("[API] PDF generated successfully, size:", pdfBuffer.length);
 
-    return new NextResponse(pdfBuffer, {
+    if (htmlContent.trim().length === 0) {
+      return NextResponse.json(
+        { error: "htmlContent cannot be empty" },
+        { status: 400 }
+      );
+    }
+
+    if (!filename || typeof filename !== "string") {
+      return NextResponse.json(
+        { error: "filename is required and must be a string" },
+        { status: 400 }
+      );
+    }
+
+    // Validate HTML content is not too large (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
+    if (Buffer.byteLength(htmlContent) > maxSize) {
+      return NextResponse.json(
+        { error: "HTML content exceeds maximum size of 10MB" },
+        { status: 413 }
+      );
+    }
+
+    console.log("[API] Generating PDF, filename:", filename, "content size:", Buffer.byteLength(htmlContent));
+
+    // Launch browser and generate PDF with timeout
+    browser = await Promise.race([
+      chromium.launch(getBrowserLaunchConfig()),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Browser launch timeout after 30s")), 30000)
+      )
+    ]) as any;
+
+    let pdfBuffer: Buffer;
+    try {
+      const page = await browser.newPage();
+      
+      // Set timeout for page operations
+      page.setDefaultTimeout(30000);
+      page.setDefaultNavigationTimeout(30000);
+      
+      await page.setContent(htmlContent, { waitUntil: "networkidle" });
+      pdfBuffer = await page.pdf(getPDFGenerationOptions());
+      
+      await page.close();
+
+      // Validate PDF output
+      if (!pdfBuffer || pdfBuffer.length === 0) {
+        throw new Error("PDF generation produced empty output");
+      }
+
+      console.log("[API] PDF generated successfully, size:", pdfBuffer.length);
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
+    }
+
+    return new NextResponse(Buffer.from(pdfBuffer), {
+      status: 200,
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="invoice-${invoiceData.invoiceNumber}.pdf"`,
+        "Content-Disposition": `attachment; filename="${encodeURIComponent(filename)}"`,
+        "Cache-Control": "no-cache, no-store, must-revalidate",
       },
-    })
+    });
   } catch (error) {
-    console.error("[v0] PDF generation error:", error)
-    const message = error instanceof Error ? error.message : "Failed to generate PDF"
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error("[API] PDF generation error:", error);
+    
+    const message = error instanceof Error ? error.message : "Failed to generate PDF";
+    const status = message.includes("timeout") ? 504 : 500;
+    
+    return NextResponse.json({ error: message }, { status });
+  } finally {
+    // Ensure browser is closed even if error occurs
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (e) {
+        console.error("[API] Error closing browser:", e);
+      }
+    }
   }
 }

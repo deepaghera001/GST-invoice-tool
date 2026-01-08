@@ -1,0 +1,13 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin or private paths (add if needed)
+# Disallow: /admin
+# Disallow: /api
+
+# Sitemap location
+Sitemap: https://compliancekit.example.com/sitemap.xml
+
+# Crawl-delay for specific bots (optional)
+# Crawl-delay: 10
