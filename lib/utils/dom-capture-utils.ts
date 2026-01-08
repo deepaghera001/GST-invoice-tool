@@ -124,25 +124,43 @@ export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: s
 }
 
 /**
+ * Clear browser text selection before capturing
+ */
+function clearTextSelection(): void {
+  const selection = window.getSelection();
+  if (selection) {
+    selection.removeAllRanges();
+  }
+}
+
+/**
+ * Remove PDF field highlight class from cloned element
+ */
+function removeHighlightClasses(element: HTMLElement): void {
+  element.classList.remove('pdf-field-highlight');
+  element.querySelectorAll('.pdf-field-highlight').forEach(el => {
+    el.classList.remove('pdf-field-highlight');
+  });
+}
+
+/**
  * Capture the HTML content of the invoice preview
  */
 export function captureInvoicePreviewHTML(invoiceNumber: string): string {
+  clearTextSelection();
+  
   const previewElement = document.getElementById('invoice-pdf-content');
   
   if (!previewElement) {
     throw new Error('Invoice PDF content element not found');
   }
   
-  // Clone the element to avoid modifying the original
   const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
   
-  // Get the outer HTML
   const htmlContent = clonedElement.outerHTML;
-  
-  // Capture styles
   const styles = captureStyles();
   
-  // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, `Invoice ${invoiceNumber}`, styles);
 }
 
@@ -150,22 +168,20 @@ export function captureInvoicePreviewHTML(invoiceNumber: string): string {
  * Capture the HTML content of the salary slip preview
  */
 export function captureSalarySlipPreviewHTML(): string {
+  clearTextSelection();
+  
   const previewElement = document.getElementById('salary-slip-pdf-content');
   
   if (!previewElement) {
     throw new Error('Salary slip PDF content element not found');
   }
   
-  // Clone the element to avoid modifying the original
   const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
   
-  // Get the outer HTML
   const htmlContent = clonedElement.outerHTML;
-  
-  // Capture styles
   const styles = captureStyles();
   
-  // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'Salary Slip', styles);
 }
 
@@ -173,22 +189,20 @@ export function captureSalarySlipPreviewHTML(): string {
  * Capture the HTML content of the rent agreement preview
  */
 export function captureRentAgreementPreviewHTML(): string {
+  clearTextSelection();
+  
   const previewElement = document.getElementById('rent-agreement-pdf-content');
   
   if (!previewElement) {
     throw new Error('Rent agreement PDF content element not found');
   }
   
-  // Clone the element to avoid modifying the original
   const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
   
-  // Get the outer HTML
   const htmlContent = clonedElement.outerHTML;
-  
-  // Capture styles
   const styles = captureStyles();
   
-  // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'Rent Agreement', styles);
 }
 
@@ -196,22 +210,20 @@ export function captureRentAgreementPreviewHTML(): string {
  * Capture the HTML content of the GST penalty preview
  */
 export function captureGSTPenaltyPreviewHTML(): string {
+  clearTextSelection();
+  
   const previewElement = document.getElementById('gst-penalty-pdf-content');
 
   if (!previewElement) {
     throw new Error('GST Penalty PDF content element not found');
   }
 
-  // Clone the element to avoid modifying the original
   const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
 
-  // Get the outer HTML
   const htmlContent = clonedElement.outerHTML;
-
-  // Capture styles
   const styles = captureStyles();
 
-  // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'GST Penalty Summary', styles);
 }
 
@@ -219,22 +231,20 @@ export function captureGSTPenaltyPreviewHTML(): string {
  * Capture the HTML content of the shareholders agreement preview
  */
 export function captureShareholdersAgreementPreviewHTML(): string {
+  clearTextSelection();
+  
   const previewElement = document.getElementById('shareholders-agreement-pdf-content');
 
   if (!previewElement) {
     throw new Error('Shareholders agreement PDF content element not found');
   }
 
-  // Clone the element to avoid modifying the original
   const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
 
-  // Get the outer HTML
   const htmlContent = clonedElement.outerHTML;
-
-  // Capture styles
   const styles = captureStyles();
 
-  // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'Shareholders Agreement', styles);
 }
 
@@ -242,21 +252,19 @@ export function captureShareholdersAgreementPreviewHTML(): string {
  * Capture the HTML content of the influencer contract preview
  */
 export function captureInfluencerContractPreviewHTML(): string {
+  clearTextSelection();
+  
   const previewElement = document.getElementById('influencer-contract-pdf-content');
 
   if (!previewElement) {
     throw new Error('Influencer contract PDF content element not found');
   }
 
-  // Clone the element to avoid modifying the original
   const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
 
-  // Get the outer HTML
   const htmlContent = clonedElement.outerHTML;
-
-  // Capture styles
   const styles = captureStyles();
 
-  // Wrap in a complete HTML document with styles
   return wrapHTMLWithStyles(htmlContent, 'Influencer-Brand Collaboration Agreement', styles);
 }

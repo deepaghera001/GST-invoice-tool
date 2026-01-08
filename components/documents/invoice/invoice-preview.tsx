@@ -162,7 +162,7 @@ export function InvoicePreview({ calculatedData, errors, maxHeight }: InvoicePre
   // Helper: Get highlight class for a field
   const hl = useCallback((field: string) => {
     return highlighted.has(field) 
-      ? 'bg-yellow-100 dark:bg-yellow-900/40 rounded px-1 -mx-1 transition-colors duration-300' 
+      ? 'pdf-field-highlight' 
       : ''
   }, [highlighted])
 

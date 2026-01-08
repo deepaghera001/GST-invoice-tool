@@ -95,7 +95,7 @@ export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
 
   const hl = useCallback((field: string) => {
     return highlighted.has(field) 
-      ? 'bg-yellow-100 dark:bg-yellow-900/40 rounded px-1 -mx-1 transition-colors duration-300' 
+      ? 'pdf-field-highlight' 
       : ''
   }, [highlighted])
 
@@ -257,6 +257,12 @@ export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
  * Uses the same approach as invoice for consistent PDF output
  */
 export function captureTDSFeePreviewHTML(): string {
+  // Clear any text selection before capturing
+  const selection = window.getSelection();
+  if (selection) {
+    selection.removeAllRanges();
+  }
+  
   const previewElement = document.getElementById('tds-fee-pdf-content')
   if (!previewElement) {
     throw new Error('TDS Fee PDF content element not found')
@@ -264,6 +270,13 @@ export function captureTDSFeePreviewHTML(): string {
 
   // Clone the element to avoid modifying the original
   const clonedElement = previewElement.cloneNode(true) as HTMLElement
+
+  // Remove highlight classes that are used for UI feedback
+  clonedElement.classList.remove('pdf-field-highlight');
+  const allElements = clonedElement.querySelectorAll('.pdf-field-highlight');
+  allElements.forEach((el) => {
+    el.classList.remove('pdf-field-highlight');
+  });
 
   // Get computed styles
   const styles = Array.from(document.styleSheets)
@@ -297,6 +310,15 @@ export function captureTDSFeePreviewHTML(): string {
           padding: 0;
           font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
           background-color: white;
+        }
+        /* Prevent text selection styling in PDF */
+        ::selection {
+          background: transparent !important;
+          color: inherit !important;
+        }
+        ::-moz-selection {
+          background: transparent !important;
+          color: inherit !important;
         }
         /* PDF Reset: Ensures content fills page and removes UI-only styling */
         body > * {

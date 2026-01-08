@@ -151,3 +151,8 @@
 .animate-shine {
   animation: shine 3s ease-in-out infinite;
 }
+
+/* Field highlight effect for preview (removed from PDFs) */
+.pdf-field-highlight {
+  @apply bg-yellow-100 dark:bg-yellow-900/40 rounded px-1 -mx-1 transition-colors duration-300;
+}
