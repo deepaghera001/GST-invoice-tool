@@ -195,6 +195,21 @@ export function InfluencerContractPreview({
           margin: 25mm 25mm 30mm 25mm;
         }
         
+        @font-face {
+          font-family: 'Calibri';
+          src: local('Calibri');
+        }
+        
+        @font-face {
+          font-family: 'Cambria';
+          src: local('Cambria');
+        }
+        
+        @font-face {
+          font-family: 'Times New Roman';
+          src: local('Times New Roman');
+        }
+        
         .ic-payment-section {
           break-before: page;
           page-break-before: always;
@@ -230,307 +245,400 @@ export function InfluencerContractPreview({
           break-after: avoid;
           page-break-after: avoid;
         }
+        
+        /* Professional legal styling */
+        .contract-title {
+          font-family: 'Times New Roman', serif;
+          font-size: 18pt;
+          font-weight: bold;
+          text-align: center;
+          text-transform: uppercase;
+          letter-spacing: 1pt;
+          margin-bottom: 8pt;
+        }
+        
+        .section-heading {
+          font-family: 'Times New Roman', serif;
+          font-size: 14pt;
+          font-weight: bold;
+          color: #1e293b;
+          border-bottom: 1pt solid #cbd5e1;
+          padding-bottom: 4pt;
+          margin-bottom: 8pt;
+          margin-top: 12pt;
+        }
+        
+        .contract-body {
+          font-family: 'Times New Roman', serif;
+          font-size: 11pt;
+          line-height: 1.15;
+          color: #334155;
+          text-align: justify;
+        }
+        
+        .contract-body p {
+          margin-bottom: 6pt;
+        }
+        
+        .signature-table {
+          width: 100%;
+          margin-top: 20pt;
+          border-collapse: collapse;
+        }
+        
+        .signature-table td {
+          padding: 20pt 10pt 10pt 10pt;
+          vertical-align: top;
+          width: 50%;
+        }
+        
+        .signature-line {
+          border-bottom: 1pt solid #64748b;
+          margin-bottom: 4pt;
+          padding-bottom: 2pt;
+        }
+        
+        .signature-label {
+          font-size: 9pt;
+          color: #64748b;
+          margin-bottom: 8pt;
+        }
+        
+        .party-name {
+          font-weight: bold;
+          font-size: 11pt;
+          margin-bottom: 12pt;
+        }
+        
+        .highlight-box {
+          border: 2pt solid #16a34a;
+          border-radius: 6pt;
+          padding: 12pt;
+          background-color: #f0fdf4;
+          margin: 12pt 0;
+        }
+        
+        .highlight-box h3 {
+          color: #166534;
+          font-weight: bold;
+          margin-bottom: 8pt;
+          font-size: 13pt;
+        }
+        
+        .highlight-box .amount {
+          font-size: 14pt;
+          font-weight: bold;
+          color: #166534;
+        }
+        
+        .sub-clause {
+          margin-left: 18pt;
+          margin-bottom: 4pt;
+        }
+        
+        .sub-clause strong {
+          font-size: 10pt;
+        }
       `}</style>
-      <div className="space-y-6 text-sm" style={{ fontFamily: "Georgia, serif" }}>
+      <div className="contract-body">
         {/* ===== PAGE 1: Title, Parties, Campaign, Timeline ===== */}
         
         {/* Document Title */}
-        <div className="text-center border-b-2 border-slate-300 pb-4">
-          <h1 className="text-xl font-bold text-slate-900 uppercase tracking-wide">
+        <div style={{ textAlign: 'center', borderBottom: '2pt solid #cbd5e1', paddingBottom: '12pt', marginBottom: '12pt' }}>
+          <h1 className="contract-title">
             Influencer–Brand Collaboration Agreement
           </h1>
-          <p className="text-xs text-slate-500 mt-1">(Draft)</p>
+          <p style={{ fontSize: '9pt', color: '#64748b', marginTop: '4pt' }}>(Draft)</p>
         </div>
 
         {/* Agreement Date */}
-        <div className="text-center text-sm text-slate-600">
+        <div style={{ textAlign: 'center', fontSize: '11pt', color: '#475569', marginBottom: '16pt' }}>
           <p>Dated: <strong ref={setRef('agreementDate')} className={hl('agreementDate')}>{calculations.formattedAgreementDate || "_______________"}</strong></p>
         </div>
 
         {/* Parties Section */}
-        <div className="space-y-3">
-          <h2 className="font-bold text-slate-800 border-b border-slate-200 pb-1">1. PARTIES</h2>
+        <div>
+          <h2 className="section-heading">1. PARTIES</h2>
           
-          <div className="space-y-2 text-slate-700">
-            <p>
-              <strong>INFLUENCER:</strong><br />
-              <span ref={setRef('influencerName')} className={hl('influencerName')}>{formData.parties.influencerName || "[Influencer Name]"}</span><br />
-              <span ref={setRef('influencerLocation')} className={hl('influencerLocation')}>{calculations.influencerLocation || "[City, State]"}</span>
+          <div style={{ marginBottom: '8pt' }}>
+            <p style={{ marginBottom: '4pt' }}>
+              <strong>INFLUENCER:</strong>
             </p>
-            
-            <p className="text-center text-slate-500">AND</p>
-            
-            <p>
-              <strong>BRAND / COMPANY:</strong><br />
-              <span ref={setRef('brandName')} className={hl('brandName')}>{formData.parties.brandName || "[Brand Name]"}</span><br />
-              <span ref={setRef('brandLocation')} className={hl('brandLocation')}>{calculations.brandLocation || "[City, State]"}</span>
+            <p className={`party-name ${hl('influencerName')}`} ref={setRef('influencerName')}>
+              {formData.parties.influencerName || "[Influencer Name]"}
+            </p>
+            <p ref={setRef('influencerLocation')} className={hl('influencerLocation')}>
+              {calculations.influencerLocation || "[City, State]"}
+            </p>
+          </div>
+          
+          <div style={{ textAlign: 'center', color: '#64748b', margin: '12pt 0', fontSize: '10pt' }}>
+            AND
+          </div>
+          
+          <div>
+            <p style={{ marginBottom: '4pt' }}>
+              <strong>BRAND / COMPANY:</strong>
+            </p>
+            <p className={`party-name ${hl('brandName')}`} ref={setRef('brandName')}>
+              {formData.parties.brandName || "[Brand Name]"}
+            </p>
+            <p ref={setRef('brandLocation')} className={hl('brandLocation')}>
+              {calculations.brandLocation || "[City, State]"}
             </p>
           </div>
         </div>
 
         {/* Campaign Details */}
-        <div className="space-y-3">
-          <h2 className="font-bold text-slate-800 border-b border-slate-200 pb-1">2. CAMPAIGN DETAILS</h2>
+        <div>
+          <h2 className="section-heading">2. CAMPAIGN DETAILS</h2>
           
-          <div className="space-y-2 text-slate-700">
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Platform(s):</strong>{" "}
+            <span ref={setRef('platforms')} className={hl('platforms')}>
+              {calculations.platformNames.length > 0 
+                ? calculations.platformNames.join(", ") 
+                : "[Platform]"}
+            </span>
+          </p>
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Content Type(s):</strong>{" "}
+            <span ref={setRef('contentTypes')} className={hl('contentTypes')}>
+              {calculations.contentTypeNames.length > 0 
+                ? calculations.contentTypeNames.join(", ") 
+                : "[Content Type]"}
+            </span>
+          </p>
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Deliverables:</strong>{" "}
+            <span ref={setRef('deliverables')} className={hl('deliverables')}>
+              {formData.campaign.deliverables || "[Number and type of deliverables]"}
+            </span>
+          </p>
+          {formData.campaign.campaignDescription && (
             <p>
-              <strong>Platform(s):</strong>{" "}
-              <span ref={setRef('platforms')} className={hl('platforms')}>
-                {calculations.platformNames.length > 0 
-                  ? calculations.platformNames.join(", ") 
-                  : "[Platform]"}
+              <strong>Campaign Description:</strong>{" "}
+              <span ref={setRef('campaignDescription')} className={hl('campaignDescription')}>
+                {formData.campaign.campaignDescription}
               </span>
             </p>
-            <p>
-              <strong>Content Type(s):</strong>{" "}
-              <span ref={setRef('contentTypes')} className={hl('contentTypes')}>
-                {calculations.contentTypeNames.length > 0 
-                  ? calculations.contentTypeNames.join(", ") 
-                  : "[Content Type]"}
-              </span>
-            </p>
-            <p>
-              <strong>Deliverables:</strong>{" "}
-              <span ref={setRef('deliverables')} className={hl('deliverables')}>
-                {formData.campaign.deliverables || "[Number and type of deliverables]"}
-              </span>
-            </p>
-            {formData.campaign.campaignDescription && (
-              <p>
-                <strong>Campaign Description:</strong>{" "}
-                <span ref={setRef('campaignDescription')} className={hl('campaignDescription')}>
-                  {formData.campaign.campaignDescription}
-                </span>
-              </p>
-            )}
-          </div>
+          )}
         </div>
 
         {/* Timeline */}
-        <div className="space-y-3">
-          <h2 className="font-bold text-slate-800 border-b border-slate-200 pb-1">3. TIMELINE</h2>
+        <div>
+          <h2 className="section-heading">3. TIMELINE</h2>
           
-          <div className="space-y-2 text-slate-700">
-            <p>
-              <strong>Content Posting Deadline:</strong>{" "}
-              <span ref={setRef('contentDeadline')} className={hl('contentDeadline')}>
-                {calculations.formattedDeadline || "[Date]"}
-              </span>
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Content Posting Deadline:</strong>{" "}
+            <span ref={setRef('contentDeadline')} className={hl('contentDeadline')}>
+              {calculations.formattedDeadline || "[Date]"}
+            </span>
+          </p>
+          <p>
+            <strong>Brand Approval Required:</strong>{" "}
+            <span ref={setRef('brandApproval')} className={hl('brandApproval')}>
+              {formData.timeline.brandApprovalRequired ? "Yes" : "No"}
+            </span>
+          </p>
+          {formData.timeline.brandApprovalRequired && (
+            <p style={{ fontSize: '9pt', color: '#64748b', fontStyle: 'italic', marginTop: '4pt' }}>
+              All content must be submitted to the Brand for review and approval before posting.
             </p>
-            <p>
-              <strong>Brand Approval Required:</strong>{" "}
-              <span ref={setRef('brandApproval')} className={hl('brandApproval')}>
-                {formData.timeline.brandApprovalRequired ? "Yes" : "No"}
-              </span>
-            </p>
-            {formData.timeline.brandApprovalRequired && (
-              <p className="text-xs text-slate-600 italic">
-                All content must be submitted to the Brand for review and approval before posting.
-              </p>
-            )}
-          </div>
+          )}
         </div>
 
         {/* ===== PAGE 2: Payment Terms & Usage Rights (Highlighted) ===== */}
         
-        {/* Payment Terms - Highlighted Box */}
-        <div className="ic-payment-section border-2 border-green-500 rounded-lg p-4 bg-green-50">
-          <h2 className="font-bold text-green-800 border-b border-green-300 pb-1 mb-3">
-            4. PAYMENT TERMS
-          </h2>
+        {/* Payment Terms - Professional Highlighted Box */}
+        <div className="ic-payment-section highlight-box">
+          <h3>4. PAYMENT TERMS</h3>
           
-          <div className="space-y-2 text-slate-700">
-            <p className="text-lg">
-              <strong>Total Payment:</strong>{" "}
-              <span ref={setRef('totalAmount')} className={`text-green-700 font-bold ${hl('totalAmount')}`}>
-                {calculations.formattedAmount || "₹_____"}
-              </span>
-            </p>
-            <p>
-              <strong>Payment Structure:</strong>{" "}
-              <span ref={setRef('paymentStructure')} className={hl('paymentStructure')}>
-                {calculations.paymentStructureLabel}
-              </span>
-            </p>
-            {formData.payment.paymentStructure === "half-advance" && (
-              <div className="pl-4 text-sm border-l-2 border-green-300">
-                <p>• Advance: ₹{calculations.paymentBreakdown.advanceAmount.toLocaleString("en-IN")}</p>
-                <p>• After Posting: ₹{calculations.paymentBreakdown.remainingAmount.toLocaleString("en-IN")}</p>
-              </div>
-            )}
-            <p>
-              <strong>Payment Timeline:</strong>{" "}
-              <span ref={setRef('paymentTimeline')} className={hl('paymentTimeline')}>
-                {formData.payment.paymentTimeline === "custom" 
-                  ? <span>Custom Date: <span ref={setRef('customPaymentDate')} className={hl('customPaymentDate')}>{formData.payment.customPaymentDate}</span></span>
-                  : calculations.paymentTimelineLabel}
-              </span>
-            </p>
-            <p>
-              <strong>Payment Mode:</strong>{" "}
-              <span ref={setRef('paymentModes')} className={hl('paymentModes')}>
-                {getPaymentModeLabels(formData.payment.paymentModes) || "[Payment Mode]"}
-              </span>
-            </p>
-          </div>
+          <p style={{ fontSize: '12pt', marginBottom: '8pt' }}>
+            <strong>Total Payment:</strong>{" "}
+            <span className={`amount ${hl('totalAmount')}`} ref={setRef('totalAmount')}>
+              {calculations.formattedAmount || "₹_____"}
+            </span>
+          </p>
+          
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Payment Structure:</strong>{" "}
+            <span ref={setRef('paymentStructure')} className={hl('paymentStructure')}>
+              {calculations.paymentStructureLabel}
+            </span>
+          </p>
+          
+          {formData.payment.paymentStructure === "half-advance" && (
+            <div className="sub-clause">
+              <p>• Advance: ₹{calculations.paymentBreakdown.advanceAmount.toLocaleString("en-IN")}</p>
+              <p>• After Posting: ₹{calculations.paymentBreakdown.remainingAmount.toLocaleString("en-IN")}</p>
+            </div>
+          )}
+          
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Payment Timeline:</strong>{" "}
+            <span ref={setRef('paymentTimeline')} className={hl('paymentTimeline')}>
+              {formData.payment.paymentTimeline === "custom" 
+                ? <span>Custom Date: <span ref={setRef('customPaymentDate')} className={hl('customPaymentDate')}>{formData.payment.customPaymentDate}</span></span>
+                : calculations.paymentTimelineLabel}
+            </span>
+          </p>
+          
+          <p>
+            <strong>Payment Mode:</strong>{" "}
+            <span ref={setRef('paymentModes')} className={hl('paymentModes')}>
+              {getPaymentModeLabels(formData.payment.paymentModes) || "[Payment Mode]"}
+            </span>
+          </p>
         </div>
 
-        {/* Usage Rights - Highlighted Box */}
-        <div className="border-2 border-blue-500 rounded-lg p-4 bg-blue-50">
-          <h2 className="font-bold text-blue-800 border-b border-blue-300 pb-1 mb-3">
-            5. CONTENT USAGE RIGHTS
-          </h2>
+        {/* Usage Rights - Professional Box */}
+        <div className="highlight-box" style={{ borderColor: '#2563eb', backgroundColor: '#eff6ff' }}>
+          <h3 style={{ color: '#1e40af' }}>5. CONTENT USAGE RIGHTS</h3>
           
-          <div className="space-y-2 text-slate-700">
-            <p>
-              <strong>Usage Scope:</strong>{" "}
-              <span ref={setRef('usageScope')} className={hl('usageScope')}>
-                {calculations.usageScopeLabel}
-              </span>
-            </p>
-            <p>
-              <strong>Usage Duration:</strong>{" "}
-              <span ref={setRef('usageDuration')} className={hl('usageDuration')}>
-                {calculations.usageDurationLabel}
-              </span>
-            </p>
-            <p>
-              <strong>Credit to Influencer:</strong>{" "}
-              <span ref={setRef('creditRequired')} className={hl('creditRequired')}>
-                {formData.usageRights.creditRequired 
-                  ? "Required (Brand must credit/tag Influencer)" 
-                  : "Not Required"}
-              </span>
-            </p>
-            <p>
-              <strong>Content Ownership:</strong>{" "}
-              <span ref={setRef('contentOwnership')} className={hl('contentOwnership')}>
-                {calculations.contentOwnershipLabel}
-              </span>
-            </p>
-          </div>
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Usage Scope:</strong>{" "}
+            <span ref={setRef('usageScope')} className={hl('usageScope')}>
+              {calculations.usageScopeLabel}
+            </span>
+          </p>
+          
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Usage Duration:</strong>{" "}
+            <span ref={setRef('usageDuration')} className={hl('usageDuration')}>
+              {calculations.usageDurationLabel}
+            </span>
+          </p>
+          
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Credit to Influencer:</strong>{" "}
+            <span ref={setRef('creditRequired')} className={hl('creditRequired')}>
+              {formData.usageRights.creditRequired 
+                ? "Required (Brand must credit/tag Influencer)" 
+                : "Not Required"}
+            </span>
+          </p>
+          
+          <p>
+            <strong>Content Ownership:</strong>{" "}
+            <span ref={setRef('contentOwnership')} className={hl('contentOwnership')}>
+              {calculations.contentOwnershipLabel}
+            </span>
+          </p>
         </div>
 
         {/* ===== PAGE 3: Legal Clauses, Termination, Signatures ===== */}
 
         {/* Exclusivity & Revisions */}
-        <div className="space-y-3">
-          <h2 className="font-bold text-slate-800 border-b border-slate-200 pb-1">
-            6. EXCLUSIVITY & REVISIONS
-          </h2>
+        <div>
+          <h2 className="section-heading">6. EXCLUSIVITY & REVISIONS</h2>
           
-          <div className="space-y-2 text-slate-700">
-            <p>
-              <strong>Exclusivity Period:</strong>{" "}
-              <span ref={setRef('exclusivity')} className={hl('exclusivity')}>
-                {calculations.exclusivityLabel}
-              </span>
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Exclusivity Period:</strong>{" "}
+            <span ref={setRef('exclusivity')} className={hl('exclusivity')}>
+              {calculations.exclusivityLabel}
+            </span>
+          </p>
+          
+          {formData.exclusivity.exclusivityPeriod !== "none" && (
+            <p style={{ fontSize: '9pt', color: '#64748b', fontStyle: 'italic', marginLeft: '18pt', marginBottom: '6pt' }}>
+              During this period, the Influencer shall not promote competing brands in the same product category.
             </p>
-            {formData.exclusivity.exclusivityPeriod !== "none" && (
-              <p className="text-xs text-slate-600 italic pl-4">
-                During this period, the Influencer shall not promote competing brands in the same product category.
-              </p>
-            )}
-            <p>
-              <strong>Revision Rounds:</strong>{" "}
-              <span ref={setRef('revisionRounds')} className={hl('revisionRounds')}>
-                {formData.exclusivity.revisionRounds} revision(s) allowed
-              </span>
-            </p>
-          </div>
+          )}
+          
+          <p>
+            <strong>Revision Rounds:</strong>{" "}
+            <span ref={setRef('revisionRounds')} className={hl('revisionRounds')}>
+              {formData.exclusivity.revisionRounds} revision(s) allowed
+            </span>
+          </p>
         </div>
 
         {/* Legal Clauses */}
-        <div className="space-y-3">
-          <h2 className="font-bold text-slate-800 border-b border-slate-200 pb-1">
-            7. TERMS & CONDITIONS
-          </h2>
+        <div>
+          <h2 className="section-heading">7. TERMS & CONDITIONS</h2>
           
-          <div className="space-y-3 text-xs text-slate-600">
-            <p><strong>7.1 Deliverables:</strong> {CONTRACT_CLAUSES.deliverables}</p>
-            <p><strong>7.2 Approval:</strong> {CONTRACT_CLAUSES.approval}</p>
-            <p><strong>7.3 Compliance:</strong> {CONTRACT_CLAUSES.compliance}</p>
-            <p><strong>7.4 Confidentiality:</strong> {CONTRACT_CLAUSES.confidentiality}</p>
-            <p><strong>7.5 Indemnity:</strong> {CONTRACT_CLAUSES.indemnity}</p>
+          <div style={{ fontSize: '10pt', color: '#475569', lineHeight: '1.2' }}>
+            <p className="sub-clause"><strong>7.1 Deliverables:</strong> {CONTRACT_CLAUSES.deliverables}</p>
+            <p className="sub-clause"><strong>7.2 Approval:</strong> {CONTRACT_CLAUSES.approval}</p>
+            <p className="sub-clause"><strong>7.3 Compliance:</strong> {CONTRACT_CLAUSES.compliance}</p>
+            <p className="sub-clause"><strong>7.4 Confidentiality:</strong> {CONTRACT_CLAUSES.confidentiality}</p>
+            <p className="sub-clause"><strong>7.5 Indemnity:</strong> {CONTRACT_CLAUSES.indemnity}</p>
           </div>
         </div>
 
         {/* Termination & Jurisdiction */}
-        <div className="ic-termination-section space-y-3">
-          <h2 className="font-bold text-slate-800 border-b border-slate-200 pb-1">
-            8. TERMINATION & JURISDICTION
-          </h2>
+        <div className="ic-termination-section">
+          <h2 className="section-heading">8. TERMINATION & JURISDICTION</h2>
           
-          <div className="space-y-2 text-slate-700">
-            <p>
-              <strong>Cancellation Terms:</strong>{" "}
-              <span ref={setRef('cancellation')} className={hl('cancellation')}>
-                {calculations.cancellationLabel}
-              </span>
-            </p>
-            <p>
-              <strong>Governing Jurisdiction:</strong>{" "}
-              <span ref={setRef('jurisdiction')} className={hl('jurisdiction')}>
-                Courts of {calculations.governingStateName || "[State]"}, India
-              </span>
-            </p>
-            <p className="text-xs text-slate-600 italic">
-              Any disputes arising from this agreement shall be subject to the exclusive 
-              jurisdiction of courts in the above-mentioned state.
-            </p>
-          </div>
-        </div>
-
-        {/* Disclaimer */}
-        <div className="border border-amber-300 rounded-lg p-3 bg-amber-50">
-          <p className="text-xs text-amber-800">
-            <strong>DISCLAIMER:</strong> {CONTRACT_CLAUSES.disclaimer}
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Cancellation Terms:</strong>{" "}
+            <span ref={setRef('cancellation')} className={hl('cancellation')}>
+              {calculations.cancellationLabel}
+            </span>
+          </p>
+          
+          <p style={{ marginBottom: '6pt' }}>
+            <strong>Governing Jurisdiction:</strong>{" "}
+            <span ref={setRef('jurisdiction')} className={hl('jurisdiction')}>
+              Courts of {calculations.governingStateName || "[State]"}, India
+            </span>
+          </p>
+          
+          <p style={{ fontSize: '9pt', color: '#64748b', fontStyle: 'italic' }}>
+            Any disputes arising from this agreement shall be subject to the exclusive 
+            jurisdiction of courts in the above-mentioned state.
           </p>
         </div>
 
+       
+
         {/* Signature Block */}
-        <div className="ic-signature-section space-y-6 pt-4 border-t-2 border-slate-300">
-          <h2 className="font-bold text-slate-800 text-center">SIGNATURES</h2>
+        <div className="ic-signature-section" style={{ paddingTop: '12pt', borderTop: '2pt solid #cbd5e1' }}>
+          <h2 style={{ fontFamily: 'Times New Roman, serif', fontSize: '14pt', fontWeight: 'bold', color: '#1e293b', textAlign: 'center', marginBottom: '12pt' }}>
+            SIGNATURES
+          </h2>
           
-          <p className="text-xs text-slate-600 text-center">
+          <p style={{ fontSize: '10pt', color: '#64748b', textAlign: 'center', marginBottom: '20pt' }}>
             IN WITNESS WHEREOF, the parties have executed this Agreement as of the date first written above.
           </p>
           
-          <div className="grid grid-cols-2 gap-8 pt-4">
-            {/* Influencer Signature */}
-            <div className="space-y-6">
-              <div className="border-b border-slate-400 pb-1">
-                <p className="text-slate-400 text-xs">Influencer Signature</p>
-              </div>
-              <p className="text-sm font-medium">
-                {formData.parties.influencerName || "________________"}
-              </p>
-              <div className="border-b border-slate-400 pb-1">
-                <p className="text-slate-400 text-xs">Date</p>
-              </div>
-            </div>
-            
-            {/* Brand Signature */}
-            <div className="space-y-6">
-              <div className="border-b border-slate-400 pb-1">
-                <p className="text-slate-400 text-xs">Brand Representative Signature</p>
-              </div>
-              <p className="text-sm font-medium">
-                For {formData.parties.brandName || "________________"}
-              </p>
-              <div className="border-b border-slate-400 pb-1">
-                <p className="text-slate-400 text-xs">Date</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center pt-4 border-t border-slate-200">
-          <p className="text-[10px] text-slate-400">
-            This document is a standard draft format generated for convenience. 
-            It does not replace professional legal advice.
-          </p>
+          <table className="signature-table">
+            <tbody>
+              <tr>
+                <td>
+                  <div className="signature-label">For the Influencer</div>
+                  <div className="signature-line">
+                    <span className={hl('influencerName')} ref={setRef('influencerName')}>
+                      {formData.parties.influencerName || "________________"}
+                    </span>
+                  </div>
+                  <div style={{ marginTop: '8pt' }}>
+                    <div className="signature-label">Signature</div>
+                    <div className="signature-line"></div>
+                  </div>
+                  <div style={{ marginTop: '8pt' }}>
+                    <div className="signature-label">Date</div>
+                    <div className="signature-line"></div>
+                  </div>
+                </td>
+                <td>
+                  <div className="signature-label">For the Brand</div>
+                  <div className="signature-line">
+                    For {formData.parties.brandName || "________________"}
+                  </div>
+                  <div style={{ marginTop: '8pt' }}>
+                    <div className="signature-label">Authorized Signatory</div>
+                    <div className="signature-line"></div>
+                  </div>
+                  <div style={{ marginTop: '8pt' }}>
+                    <div className="signature-label">Date</div>
+                    <div className="signature-line"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </PreviewWrapper>
