@@ -158,10 +158,9 @@ export function InfluencerContractPreview({
   }, [])
 
   // Helper: Get highlight class
+  // Use a single highlight class for easier removal/theming
   const hl = useCallback((field: string) => {
-    return highlighted.has(field) 
-      ? 'bg-yellow-200 dark:bg-yellow-800/50 rounded px-1 -mx-1 transition-colors duration-300' 
-      : ''
+    return highlighted.has(field) ? 'pdf-field-highlight' : ''
   }, [highlighted])
 
   // Helper: Create ref
@@ -190,6 +189,15 @@ export function InfluencerContractPreview({
       maxHeight={maxHeight}
     >
       <style>{`
+        .pdf-field-highlight {
+          background-color: #fef08a;
+          border-radius: 0.25rem;
+          padding-left: 0.25rem;
+          padding-right: 0.25rem;
+          margin-left: -0.25rem;
+          margin-right: -0.25rem;
+          transition: background-color 0.3s;
+        }
         @page {
           size: A4;
           margin: 25mm 25mm 30mm 25mm;
