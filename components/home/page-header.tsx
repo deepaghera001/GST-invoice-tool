@@ -22,7 +22,7 @@ export function PageHeader({ showBackButton = true, showNav = false }: PageHeade
           </div>
           <div>
             <h1 className="text-xl font-semibold text-slate-900">
-              ComplianceKit
+              Workngin
             </h1>
             <p className="text-xs text-slate-500">
               Documents & Compliance Tools

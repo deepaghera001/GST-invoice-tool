@@ -4,8 +4,8 @@ import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 
 export const metadata = {
-  title: "Privacy Policy - ComplianceKit",
-  description: "Privacy Policy for ComplianceKit - How we collect, use, and protect your data",
+  title: "Privacy Policy - Workngin",
+  description: "Privacy Policy for Workngin - How we collect, use, and protect your data",
 };
 
 export default function PrivacyPolicyPage() {
@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-slate-900 mb-4">1. Introduction</h2>
                 <p className="text-slate-700 leading-relaxed">
-                  Welcome to ComplianceKit ("we," "our," or "us"). We are committed to protecting your privacy 
+                  Welcome to Workngin ("we," "our," or "us"). We are committed to protecting your privacy 
                   and ensuring the security of your personal information. This Privacy Policy explains how we 
                   collect, use, disclose, and safeguard your information when you use our platform.
                 </p>
@@ -155,7 +155,7 @@ export default function PrivacyPolicyPage() {
                 </p>
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <p className="text-slate-700">
-                    <strong>Email:</strong> privacy@compliancekit.example.com<br />
+                    <strong>Email:</strong> privacy@workngin.com<br />
                     <strong>Address:</strong> [Your Business Address]
                   </p>
                 </div>

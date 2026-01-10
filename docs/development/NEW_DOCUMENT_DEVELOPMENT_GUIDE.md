@@ -1,6 +1,6 @@
 # New Document Page Development Guide
 
-> Complete checklist and flow for creating new document pages in ComplianceKit.
+> Complete checklist and flow for creating new document pages in Workngin.
 > Follow this step-by-step to avoid issues and maintain code consistency.
 
 ---
@@ -601,7 +601,7 @@ export const {document}Scenarios: TestScenario<Partial<{DocumentName}FormData>>[
 import { {DocumentName}Form } from "@/components/documents/{document-name}/{document-name}-form"
 
 export const metadata = {
-  title: "Document Name - ComplianceKit",
+  title: "Document Name - Workngin",
   description: "Create your document easily",
 }
 

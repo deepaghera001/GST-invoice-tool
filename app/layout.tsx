@@ -8,7 +8,7 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "ComplianceKit - GST & TDS Calculators, Invoice & Document Generators for Indian Businesses",
+  title: "Workngin - GST & TDS Calculators, Invoice & Document Generators for Indian Businesses",
   description:
     "Professional compliance tools for Indian businesses. Free GST & TDS calculators, generate GST invoices, salary slips, rent agreements & contracts. Simple, fast, secure.",
   generator: "v0.app",
@@ -21,37 +21,37 @@ export const metadata: Metadata = {
     "GST compliance",
     "Indian tax calculator",
     "business documents India",
-    "ComplianceKit"
+    "Workngin"
   ],
-  authors: [{ name: "ComplianceKit" }],
-  creator: "ComplianceKit",
-  publisher: "ComplianceKit",
-  metadataBase: new URL('https://compliancekit.example.com'), // Update with your actual domain
+  authors: [{ name: "Workngin" }],
+  creator: "Workngin",
+  publisher: "Workngin",
+  metadataBase: new URL('https://workngin.com'), // Update with your actual domain
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://compliancekit.example.com',
-    siteName: 'ComplianceKit',
-    title: 'ComplianceKit - Compliance Tools for Indian Businesses',
+    url: 'https://workngin.com',
+    siteName: 'Workngin',
+    title: 'Workngin - Compliance Tools for Indian Businesses',
     description: 'Free GST & TDS calculators. Generate professional invoices, salary slips, and legal documents for your business.',
     images: [
       {
         url: '/og-image.png', // Create this image (1200x630px recommended)
         width: 1200,
         height: 630,
-        alt: 'ComplianceKit - Business Compliance Tools',
+        alt: 'Workngin - Business Compliance Tools',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ComplianceKit - Compliance Tools for Indian Businesses',
+    title: 'Workngin - Compliance Tools for Indian Businesses',
     description: 'Free GST & TDS calculators. Generate professional business documents.',
     images: ['/og-image.png'], // Same as OpenGraph image
-    creator: '@compliancekit', // Update with your actual Twitter handle
+    creator: '@workngin', // Update with your actual Twitter handle
   },
   robots: {
     index: true,

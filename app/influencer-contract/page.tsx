@@ -13,7 +13,7 @@ import { PageHeader, Footer } from "@/components/home"
 export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
-  title: "Influencer-Brand Contract Generator | ComplianceKit",
+  title: "Influencer-Brand Contract Generator | Workngin",
   description: "Create professional influencer-brand collaboration agreements in minutes. Protect your content, secure your payments, and establish clear usage rights. ₹499",
   keywords: [
     "influencer contract",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     "sponsored content agreement",
   ],
   openGraph: {
-    title: "Influencer-Brand Contract Generator | ComplianceKit",
+    title: "Influencer-Brand Contract Generator | Workngin",
     description: "Create professional influencer-brand collaboration agreements. Secure payments, protect content rights.",
     type: "website",
   },

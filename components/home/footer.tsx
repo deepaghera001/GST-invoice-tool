@@ -61,7 +61,7 @@ export function Footer() {
               <div className="p-1.5 bg-slate-800 rounded">
                 <Shield className="h-4 w-4 text-white" />
               </div>
-              <span className="font-medium text-slate-900">ComplianceKit</span>
+              <span className="font-medium text-slate-900">Workngin</span>
             </div>
             <p className="text-sm text-slate-500">
               Documents & compliance tools for Indian businesses.
@@ -95,7 +95,7 @@ export function Footer() {
         <div className="border-t border-slate-200 pt-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-xs text-slate-500">
-              © 2026 ComplianceKit. Calculations are for estimation purposes.
+              © 2026 Workngin. Calculations are for estimation purposes.
             </p>
             <p className="text-xs text-slate-400">
               No login. No data stored. Just documents.

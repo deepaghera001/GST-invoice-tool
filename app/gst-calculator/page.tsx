@@ -8,10 +8,10 @@ export default function GSTCalculatorPage() {
   return (
     <>
       <Head>
-        <title>GST Penalty Calculator - ComplianceKit</title>
+        <title>GST Penalty Calculator - Workngin</title>
         <meta
           name="description"
-          content="Calculate GST late fees and interest with ComplianceKit's GST Penalty Calculator. Accurate, fast, and easy to use."
+          content="Calculate GST late fees and interest with Workngin's GST Penalty Calculator. Accurate, fast, and easy to use."
         />
         <meta name="keywords" content="GST penalty calculator, GST late fee calculator, GST interest calculator, compliance tools" />
       </Head>

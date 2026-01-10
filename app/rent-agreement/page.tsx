@@ -6,10 +6,10 @@ export default function RentAgreementPage() {
   return (
     <>
       <Head>
-        <title>Rent Agreement Generator - ComplianceKit</title>
+        <title>Rent Agreement Generator - Workngin</title>
         <meta
           name="description"
-          content="Generate professional rent agreements with ComplianceKit's Rent Agreement Generator. Easy, fast, and accurate."
+          content="Generate professional rent agreements with Workngin's Rent Agreement Generator. Easy, fast, and accurate."
         />
         <meta name="keywords" content="rent agreement generator, professional rent agreements, compliance tools" />
       </Head>

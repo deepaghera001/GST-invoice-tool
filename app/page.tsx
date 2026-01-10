@@ -73,10 +73,10 @@ export default function HomePage() {
   return (
     <>
       <Head>
-        <title>ComplianceKit - GST & TDS Calculators, Invoice & Document Generators</title>
+        <title>Workngin - GST & TDS Calculators, Invoice & Document Generators</title>
         <meta
           name="description"
-          content="ComplianceKit offers free GST penalty calculators, TDS late fee calculators, and professional document generators like invoices, salary slips, rent agreements and contracts for Indian businesses."
+          content="Workngin offers free GST penalty calculators, TDS late fee calculators, and professional document generators like invoices, salary slips, rent agreements and contracts for Indian businesses."
         />
         <meta
           name="keywords"

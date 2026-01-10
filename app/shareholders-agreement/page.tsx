@@ -3,7 +3,7 @@ import type { Metadata } from "next"
 import { PageHeader, Footer } from "@/components/home"
 
 export const metadata: Metadata = {
-  title: "Shareholders Agreement Generator - ComplianceKit",
+  title: "Shareholders Agreement Generator - Workngin",
   description: "Generate professional shareholders agreements for Indian companies. Easy, compliant, and legally sound.",
   keywords: "shareholders agreement, shareholders agreement India, startup shareholders agreement",
 }
