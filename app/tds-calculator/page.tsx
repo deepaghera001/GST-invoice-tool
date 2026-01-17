@@ -123,10 +123,10 @@ export default function TDSCalculatorPage() {
   return (
     <>
       <Head>
-        <title>TDS Late Fee Calculator - ComplianceKit</title>
+        <title>TDS Late Fee Calculator - Workngin</title>
         <meta
           name="description"
-          content="Calculate TDS late fees and interest with ComplianceKit's TDS Calculator. Accurate, fast, and easy to use."
+          content="Calculate TDS late fees and interest with Workngin's TDS Calculator. Accurate, fast, and easy to use."
         />
         <meta name="keywords" content="TDS late fee calculator, TDS penalty calculator, TDS interest calculator, compliance tools" />
       </Head>

@@ -1,4 +1,4 @@
-# 📋 ComplianceKit - Production Readiness Changes
+# 📋 Workngin - Production Readiness Changes
 
 **Date**: January 7, 2026  
 **Status**: ✅ Production Ready  
@@ -8,7 +8,7 @@
 
 ## 🎯 Overview
 
-This document summarizes all changes made to prepare ComplianceKit for production deployment. The application has been transformed from a development prototype to a production-ready platform with proper legal compliance, security, SEO, and error handling.
+This document summarizes all changes made to prepare Workngin for production deployment. The application has been transformed from a development prototype to a production-ready platform with proper legal compliance, security, SEO, and error handling.
 
 ---
 
@@ -43,7 +43,7 @@ This document summarizes all changes made to prepare ComplianceKit for productio
 #### `app/not-found.tsx`
 - **Purpose**: Custom 404 error page for better UX
 - **Content**: 
-  - Branded error message with ComplianceKit design
+  - Branded error message with Workngin design
   - Navigation buttons (Go to Homepage, Browse Documents)
   - Quick links to popular pages (Invoice, Salary Slip, GST/TDS Calculators)
 - **Features**: Full header/footer, responsive design, call-to-action buttons
@@ -68,7 +68,7 @@ This document summarizes all changes made to prepare ComplianceKit for productio
   ```
   User-agent: *
   Allow: /
-  Sitemap: https://compliancekit.example.com/sitemap.xml
+  Sitemap: https://workngin.com/sitemap.xml
   ```
 - **Action Required**: Update domain in sitemap URL
 - **Impact**: Proper SEO crawler access
@@ -151,7 +151,7 @@ This document summarizes all changes made to prepare ComplianceKit for productio
 
 #### `app/layout.tsx`
 **Changes**:
-- **Title**: "InvoiceGen" → "ComplianceKit - GST & TDS Calculators, Invoice & Document Generators for Indian Businesses"
+- **Title**: "InvoiceGen" → "Workngin - GST & TDS Calculators, Invoice & Document Generators for Indian Businesses"
 - **Description**: Enhanced with full service list and "Indian businesses" targeting
 - **Keywords**: Added comprehensive array (GST calculator India, TDS calculator, etc.)
 - **Open Graph Tags**: Added for Facebook/LinkedIn sharing
@@ -159,7 +159,7 @@ This document summarizes all changes made to prepare ComplianceKit for productio
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    title: 'ComplianceKit - Compliance Tools for Indian Businesses',
+    title: 'Workngin - Compliance Tools for Indian Businesses',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }]
   }
   ```
@@ -168,7 +168,7 @@ This document summarizes all changes made to prepare ComplianceKit for productio
 - **metadataBase**: Added canonical URL base
 
 **Action Required**: 
-- Update domain from `compliancekit.example.com`
+- Update domain from `workngin.com`
 - Create `og-image.png` (1200x630px) for social sharing
 
 **Reason**: Better SEO, social sharing, and discoverability
@@ -379,7 +379,7 @@ Route (app)                              Size     First Load JS
 ### Before First Deployment:
 
 #### 1. Update Domain Placeholders
-Replace `compliancekit.example.com` in:
+Replace `workngin.com` in:
 - [ ] `app/sitemap.ts` (line 3)
 - [ ] `app/layout.tsx` (metadataBase)
 - [ ] `public/robots.txt` (Sitemap URL)
@@ -387,7 +387,7 @@ Replace `compliancekit.example.com` in:
 #### 2. Create Social Sharing Image
 - [ ] Design `og-image.png` (1200x630px recommended)
 - [ ] Place in `public/og-image.png`
-- [ ] Ensure it displays ComplianceKit branding
+- [ ] Ensure it displays Workngin branding
 
 #### 3. Environment Variables
 Add to production environment (Vercel/hosting):
@@ -520,7 +520,7 @@ NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_live_xxxxxxxxxxxxx
 
 ## ✨ Conclusion
 
-ComplianceKit is now **production-ready** with:
+Workngin is now **production-ready** with:
 - ✅ Zero build errors
 - ✅ Legal compliance
 - ✅ Security hardening

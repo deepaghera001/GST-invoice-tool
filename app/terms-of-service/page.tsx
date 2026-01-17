@@ -4,8 +4,8 @@ import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 
 export const metadata = {
-  title: "Terms of Service - ComplianceKit",
-  description: "Terms of Service for ComplianceKit - Legal terms and conditions for using our platform",
+  title: "Terms of Service - Workngin",
+  description: "Terms of Service for Workngin - Legal terms and conditions for using our platform",
 };
 
 export default function TermsOfServicePage() {
@@ -35,7 +35,7 @@ export default function TermsOfServicePage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-slate-900 mb-4">1. Acceptance of Terms</h2>
                 <p className="text-slate-700 leading-relaxed">
-                  By accessing or using ComplianceKit ("Platform," "Service"), you agree to be bound by these 
+                  By accessing or using Workngin ("Platform," "Service"), you agree to be bound by these 
                   Terms of Service ("Terms"). If you do not agree to these Terms, please do not use our Service.
                 </p>
               </section>
@@ -43,7 +43,7 @@ export default function TermsOfServicePage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-slate-900 mb-4">2. Description of Service</h2>
                 <p className="text-slate-700 leading-relaxed mb-3">
-                  ComplianceKit provides:
+                  Workngin provides:
                 </p>
                 <ul className="list-disc pl-6 text-slate-700 space-y-2">
                   <li>GST and TDS calculators (free tools)</li>
@@ -81,7 +81,7 @@ export default function TermsOfServicePage() {
                   <li>Refunds are generally not available once a document is generated</li>
                   <li>Refunds may be issued in case of technical errors preventing document generation</li>
                   <li>Refund requests must be made within 24 hours of purchase</li>
-                  <li>Contact us at support@compliancekit.example.com for refund requests</li>
+                  <li>Contact us at support@workngin.com for refund requests</li>
                 </ul>
               </section>
 
@@ -128,7 +128,7 @@ export default function TermsOfServicePage() {
               <section className="mb-8">
                 <h2 className="text-2xl font-semibold text-slate-900 mb-4">8. Intellectual Property</h2>
                 <p className="text-slate-700 leading-relaxed">
-                  All content, features, and functionality of the Platform are owned by ComplianceKit and are 
+                  All content, features, and functionality of the Platform are owned by Workngin and are 
                   protected by copyright, trademark, and other intellectual property laws. You may not copy, 
                   reproduce, or distribute our content without permission.
                 </p>
@@ -147,7 +147,7 @@ export default function TermsOfServicePage() {
                 <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-4">
                   <p className="text-slate-900 font-semibold mb-2">Important Notice:</p>
                   <p className="text-slate-700 leading-relaxed">
-                    ComplianceKit does not provide legal, tax, or financial advice. Our tools are designed to 
+                    Workngin does not provide legal, tax, or financial advice. Our tools are designed to 
                     assist with document creation and calculations, but should not replace professional consultation. 
                     Always consult with qualified legal, tax, or financial professionals for your specific situation.
                   </p>
@@ -193,8 +193,8 @@ export default function TermsOfServicePage() {
                 </p>
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <p className="text-slate-700">
-                    <strong>Email:</strong> legal@compliancekit.example.com<br />
-                    <strong>Support:</strong> support@compliancekit.example.com
+                    <strong>Email:</strong> legal@workngin.com<br />
+                    <strong>Support:</strong> support@workngin.com
                   </p>
                 </div>
               </section>
@@ -202,7 +202,7 @@ export default function TermsOfServicePage() {
               <section className="mb-0">
                 <div className="bg-blue-50 border-l-4 border-blue-500 p-4">
                   <p className="text-slate-700 text-sm">
-                    By using ComplianceKit, you acknowledge that you have read, understood, and agree to be 
+                    By using Workngin, you acknowledge that you have read, understood, and agree to be 
                     bound by these Terms of Service.
                   </p>
                 </div>

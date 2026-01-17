@@ -7,7 +7,7 @@ Allow: /
 # Disallow: /api
 
 # Sitemap location
-Sitemap: https://compliancekit.example.com/sitemap.xml
+Sitemap: https://workngin.com/sitemap.xml
 
 # Crawl-delay for specific bots (optional)
 # Crawl-delay: 10

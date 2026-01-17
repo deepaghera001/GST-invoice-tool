@@ -13,10 +13,10 @@ export default function SalarySlipPage() {
   return (
     <>
       <Head>
-        <title>Salary Slip Generator - ComplianceKit</title>
+        <title>Salary Slip Generator - Workngin</title>
         <meta
           name="description"
-          content="Generate professional salary slips with ComplianceKit's Salary Slip Generator. Easy, fast, and accurate."
+          content="Generate professional salary slips with Workngin's Salary Slip Generator. Easy, fast, and accurate."
         />
         <meta name="keywords" content="salary slip generator, professional salary slips, compliance tools" />
       </Head>

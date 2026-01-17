@@ -6,10 +6,10 @@ export default function InvoicePage() {
   return (
     <>
       <Head>
-        <title>Invoice Generator - ComplianceKit</title>
+        <title>Invoice Generator - Workngin</title>
         <meta
           name="description"
-          content="Generate professional GST-compliant invoices with ComplianceKit's Invoice Generator. Easy, fast, and accurate."
+          content="Generate professional GST-compliant invoices with Workngin's Invoice Generator. Easy, fast, and accurate."
         />
         <meta name="keywords" content="invoice generator, GST invoice generator, professional invoices, compliance tools" />
       </Head>
