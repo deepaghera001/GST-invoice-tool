@@ -81,6 +81,9 @@ export function captureStyles(): string {
  * Wrap HTML content in a complete document with styles
  */
 export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: string): string {
+  // Get the current origin (works both locally and in production)
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+  
   return `
     <!DOCTYPE html>
     <html>
@@ -89,7 +92,34 @@ export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: s
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${title}</title>
       <style>
+        /* Bundled fonts for consistent PDF rendering */
+        @font-face {
+          font-family: "Inter";
+          src: url("${baseUrl}/fonts/Inter-Regular.woff2") format("woff2");
+          font-weight: 400;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: "Inter";
+          src: url("${baseUrl}/fonts/Inter-SemiBold.woff2") format("woff2");
+          font-weight: 600;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: "Inter";
+          src: url("${baseUrl}/fonts/Inter-Bold.woff2") format("woff2");
+          font-weight: 700;
+          font-style: normal;
+        }
+        @font-face {
+          font-family: "Noto Sans";
+          src: url("${baseUrl}/fonts/NotoSans-Regular.ttf") format("truetype");
+          font-weight: 400;
+          font-style: normal;
+        }
+        
         ${styles}
+        
         /* Additional styles to ensure proper rendering */
         @page {
           size: A4;
@@ -98,7 +128,6 @@ export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: s
         body {
           margin: 0;
           padding: 0;
-          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
           background-color: white;
         }
         /* General PDF Reset: Ensures the captured content fills the page and removes UI-only styling */
