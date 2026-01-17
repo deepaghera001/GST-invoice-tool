@@ -7,7 +7,6 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "postinstall": "npx playwright install --with-deps",
     "test": "npx tsx tests/run-tests.ts"
   },
   "dependencies": {
