@@ -195,7 +195,7 @@ export function InvoicePreview({ calculatedData, errors, maxHeight }: InvoicePre
       pdfContentId="invoice-pdf-content" 
       maxHeight={maxHeight}
     >
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 pdf-document-content">
         {/* Invoice Header */}
         <div className="space-y-1">
           <h2 className="text-2xl font-bold text-foreground">TAX INVOICE</h2>

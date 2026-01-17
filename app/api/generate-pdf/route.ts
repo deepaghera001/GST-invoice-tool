@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { chromium } from "@playwright/test"
+import { getEmbeddedFontCSS } from "@/lib/utils/embedded-fonts"
 
 // Get browser launch configuration
 function getBrowserLaunchConfig() {
@@ -32,6 +33,27 @@ function getPDFGenerationOptions() {
     displayHeaderFooter: false,
     preferCSSPageSize: true,
   };
+}
+
+/**
+ * Inject embedded fonts into HTML content
+ * This ensures fonts are always available for PDF rendering
+ */
+function injectEmbeddedFonts(htmlContent: string): string {
+  const fontCSS = getEmbeddedFontCSS();
+  
+  if (!fontCSS) {
+    return htmlContent;
+  }
+  
+  // Inject font CSS at the beginning of <style> or create new style tag
+  if (htmlContent.includes('<style>')) {
+    return htmlContent.replace('<style>', `<style>\n${fontCSS}\n`);
+  } else if (htmlContent.includes('</head>')) {
+    return htmlContent.replace('</head>', `<style>${fontCSS}</style>\n</head>`);
+  } else {
+    return `<style>${fontCSS}</style>\n${htmlContent}`;
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -74,6 +96,10 @@ export async function POST(request: NextRequest) {
 
     console.log("[API] Generating PDF, filename:", filename, "content size:", Buffer.byteLength(htmlContent));
 
+    // Inject embedded fonts into HTML for consistent rendering
+    const htmlWithFonts = injectEmbeddedFonts(htmlContent);
+    console.log("[API] HTML with embedded fonts, size:", Buffer.byteLength(htmlWithFonts));
+
     // Launch browser and generate PDF with timeout
     browser = await Promise.race([
       chromium.launch(getBrowserLaunchConfig()),
@@ -90,7 +116,16 @@ export async function POST(request: NextRequest) {
       page.setDefaultTimeout(30000);
       page.setDefaultNavigationTimeout(30000);
       
-      await page.setContent(htmlContent, { waitUntil: "networkidle" });
+      // Load HTML content with embedded fonts
+      await page.setContent(htmlWithFonts, { waitUntil: "networkidle" });
+      
+      // ⚡ CRITICAL: Wait for fonts to load before generating PDF
+      // Without this, PDFs render before fonts load → wrong weights, missing ₹ symbol
+      await page.evaluate(() => document.fonts.ready);
+      
+      // Emulate screen media for proper rendering
+      await page.emulateMedia({ media: 'screen' });
+      
       pdfBuffer = await page.pdf(getPDFGenerationOptions());
       
       await page.close();

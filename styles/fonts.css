@@ -1,0 +1,73 @@
+/**
+ * Bundled Fonts for PDF Generation
+ * 
+ * These fonts are bundled with the app to ensure consistent rendering
+ * in PDFs across all environments (local, Docker, Railway).
+ * 
+ * DO NOT rely on system fonts - they cause:
+ * - Missing bold weights
+ * - Incorrect ₹ symbol rendering
+ * - Layout differences between dev and production
+ */
+
+/* Inter - Regular (400) */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Inter - SemiBold (600) */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Inter - Bold (700) */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Noto Sans - Regular (for ₹ and other Unicode symbols) */
+@font-face {
+  font-family: "Noto Sans";
+  src: url("/fonts/NotoSans-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/**
+ * Font Stack for Documents
+ * 
+ * Usage in your components:
+ * 
+ * Option 1 (inline): style={{ fontFamily: 'var(--font-document)' }}
+ * Option 2 (class):  className="pdf-document-content"
+ * 
+ * This ensures:
+ * - Inter for Latin characters
+ * - Noto Sans for ₹, €, £ symbols
+ * - Fallback to system sans-serif
+ */
+:root {
+  --font-document: "Inter", "Noto Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+/**
+ * PDF Document Content Class
+ * Apply this to the root container of any PDF-rendered content
+ * Automatically applies to all children via inheritance
+ */
+.pdf-document-content {
+  font-family: var(--font-document) !important;
+}

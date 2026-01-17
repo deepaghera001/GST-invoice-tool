@@ -79,6 +79,7 @@ export function captureStyles(): string {
 
 /**
  * Wrap HTML content in a complete document with styles
+ * Note: Fonts are injected separately via embedded-fonts.ts in generate-pdf route
  */
 export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: string): string {
   return `
@@ -90,6 +91,7 @@ export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: s
       <title>${title}</title>
       <style>
         ${styles}
+        
         /* Additional styles to ensure proper rendering */
         @page {
           size: A4;
@@ -98,7 +100,6 @@ export function wrapHTMLWithStyles(htmlContent: string, title: string, styles: s
         body {
           margin: 0;
           padding: 0;
-          font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
           background-color: white;
         }
         /* General PDF Reset: Ensures the captured content fills the page and removes UI-only styling */

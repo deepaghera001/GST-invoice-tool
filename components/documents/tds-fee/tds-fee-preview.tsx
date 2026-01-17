@@ -158,7 +158,7 @@ export function TDSFeePreview({ data, maxHeight }: TDSFeePreviewProps) {
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 pdf-document-content">
         {/* TDS Details */}
         <div>
           <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">TDS Details</h3>

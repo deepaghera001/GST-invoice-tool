@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Import bundled fonts for consistent PDF rendering */
+@import "../styles/fonts.css";
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-// Initialize Resend with your API key from environment variables
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 interface DocumentRequest {
   documentName: string;
   description: string;
@@ -35,6 +32,7 @@ export async function POST(request: NextRequest) {
     // Send email notification (only if RESEND_API_KEY is configured)
     if (process.env.RESEND_API_KEY && process.env.ADMIN_EMAIL) {
       try {
+        const resend = new Resend(process.env.RESEND_API_KEY);
         await resend.emails.send({
           from: 'Document Requests <onboarding@resend.dev>', // Resend's test email
           to: [process.env.ADMIN_EMAIL],

@@ -143,7 +143,7 @@ export function SalarySlipPreview({ formData, calculations, maxHeight }: SalaryS
       pdfContentId="salary-slip-pdf-content"
       maxHeight={maxHeight}
     >
-      <div className="p-8 space-y-6 text-sm">
+      <div className="p-8 space-y-6 text-sm pdf-document-content">
       {/* Company logo (optional) */}
       {formData.company.logo && (
         <div className="flex justify-center mb-2">

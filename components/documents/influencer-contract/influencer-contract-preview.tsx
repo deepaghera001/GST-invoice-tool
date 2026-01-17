@@ -348,7 +348,7 @@ export function InfluencerContractPreview({
           font-size: 10pt;
         }
       `}</style>
-      <div className="contract-body">
+      <div className="space-y-6 text-sm pdf-document-content">
         {/* ===== PAGE 1: Title, Parties, Campaign, Timeline ===== */}
         
         {/* Document Title */}
