@@ -2,6 +2,16 @@ FROM mcr.microsoft.com/playwright:latest
 
 WORKDIR /app
 
+# Accept build args for Next.js public env vars
+ARG NEXT_PUBLIC_RAZORPAY_KEY_ID
+ARG NEXT_PUBLIC_TEST_MODE
+ARG NEXT_PUBLIC_AB_SHOW_STICKY
+
+# Set them as env vars for the build
+ENV NEXT_PUBLIC_RAZORPAY_KEY_ID=$NEXT_PUBLIC_RAZORPAY_KEY_ID
+ENV NEXT_PUBLIC_TEST_MODE=$NEXT_PUBLIC_TEST_MODE
+ENV NEXT_PUBLIC_AB_SHOW_STICKY=$NEXT_PUBLIC_AB_SHOW_STICKY
+
 COPY package*.json ./
 RUN npm ci
 
