@@ -231,7 +231,7 @@ export function InfluencerContractPreview({
           page-break-after: avoid;
         }
       `}</style>
-      <div className="space-y-6 text-sm" style={{ fontFamily: 'var(--font-document)' }}>
+      <div className="space-y-6 text-sm pdf-document-content">
         {/* ===== PAGE 1: Title, Parties, Campaign, Timeline ===== */}
         
         {/* Document Title */}

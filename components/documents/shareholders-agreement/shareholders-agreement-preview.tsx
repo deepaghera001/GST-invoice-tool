@@ -364,7 +364,7 @@ export function ShareholdersAgreementPreview({
       `}</style>
 
       {/* PDF Content - this div gets captured for PDF */}
-      <div data-testid="shareholders-agreement-preview" className="space-y-5 text-sm bg-white" style={{ fontFamily: 'var(--font-document)' }}>
+      <div data-testid="shareholders-agreement-preview" className="space-y-5 text-sm bg-white pdf-document-content">
         {/* Document Header */}
         <div className="text-center space-y-1 border-b-2 border-foreground pb-4">
           <h2 className="text-xl font-bold text-foreground tracking-wide">SHAREHOLDERS AGREEMENT</h2>

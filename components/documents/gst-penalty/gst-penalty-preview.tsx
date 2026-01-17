@@ -163,7 +163,7 @@ export function GSTPenaltyPreview({ data, maxHeight }: GSTPenaltyPreviewProps) {
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-5" style={{ fontFamily: 'var(--font-document)' }}>
+      <div className="p-5 space-y-5 pdf-document-content">
         {/* Return Details */}
         <div>
           <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">Return Details</h3>
