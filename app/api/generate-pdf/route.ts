@@ -90,7 +90,16 @@ export async function POST(request: NextRequest) {
       page.setDefaultTimeout(30000);
       page.setDefaultNavigationTimeout(30000);
       
+      // Load HTML content
       await page.setContent(htmlContent, { waitUntil: "networkidle" });
+      
+      // ⚡ CRITICAL: Wait for fonts to load before generating PDF
+      // Without this, PDFs render before fonts load → wrong weights, missing ₹ symbol
+      await page.evaluate(() => document.fonts.ready);
+      
+      // Emulate screen media for proper rendering
+      await page.emulateMedia({ media: 'screen' });
+      
       pdfBuffer = await page.pdf(getPDFGenerationOptions());
       
       await page.close();

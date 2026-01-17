@@ -255,7 +255,7 @@ export function RentAgreementPreview({ calculatedData, maxHeight }: RentAgreemen
           }
         `}</style>
         {/* LEGAL DOCUMENT - This is what gets captured for PDF */}
-        <div data-testid="rent-agreement-preview" className="p-6 space-y-5 text-sm bg-white">
+        <div data-testid="rent-agreement-preview" className="p-6 space-y-5 text-sm bg-white" style={{ fontFamily: 'var(--font-document)' }}>
           {/* Title */}
           <div className="text-center space-y-2 border-b-2 border-foreground pb-6 mb-4 ra-title">
             <h2 className="text-xl font-bold text-foreground tracking-wide">RENT AGREEMENT</h2>
