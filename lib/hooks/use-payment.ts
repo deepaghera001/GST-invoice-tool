@@ -74,7 +74,7 @@ export function usePayment() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: options.currency || 'INR',
-        name: 'ComplianceKit',
+        name: 'Workngin',
         description: options.description,
         order_id: order.orderId,
         handler: function (response: RazorpayResponse) {

@@ -251,8 +251,8 @@ export function GSTPenaltyPreview({ data, maxHeight }: GSTPenaltyPreviewProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-          <p className="text-xs text-slate-400">ComplianceKit • For estimation purposes only</p>
-          <p className="text-xs text-slate-400">www.compliancekit.in</p>
+          <p className="text-xs text-slate-400">Workngin • For estimation purposes only</p>
+          <p className="text-xs text-slate-400">workngin.com</p>
         </div>
       </div>
     </PreviewWrapper>

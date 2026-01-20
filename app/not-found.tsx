@@ -4,7 +4,7 @@ import { Home, Search, Calculator, Receipt, IndianRupee, FileText } from 'lucide
 import { PageHeader, Footer } from '@/components/home';
 
 export const metadata = {
-  title: '404 - Page Not Found | ComplianceKit',
+  title: '404 - Page Not Found | Workngin',
   description: 'The page you are looking for could not be found.',
 };
 

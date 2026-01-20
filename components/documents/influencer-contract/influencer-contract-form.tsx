@@ -113,8 +113,7 @@ export function InfluencerContractForm() {
     [toast]
   )
 
-  // Check if we have enough data to show preview
-  const hasPreviewData = formData.parties.influencerName || formData.parties.brandName
+  // Preview is always visible (consistent with Invoice) — preview shows placeholders when fields are empty
 
   return (
     <>
@@ -263,35 +262,22 @@ export function InfluencerContractForm() {
 
         {/* Right Column: Preview + CTA (Sticky) */}
         <div className="lg:sticky lg:top-24 lg:self-start space-y-3">
-          {hasPreviewData ? (
-            <>
-              <InfluencerContractPreview
-                formData={formData}
-                calculations={calculations}
-                maxHeight="55vh"
-              />
-              <PaymentCTA
-                isFormComplete={isFormComplete}
-                price={PDF_PRICE}
-                documentType="influencer-contract"
-                isTestMode={isTestMode}
-                onPaymentSuccess={handleGenerateAndDownloadPDF}
-                onPaymentError={handlePaymentError}
-                completedSections={completedSectionsCount}
-                totalSections={totalSections}
-                paymentDescription="Influencer-Brand Collaboration Contract"
-              />
-            </>
-          ) : (
-            <Card className="border-dashed bg-muted/50">
-              <CardContent className="flex flex-col items-center justify-center h-full py-20">
-                <FileText className="h-10 w-10 text-muted-foreground/30 mb-3" />
-                <p className="text-sm text-muted-foreground text-center">
-                  Enter party details to see contract preview
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          <InfluencerContractPreview
+            formData={formData}
+            calculations={calculations}
+            maxHeight="55vh"
+          />
+          <PaymentCTA
+            isFormComplete={isFormComplete}
+            price={PDF_PRICE}
+            documentType="influencer-contract"
+            isTestMode={isTestMode}
+            onPaymentSuccess={handleGenerateAndDownloadPDF}
+            onPaymentError={handlePaymentError}
+            completedSections={completedSectionsCount}
+            totalSections={totalSections}
+            paymentDescription="Influencer-Brand Collaboration Contract"
+          />
         </div>
       </div>
     </>

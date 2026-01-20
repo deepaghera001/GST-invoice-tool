@@ -34,7 +34,7 @@
 
 ### 4. **Outdated Metadata** 🟡
 **Current:** Title says "InvoiceGen - Professional GST Invoice Generator"
-**Should be:** "ComplianceKit" (your actual brand)
+**Should be:** "Workngin" (your actual brand)
 
 ### 5. **Missing SEO Files** 🟡
 - No robots.txt
@@ -81,7 +81,7 @@
    - Document all required environment variables
 
 4. **Update Metadata**
-   - Fix title and description to match "ComplianceKit"
+   - Fix title and description to match "Workngin"
 
 ### Phase 2: SEO & Performance (Recommended)
 
@@ -134,7 +134,7 @@
 Would you like me to:
 
 1. ✅ **Create Privacy Policy & Terms of Service pages**
-2. ✅ **Fix metadata to "ComplianceKit"**
+2. ✅ **Fix metadata to "Workngin"**
 3. ✅ **Create .env.example file**
 4. ✅ **Add robots.txt and sitemap.xml**
 5. ✅ **Add security headers to next.config.mjs**
