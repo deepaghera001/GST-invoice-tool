@@ -37,6 +37,12 @@ export function PageHeader({ showBackButton = true, showNav = false }: PageHeade
                 Calculators
               </span>
               <Link
+                href="/income-tax-calculator"
+                className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
+              >
+                Income Tax
+              </Link>
+              <Link
                 href="/gst-calculator"
                 className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
               >
@@ -47,12 +53,6 @@ export function PageHeader({ showBackButton = true, showNav = false }: PageHeade
                 className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
               >
                 TDS
-              </Link>
-              <Link
-                href="/age-calculator"
-                className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
-              >
-                Age
               </Link>
             </div>
             <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 ml-2">

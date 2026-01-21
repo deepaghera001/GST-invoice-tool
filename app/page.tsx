@@ -11,6 +11,15 @@ import { HeroSection, HowItWorksSection, TrustSection, Footer, PageHeader } from
 // Organized by category
 const CALCULATORS = [
   {
+    id: "income-tax-calculator",
+    name: "Income Tax Calculator",
+    icon: Calculator,
+    description: "Compare Old vs New Tax Regime for FY 2024-25",
+    features: ["Both Regimes", "Save Tax Money", "Instant Comparison"],
+    href: "/income-tax-calculator",
+    badge: "Free",
+  },
+  {
     id: "gst-calculator",
     name: "GST Penalty Calculator",
     icon: Calculator,
@@ -27,15 +36,6 @@ const CALCULATORS = [
     features: ["All TDS Sections", "Cap at TDS Amount", "Section 234E & 201(1A)"],
     href: "/tds-calculator",
     badge: "Free",
-  },
-  {
-    id: "age-calculator",
-    name: "Age Calculator & Insights",
-    icon: Sparkles,
-    description: "Get age duration, zodiac traits and eligibility status",
-    features: ["Weeks/Days Lived", "Voting Eligibility", "Zodiac Traits"],
-    href: "/age-calculator",
-    badge: "New",
   },
 ]
 
