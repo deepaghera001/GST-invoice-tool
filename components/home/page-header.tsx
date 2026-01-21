@@ -48,6 +48,12 @@ export function PageHeader({ showBackButton = true, showNav = false }: PageHeade
               >
                 TDS
               </Link>
+              <Link
+                href="/age-calculator"
+                className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
+              >
+                Age
+              </Link>
             </div>
             <div className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 ml-2">
               <span className="text-xs font-medium text-slate-500 mr-2">

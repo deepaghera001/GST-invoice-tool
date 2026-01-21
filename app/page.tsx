@@ -28,6 +28,15 @@ const CALCULATORS = [
     href: "/tds-calculator",
     badge: "Free",
   },
+  {
+    id: "age-calculator",
+    name: "Age Calculator & Insights",
+    icon: Sparkles,
+    description: "Get age duration, zodiac traits and eligibility status",
+    features: ["Weeks/Days Lived", "Voting Eligibility", "Zodiac Traits"],
+    href: "/age-calculator",
+    badge: "New",
+  },
 ]
 
 const DOCUMENTS = [

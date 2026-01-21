@@ -19,6 +19,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: "GST Penalty Calculator", href: "/gst-calculator" },
       { label: "TDS Fee Calculator", href: "/tds-calculator" },
+      { label: "Age Calculator", href: "/age-calculator" },
     ],
   },
   {

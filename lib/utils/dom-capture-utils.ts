@@ -145,6 +145,28 @@ function removeHighlightClasses(element: HTMLElement): void {
 }
 
 /**
+ * Capture the HTML content of the Age Calculator preview
+ */
+export function captureAgeCalculatorPreviewHTML(): string {
+  clearTextSelection();
+  const previewElement = document.getElementById('age-calculator-preview');
+  if (!previewElement) {
+    throw new Error('Age Calculator preview element not found');
+  }
+
+  // Clone the element to avoid modifying the actual DOM
+  const clone = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clone);
+
+  const styles = captureStyles();
+  return wrapHTMLWithStyles(
+    clone.outerHTML,
+    'Age Calculator Report',
+    styles
+  );
+}
+
+/**
  * Capture the HTML content of the invoice preview
  */
 export function captureInvoicePreviewHTML(invoiceNumber: string): string {
