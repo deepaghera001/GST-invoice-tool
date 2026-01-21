@@ -17,10 +17,10 @@ export interface TaxSlabConfig {
 
 export interface Deductions {
   section80C: number;        // Max ₹1.5L
-  section80D: number;        // ₹25k/₹50k/₹100k
+  section80D: number;        // ₹25k self + ₹25k/₹50k parents = max ₹75k
   hra: number;               // House Rent Allowance
-  homeLoanInterest: number;  // Max ₹2L (Section 24b)
-  nps80CCD1B: number;        // Max ₹50k
+  homeLoanInterest: number;  // Max ₹2L (Section 24b, self-occupied)
+  nps80CCD1B: number;        // Max ₹50k (additional to 80C)
   otherDeductions: number;   // LTA, 80E, 80G, etc.
 }
 
@@ -104,7 +104,7 @@ function applyRebate(
  */
 export function calculateTotalDeductions(deductions: Deductions, standardDeduction: number = 50000): number {
   const section80C = Math.min(deductions.section80C || 0, 150000);
-  const section80D = Math.min(deductions.section80D || 0, 100000);
+  const section80D = Math.min(deductions.section80D || 0, 75000); // Updated to ₹75k max
   const hra = Math.max(deductions.hra || 0, 0);
   const homeLoanInterest = Math.min(deductions.homeLoanInterest || 0, 200000);
   const nps = Math.min(deductions.nps80CCD1B || 0, 50000);
@@ -129,33 +129,34 @@ export function calculateOldRegime(
   deductions: Deductions, 
   ageGroup: AgeGroup = 'below-60'
 ): TaxResult {
-  // Age-based basic exemption
-  let basicExemption = 250000;
-  if (ageGroup === 'senior') basicExemption = 300000;
-  if (ageGroup === 'super-senior') basicExemption = 500000;
-
   // Standard deduction for salaried income
   const standardDeduction = 50000;
   
   // Calculate total deductions (capped appropriately)
   const totalDeductions = calculateTotalDeductions(deductions, standardDeduction);
   
-  // Taxable income
-  const taxableIncome = Math.max(0, Math.round(grossIncome - totalDeductions - basicExemption));
+  // Taxable income (after deductions)
+  const taxableIncome = Math.max(0, Math.round(grossIncome - totalDeductions));
 
-  // Tax slabs (applied to income ABOVE basic exemption)
+  // Age-based basic exemption (built into slab structure)
+  let basicExemption = 250000;
+  if (ageGroup === 'senior') basicExemption = 300000;
+  if (ageGroup === 'super-senior') basicExemption = 500000;
+
+  // Tax slabs for old regime (exemption is the first slab at 0%)
   const slabs: TaxSlabConfig[] = [
-    { upto: 250000, rate: 0.05 },   // ₹2.5L - ₹5L
-    { upto: 500000, rate: 0.20 },   // ₹5L - ₹10L
-    { upto: Infinity, rate: 0.30 }, // Above ₹10L
+    { upto: basicExemption, rate: 0 },    // Up to exemption limit: 0%
+    { upto: 250000, rate: 0.05 },         // Next ₹2.5L @ 5%
+    { upto: 500000, rate: 0.20 },         // Next ₹5L @ 20%
+    { upto: Infinity, rate: 0.30 },       // Above ₹10L @ 30%
   ];
 
   const { tax: taxBeforeRebate, breakdown } = computeTaxWithBreakdown(taxableIncome, slabs);
 
-  // Section 87A rebate (if gross income ≤ ₹5L)
+  // Section 87A rebate (if TAXABLE income ≤ ₹5L for residents)
   const { rebate, taxAfterRebate } = applyRebate(
     taxBeforeRebate,
-    grossIncome, // Rebate based on gross income for old regime
+    taxableIncome, // Rebate based on taxable income (not gross)
     12500,
     500000
   );

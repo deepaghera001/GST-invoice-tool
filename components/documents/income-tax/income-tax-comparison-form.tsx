@@ -7,11 +7,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Calculator, HelpCircle, Download } from 'lucide-react'
+import { Calculator, HelpCircle, Download, RotateCcw } from 'lucide-react'
 import { useIncomeTaxForm } from '@/lib/hooks/use-income-tax-form'
 import { IncomeTaxComparisonPreview } from './income-tax-comparison-preview'
+import { PaymentCTA } from '@/components/shared/payment-cta'
 import { useToast } from '@/components/ui/use-toast'
-import { formatCurrency } from '@/lib/utils/tax-calculations'
+import { formatCurrency } from '@/lib/income-tax/calculator'
+import { generateAndDownloadPDF } from '@/lib/utils/pdf-download-utils'
 import {
   Tooltip,
   TooltipContent,
@@ -19,55 +21,88 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-export function IncomeTaxForm() {
+const PDF_PRICE = 99 // ₹99
+
+export function IncomeTaxComparisonForm() {
   const { toast } = useToast()
   
   const {
     formData,
     errors,
+    touched,
+    comparisonResult,
     handleChange,
     handleBlur,
     validateFormFull,
+    fillTestData,
+    shouldShowError,
     getError,
     resetForm,
     isFormComplete,
-    comparisonResult,
     totalDeductions,
   } = useIncomeTaxForm()
 
   // Format input with commas
   const formatInputValue = useCallback((value: string): string => {
-    const num = parseFloat(value.replace(/,/g, ''));
-    if (isNaN(num)) return '';
-    return new Intl.NumberFormat('en-IN').format(num);
-  }, []);
+    if (!value) return ''
+    const num = parseFloat(value.replace(/,/g, ''))
+    if (isNaN(num)) return ''
+    return new Intl.NumberFormat('en-IN').format(num)
+  }, [])
 
   // Handle numeric input change
   const handleNumericChange = useCallback((field: string, value: string) => {
-    // Remove all non-digit characters except decimal point
-    const cleanValue = value.replace(/[^0-9.]/g, '');
-    handleChange(field as any, cleanValue);
-  }, [handleChange]);
+    // Remove all non-digit characters
+    const cleanValue = value.replace(/[^0-9]/g, '')
+    handleChange(field, cleanValue)
+  }, [handleChange])
 
-  // Download PDF (placeholder for now)
-  const handleDownloadPDF = useCallback(async () => {
-    const { isValid } = validateFormFull();
+  // Generate and download PDF
+  const handleGenerateAndDownloadPDF = useCallback(async () => {
+    const { isValid, errors: validationErrors } = validateFormFull()
     
     if (!isValid || !comparisonResult) {
+      const firstError = Object.values(validationErrors)[0]
       toast({
-        title: "Incomplete Form",
-        description: "Please enter your gross income to generate a comparison",
+        title: "Validation Error",
+        description: firstError || "Please fix the errors in the form",
         variant: "destructive",
-      });
-      return;
+      })
+      throw new Error("Form validation failed")
     }
 
-    // TODO: Implement PDF generation
+    try {
+      const { captureIncomeTaxComparisonHTML } = await import('@/lib/utils/dom-capture-utils')
+      const htmlContent = captureIncomeTaxComparisonHTML()
+
+      await generateAndDownloadPDF(
+        htmlContent,
+        `Income-Tax-Comparison-${Date.now()}.pdf`
+      )
+
+      toast({
+        title: "Success! 🎉",
+        description: "Your tax comparison report has been downloaded",
+      })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to generate PDF"
+      toast({
+        title: "Error",
+        description: message,
+        variant: "destructive",
+      })
+      throw error
+    }
+  }, [validateFormFull, comparisonResult, toast])
+
+  // Handle payment error
+  const handlePaymentError = useCallback((error: string) => {
     toast({
-      title: "Coming Soon! 🚀",
-      description: "PDF download feature will be available soon",
-    });
-  }, [validateFormFull, comparisonResult, toast]);
+      title: "Error",
+      description: error,
+      variant: "destructive",
+    })
+  }, [toast])
 
   return (
     <div className="grid lg:grid-cols-2 gap-8">
@@ -75,12 +110,19 @@ export function IncomeTaxForm() {
       <div className="space-y-6">
         {/* Header */}
         <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <Calculator className="h-8 w-8 text-primary" />
-            <h2 className="text-3xl font-bold text-foreground">Income Tax Calculator</h2>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-3xl font-bold text-foreground text-balance">Income Tax Calculator</h2>
+            <Button
+              onClick={fillTestData}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              Fill Test Data
+            </Button>
           </div>
           <p className="text-muted-foreground text-pretty">
-            Compare Old vs New Tax Regime for FY 2024-25 and choose the one that saves you more money.
+            Compare Old vs New Tax Regime for FY 2024-25 (AY 2025-26). Preview updates in real-time.
           </p>
         </div>
 
@@ -155,12 +197,11 @@ export function IncomeTaxForm() {
               Deductions (Old Regime Only)
             </CardTitle>
             <CardDescription>
-              These deductions are NOT available in the new regime
+              Standard deduction of ₹50,000 is available under both regimes (per Budget 2023). Additional deductions below are available only in old regime.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-5">
-              {/* Section 80C */}
               <DeductionInput
                 id="section80C"
                 label="Section 80C Investments"
@@ -173,7 +214,6 @@ export function IncomeTaxForm() {
                 formatValue={formatInputValue}
               />
 
-              {/* Section 80D */}
               <DeductionInput
                 id="section80D"
                 label="Section 80D (Health Insurance)"
@@ -181,12 +221,11 @@ export function IncomeTaxForm() {
                 onChange={(val) => handleNumericChange('section80D', val)}
                 onBlur={() => handleBlur('section80D')}
                 error={getError('section80D')}
-                helpText="Health insurance premiums for self and family"
-                maxAmount="₹25k/₹50k/₹1L based on age"
+                helpText="₹25k self/family + ₹25k/₹50k parents (max ₹75k)"
+                maxAmount="Max ₹75,000 total"
                 formatValue={formatInputValue}
               />
 
-              {/* HRA */}
               <DeductionInput
                 id="hra"
                 label="HRA Exemption"
@@ -198,7 +237,6 @@ export function IncomeTaxForm() {
                 formatValue={formatInputValue}
               />
 
-              {/* Home Loan Interest */}
               <DeductionInput
                 id="homeLoanInterest"
                 label="Home Loan Interest (Sec 24b)"
@@ -211,7 +249,6 @@ export function IncomeTaxForm() {
                 formatValue={formatInputValue}
               />
 
-              {/* NPS 80CCD(1B) */}
               <DeductionInput
                 id="nps80CCD1B"
                 label="NPS - Section 80CCD(1B)"
@@ -224,7 +261,6 @@ export function IncomeTaxForm() {
                 formatValue={formatInputValue}
               />
 
-              {/* Other Deductions */}
               <DeductionInput
                 id="otherDeductions"
                 label="Other Deductions"
@@ -254,39 +290,37 @@ export function IncomeTaxForm() {
         {/* Action Buttons */}
         <div className="flex gap-3">
           <Button
-            onClick={handleDownloadPDF}
-            disabled={!isFormComplete}
-            className="flex-1"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Download PDF Report
-          </Button>
-          <Button
             onClick={resetForm}
             variant="outline"
+            className="gap-2"
           >
+            <RotateCcw className="h-4 w-4" />
             Reset
           </Button>
         </div>
       </div>
 
-      {/* Right Column: Preview */}
-      <div className="space-y-6">
-        <div className="lg:sticky lg:top-6">
-          {comparisonResult ? (
-            <IncomeTaxComparisonPreview comparisonResult={comparisonResult} />
-          ) : (
-            <Card className="border-dashed">
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <Calculator className="h-16 w-16 text-muted-foreground/50 mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Enter Your Income</h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  Fill in your gross annual income to see a comparison between the old and new tax regimes
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+      {/* Right Column: Preview + PaymentCTA */}
+      <div className="sticky top-24 self-start space-y-3">
+        {comparisonResult ? (
+          <IncomeTaxComparisonPreview data={comparisonResult} maxHeight="55vh" />
+        ) : (
+          <Card className="border-dashed bg-muted/50">
+            <CardContent className="flex flex-col items-center justify-center h-full py-20">
+              <Calculator className="h-10 w-10 text-muted-foreground/30 mb-3" />
+              <p className="text-sm text-muted-foreground">Enter your income details</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">Comparison will appear here</p>
+            </CardContent>
+          </Card>
+        )}
+        
+        <PaymentCTA
+          isFormComplete={isFormComplete && !!comparisonResult}
+          onPaymentSuccess={handleGenerateAndDownloadPDF}
+          onPaymentError={handlePaymentError}
+          price={PDF_PRICE}
+          documentType="income-tax-comparison"
+        />
       </div>
     </div>
   )
@@ -294,15 +328,15 @@ export function IncomeTaxForm() {
 
 // Helper Component for Deduction Inputs
 interface DeductionInputProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  onBlur: () => void;
-  error?: string;
-  helpText?: string;
-  maxAmount?: string;
-  formatValue: (value: string) => string;
+  id: string
+  label: string
+  value: string
+  onChange: (value: string) => void
+  onBlur: () => void
+  error?: string
+  helpText?: string
+  maxAmount?: string
+  formatValue: (value: string) => string
 }
 
 function DeductionInput({
@@ -349,5 +383,5 @@ function DeductionInput({
         <p className="text-xs text-muted-foreground">{helpText}</p>
       )}
     </div>
-  );
+  )
 }

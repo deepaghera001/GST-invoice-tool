@@ -1,6 +1,6 @@
 'use client';
 
-import { IncomeTaxForm } from '@/components/calculators/income-tax/income-tax-form';
+import { IncomeTaxComparisonForm } from '@/components/documents/income-tax/income-tax-comparison-form';
 import Head from "next/head";
 import { PageHeader, Footer } from "@/components/home";
 
@@ -25,7 +25,7 @@ export default function IncomeTaxCalculatorPage() {
         {/* Main Content */}
         <section className="py-8 md:py-12">
           <div className="container mx-auto px-4">
-            <IncomeTaxForm />
+            <IncomeTaxComparisonForm />
           </div>
         </section>
 

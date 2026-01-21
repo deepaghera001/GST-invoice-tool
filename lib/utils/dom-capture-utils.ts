@@ -291,3 +291,24 @@ export function captureInfluencerContractPreviewHTML(): string {
 
   return wrapHTMLWithStyles(htmlContent, 'Influencer-Brand Collaboration Agreement', styles);
 }
+
+/**
+ * Capture the HTML content of the income tax comparison preview
+ */
+export function captureIncomeTaxComparisonHTML(): string {
+  clearTextSelection();
+  
+  const previewElement = document.getElementById('income-tax-pdf-content');
+
+  if (!previewElement) {
+    throw new Error('Income tax comparison PDF content element not found');
+  }
+
+  const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
+
+  const htmlContent = clonedElement.outerHTML;
+  const styles = captureStyles();
+
+  return wrapHTMLWithStyles(htmlContent, 'Income Tax Comparison - FY 2024-25', styles);
+}
