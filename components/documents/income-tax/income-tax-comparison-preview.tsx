@@ -110,8 +110,12 @@ export function IncomeTaxComparisonPreview({ data, maxHeight }: IncomeTaxCompari
     return 'bg-gray-500'
   }
 
+  // PDF-ready card styling (no rounded corners for document feel)
+  const outerCardClass = "border border-slate-200 bg-white overflow-hidden rounded-none"
+
   return (
     <PreviewWrapper 
+      className={outerCardClass}
       title="Income Tax Comparison"
       icon={<Calculator className="h-5 w-5" />}
       previewId="income-tax-comparison-preview" 
@@ -119,16 +123,22 @@ export function IncomeTaxComparisonPreview({ data, maxHeight }: IncomeTaxCompari
       pdfContentId="income-tax-pdf-content" 
       maxHeight={maxHeight}
     >
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900">
-            Income Tax Comparison
-          </h1>
-          <p className="text-sm text-slate-500">FY 2024-25 (AY 2025-26)</p>
+      {/* Header */}
+      <div className="bg-slate-800 text-white px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold">Income Tax Comparison</h2>
+            <p className="text-slate-300 text-sm">FY 2024-25 (AY 2025-26)</p>
+          </div>
+          <div className="text-right">
+            <p className="text-slate-300 text-xs">Generated on</p>
+            <p className="text-sm font-medium">{new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+          </div>
         </div>
+      </div>
 
-        {/* Recommendation Banner */}
+      {/* Content */}
+      <div className="p-5 space-y-5 pdf-document-content">{/* Recommendation Banner */}
         <div className={`${getRecommendationColor()} text-white border-none rounded-lg p-4`} ref={setRef('recommendation')}>
           <div className="flex items-center gap-3">
             <CheckCircle2 className="h-5 w-5 shrink-0" />
@@ -315,7 +325,7 @@ export function IncomeTaxComparisonPreview({ data, maxHeight }: IncomeTaxCompari
           <p className="text-xs text-slate-400">Workngin • For estimation purposes only</p>
           <p className="text-xs text-slate-400">workngin.com</p>
         </div>
-      </div>
+      </div> {/* End pdf-document-content */}
     </PreviewWrapper>
   )
 }

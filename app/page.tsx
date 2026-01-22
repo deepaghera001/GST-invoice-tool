@@ -37,6 +37,15 @@ const CALCULATORS = [
     href: "/tds-calculator",
     badge: "Free",
   },
+  {
+    id: "age-calculator",
+    name: "Age Calculator",
+    icon: Clock,
+    description: "Calculate exact age in years, months, and days",
+    features: ["Precise Calculation", "Multiple Formats", "Instant Results"],
+    href: "/age-calculator",
+    badge: "Free",
+  },
 ]
 
 const DOCUMENTS = [
