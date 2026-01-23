@@ -1,6 +1,6 @@
 "use client"
 
-import { Eye, FileDown, CreditCard, FileText } from "lucide-react"
+import { Eye, FileDown, CreditCard, FileText, ChevronRight } from "lucide-react"
 
 const STEPS = [
   {
@@ -39,23 +39,32 @@ export function HowItWorksSection() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-4 md:gap-6">
             {STEPS.map((step, index) => {
               const Icon = step.icon
               return (
-                <div key={step.title} className="text-center">
+                <div key={step.title} className="text-center group">
                   <div className="relative">
-                    <div className="w-12 h-12 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
+                    <div className="w-12 h-12 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4 relative z-10 group-hover:bg-slate-200 transition-colors">
                       <Icon className="h-5 w-5 text-slate-700" />
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-slate-800 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
+                        {index + 1}
+                      </div>
                     </div>
                     {index < STEPS.length - 1 && (
-                      <div className="hidden md:block absolute top-6 left-[calc(50%+24px)] w-[calc(100%-48px)] h-px bg-slate-200" />
+                      <>
+                        {/* Desktop Connector */}
+                        <div className="hidden md:flex absolute top-6 left-[calc(50%+24px)] w-[calc(100%-48px)] h-px bg-slate-200 items-center justify-center">
+                          <ChevronRight className="h-3 w-3 text-slate-300 -mt-[1px]" />
+                        </div>
+                        {/* Mobile Flow - numbering is enough for the 2x2 grid */}
+                      </>
                     )}
                   </div>
                   <h4 className="font-medium text-slate-900 text-sm mb-1">
                     {step.title}
                   </h4>
-                  <p className="text-xs text-slate-500">{step.description}</p>
+                  <p className="text-xs text-slate-500 px-2">{step.description}</p>
                 </div>
               )
             })}
