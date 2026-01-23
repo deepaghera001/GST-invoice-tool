@@ -12,14 +12,14 @@ export function HeroSection() {
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <Badge
             variant="secondary"
-            className="bg-slate-100 text-slate-600 hover:bg-slate-100"
+            className="bg-slate-100 text-slate-600 hover:bg-slate-100 whitespace-normal text-center py-1.5 px-4 h-auto inline-block md:inline-flex max-w-[90vw] md:max-w-none"
           >
             No login. No registration. No "relation" — because some things don't need introductions.
           </Badge>
-          <h2 className="text-3xl md:text-4xl font-semibold text-slate-900 leading-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-slate-900 leading-tight">
             Documents & Compliance Tools
           </h2>
-          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
             Generate professional business documents and calculate GST/TDS penalties. 
             What you see is what you download.
           </p>

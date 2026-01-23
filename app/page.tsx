@@ -247,15 +247,15 @@ export default function HomePage() {
           <div className="container mx-auto px-4 space-y-8">
             <div className="max-w-4xl mx-auto">
               {/* Divider with text */}
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-2 sm:gap-4 mb-8">
                 <div className="flex-1 h-px bg-slate-300"></div>
-                <span className="text-sm text-slate-500 font-medium">Looking for advanced company documents?</span>
+                <span className="text-[10px] sm:text-sm text-slate-500 font-medium whitespace-nowrap">Looking for advanced company documents?</span>
                 <div className="flex-1 h-px bg-slate-300"></div>
               </div>
 
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-semibold text-slate-900">Advanced Business & Founder Documents</h3>
-                <p className="text-sm text-slate-600 mt-1">Professional drafts for startups and growing companies</p>
+              <div className="text-center mb-6 px-2">
+                <h3 className="text-lg sm:text-xl font-semibold text-slate-900">Advanced Business & Founder Documents</h3>
+                <p className="text-xs sm:text-sm text-slate-600 mt-1">Professional drafts for startups and growing companies</p>
               </div>
 
               {/* Shareholders Agreement Card - Featured */}
@@ -319,17 +319,17 @@ export default function HomePage() {
             <div className="max-w-4xl mx-auto">
               <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-sm overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                <CardContent className="relative pt-10 pb-10 px-8">
+                <CardContent className="relative pt-10 pb-10 px-4 sm:px-8">
                   <div className="text-center space-y-6">
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
                       <MessageSquarePlus className="h-8 w-8 text-white" />
                     </div>
                     
                     <div className="space-y-3">
-                      <h2 className="text-3xl font-bold text-slate-900">
+                      <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
                         Can't Find What You Need?
                       </h2>
-                      <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+                      <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto">
                         We're constantly expanding our library. Request a new document and we'll prioritize building it based on demand!
                       </p>
                     </div>
@@ -350,14 +350,14 @@ export default function HomePage() {
                     </div>
 
                     <div className="pt-4">
-                      <Link href="/request-document">
+                      <Link href="/request-document" className="inline-block w-full sm:w-auto">
                         <Button 
                           size="lg" 
-                          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-8 h-12 text-base group"
+                          className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-4 sm:px-8 h-12 text-[13px] sm:text-base group"
                         >
-                          <Sparkles className="mr-2 h-5 w-5" />
-                          Request a New Document
-                          <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                          <Sparkles className="mr-1.5 h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
+                          <span className="truncate sm:whitespace-normal">Request a New Doc</span>
+                          <ArrowRight className="ml-1.5 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform shrink-0" />
                         </Button>
                       </Link>
                       <p className="text-xs text-slate-500 mt-3">
