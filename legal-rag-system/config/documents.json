@@ -1,0 +1,13 @@
+{
+  "documents": [
+    {
+      "id": "FINANCE_ACT_2024",
+      "domain": "income_tax",
+      "path": "documents/raw/income_tax/FINANCE_ACT_2024/FINANCE_ACT_2024__orig.pdf",
+      "metadata_path": "documents/raw/income_tax/FINANCE_ACT_2024/metadata.json",
+      "hash_path": "documents/hashes/FINANCE_ACT_2024.sha256",
+      "effective_year": "2024-25",
+      "status": "active"
+    }
+  ]
+}
