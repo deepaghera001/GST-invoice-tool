@@ -7,7 +7,10 @@
     "dev": "next dev",
     "lint": "eslint .",
     "start": "next start",
-    "test": "npx tsx tests/run-tests.ts"
+    "test": "npx tsx tests/run-tests.ts",
+    "test:browser": "./tests/agent-browser/run-all-tests.sh",
+    "test:browser:invoice": "./tests/agent-browser/test-invoice.sh",
+    "test:browser:salary": "./tests/agent-browser/test-salary-slip.sh"
   },
   "dependencies": {
     "@playwright/test": "^1.57.0",
@@ -64,7 +67,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
-    "@types/node": "^22",
+    "@types/node": "^22.19.7",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "postcss": "^8.5",
