@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Rule Candidate Contract",
+  "description": "Schema for AI-proposed rule candidates. AI NEVER approves correctness, only proposes with citations. This schema is the brake pedal that prevents hallucination and forces explicit ambiguity handling.",
+  "type": "object",
+  "required": ["rule_type", "status", "source_pages", "confidence"],
+  "properties": {
+    "rule_type": {
+      "type": "string",
+      "enum": ["tax_slab", "rate", "threshold", "exemption", "definition"],
+      "description": "Type of rule being extracted. Enum is exhaustive - AI cannot invent new types."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["candidate", "unclear", "blocked"],
+      "description": "candidate = AI found data and can propose; unclear = conflicting sources; blocked = missing critical data"
+    },
+    "rule_data": {
+      "type": ["object", "null"],
+      "description": "Structured values ONLY if explicitly present in source text. null if any ambiguity. Never inferred, never rounded, never guessed.",
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "description": "The extracted value (number, string, or structured object)"
+        },
+        "unit": {
+          "type": ["string", "null"],
+          "description": "Unit if applicable (INR, %, years, etc.)"
+        },
+        "conditions": {
+          "type": ["array", "null"],
+          "description": "Conditions under which this rule applies",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "source_pages": {
+      "type": "array",
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "minItems": 1,
+      "description": "Page numbers where this data was found. MANDATORY - no citations = confidence 0.0"
+    },
+    "source_text": {
+      "type": "string",
+      "description": "Exact verbatim quote from PDF. No paraphrasing. Preserves legal language."
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "AI's confidence in extraction accuracy. Penalized for: missing citations (-1.0), incomplete provisos (-0.2), conflicting sources (-0.5)"
+    },
+    "ambiguity_reason": {
+      "type": ["string", "null"],
+      "description": "If status=unclear, explain why. Examples: 'Multiple values found', 'Proviso incomplete', 'Section reference missing'. null if status=candidate."
+    },
+    "conflicting_candidates": {
+      "type": ["array", "null"],
+      "description": "If status=unclear, list all conflicting values found",
+      "items": {
+        "type": "object",
+        "required": ["value", "source_page"],
+        "properties": {
+          "value": {},
+          "source_page": {
+            "type": "integer"
+          },
+          "source_text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "extracted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of extraction"
+    },
+    "extractor_version": {
+      "type": "string",
+      "description": "Version of extraction logic used"
+    }
+  },
+  "additionalProperties": false,
+  "if": {
+    "properties": {
+      "status": {
+        "const": "unclear"
+      }
+    }
+  },
+  "then": {
+    "required": ["ambiguity_reason"]
+  }
+}
