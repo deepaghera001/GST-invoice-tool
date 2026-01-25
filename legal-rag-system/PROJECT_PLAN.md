@@ -21,6 +21,48 @@
 
 ---
 
+## 🔧 TECHNOLOGY STACK (LOCKED)
+
+### Stage 0-1: Document Processing
+- **PDF Parser:** `pdfjs-dist` (Mozilla PDF.js legacy build)
+- **Runtime:** Node.js 20+
+- **Storage:** Filesystem (JSON)
+
+### Stage 1: Retrieval Layer
+- **Vector DB:** ChromaDB (local, persistent)
+- **Embeddings:** OpenAI `text-embedding-3-small` (1536 dimensions)
+  - Fallback: None initially (fail-safe: return error, don't guess)
+- **Orchestration:** Custom (Stage 1)
+  - **LlamaIndex:** NOT USED initially
+  - **When needed:** If Stage 2 requires multi-document reasoning (cross-referencing Finance Act + Income-tax Act)
+  - **Decision gate:** After Stage 1.9 passes, before Stage 2.1
+
+### Stage 2-3: Rule Extraction
+- **LLM:** OpenAI GPT-4 (or Claude Sonnet)
+  - ONLY for candidate generation, NEVER for approval
+- **Prompt Management:** Hardcoded prompts (version controlled)
+- **Output Format:** Structured JSON (schema-validated)
+
+### Stage 4: Schema Enforcement
+- **Validation:** Zod or JSON Schema
+- **DSL Storage:** TypeScript interfaces + runtime validators
+
+### Stage 5-7: Testing & Production
+- **Test Framework:** Vitest or Jest
+- **Frozen Rules Storage:** Immutable JSON files (git-tracked)
+- **Production Runtime:** Pure TypeScript (NO AI calls)
+
+### Cross-Cutting
+- **Graph DB:** Optional (Stage 3+)
+  - **Tool:** Neo4j or embedded graph library
+  - **Purpose:** Rule dependencies, cross-act references, proviso chains
+  - **Trigger:** ONLY if >20% of rules have cross-references
+  - **NOT for production execution** - only for candidate validation
+  - **Decision:** After Stage 2 extracts first 50 rules
+- **Audit Logging:** Filesystem (append-only JSON logs)
+
+---
+
 ## 🧱 PIPELINE OVERVIEW (8 STAGES)
 
 ```
@@ -60,21 +102,31 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 
 ---
 
-### Stage 1: Retrieval (RAG) ⬜ IN PROGRESS
+### Stage 1: Retrieval (RAG) ⚙️ 60% COMPLETE
 **Goal:** Extract and embed text for semantic search (AI retrieves, doesn't interpret)
 
-| Task | Status | Success Criteria |
-|------|--------|------------------|
-| Install PDF parsing library | ⬜ | pdf-parse or pdfjs installed |
-| Parse PDF to structured text | ⬜ | Text extracted with page numbers |
-| Implement chunking strategy | ⬜ | Chunks ≤ 500 tokens, overlap preserved |
-| Choose vector DB | ⬜ | Decision made (local/cloud) |
-| Generate embeddings | ⬜ | All chunks embedded |
-| Store in vector DB | ⬜ | Retrieval returns correct chunks |
-| Create search API | ⬜ | Query returns text + page numbers |
-| Test retrieval accuracy | ⬜ | Known queries return correct sections |
+| Task | Type | Status | Success Criteria |
+|------|------|--------|------------------|
+| 1.1 PDF parsing library | Infrastructure | ✅ | pdfjs-dist installed and working |
+| 1.2 Parse PDF to structured text | Infrastructure | ✅ | 26/26 pages extracted with page numbers |
+| 1.3 Semantic-preserving chunking | Infrastructure | ✅ | 44 chunks, no mid-sentence breaks, page refs |
+| 1.4 Install ChromaDB | Vector DB | ⬜ | `chromadb` npm package installed |
+| 1.5 Generate embeddings | Vector DB | ⬜ | All 44 chunks embedded (OpenAI API) |
+| 1.6 Store in ChromaDB | Vector DB | ⬜ | Collection created, chunks inserted |
+| 1.7 Test retrieval - known facts | Validation | ⬜ | Query "section 115BAC" returns correct page |
+| 1.8 Test retrieval - boundaries | Validation | ⬜ | Query "surcharge threshold" returns exact text |
+| 1.9 Measure retrieval precision | Validation | ⬜ | 10 test queries, ≥8 return top-3 correct chunks |
 
-**KPI:** Retrieval accuracy > 90%
+**KPI Definition:**
+- **Retrieval Accuracy = 90%** means:
+  - Given 10 hand-crafted test queries (known answers)
+  - At least 9 queries return the correct chunk in top-3 results
+  - Test queries stored in `tests/retrieval/known-queries.json`
+
+**Failure Conditions:**
+- ❌ Embedding generation fails → STOP (no fallback yet)
+- ❌ ChromaDB persistence fails → STOP
+- ❌ Retrieval accuracy < 80% → Investigate chunking strategy
 
 ---
 
@@ -83,29 +135,63 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 
 | Task | Status | Success Criteria |
 |------|--------|------------------|
-| Define rule extraction prompt | ⬜ | Prompt forces AI to cite sources |
-| Implement candidate extraction | ⬜ | Returns rules + confidence + citations |
-| Handle ambiguity | ⬜ | Ambiguous text → null, not guessed |
-| Extract tax slabs | ⬜ | Slabs returned with page references |
-| Extract rates & thresholds | ⬜ | Numbers match PDF exactly |
-| Confidence scoring | ⬜ | Each candidate has 0-1 confidence |
+| 2.1 Define extraction prompts | ⬜ | Prompts stored in `lib/legal-rag/prompts/*.txt` |
+| 2.2 Implement candidate extractor | ⬜ | Returns `{ rule, confidence, citations, ambiguities }` (AI suggests, never approves) |
+| 2.3 Handle explicit ambiguity | ⬜ | Returns `{ status: "unclear", reason: "..." }` for conflicts |
+| 2.4 Extract tax slabs (test case) | ⬜ | Slabs match PDF exactly, with page refs |
+| 2.5 Extract rates & thresholds | ⬜ | Numbers NOT rounded, NOT inferred |
+| 2.6 Confidence scoring logic | ⬜ | Low confidence if: citations conflict, proviso missing |
+| 2.7 Multi-document cross-check | ⬜ | BLOCKED until Income-tax Act 1961 is ingested (Stage 1 repeated) |
 
-**KPI:** % null vs guessed values (target: 0% guessed)
+**Ambiguity Representation:**
+```json
+{
+  "status": "unclear",
+  "reason": "Multiple surcharge rates found",
+  "candidates": [
+    {"value": "10%", "source": "page 3, para 2"},
+    {"value": "15%", "source": "page 7, Schedule I"}
+  ],
+  "resolution": null
+}
+```
+
+**CRITICAL:**
+- AI NEVER picks between candidates
+- Human or later stage resolves
+- Production BLOCKS if unresolved
+
+**KPI:** 
+- 0% guessed values = ALL ambiguous fields return `status: "unclear"`
+- Track: `% unclear / total fields extracted`
 
 ---
 
 ### Stage 3: Alignment Validation ⬜ NOT STARTED
-**Goal:** Check alignment with source text (not correctness)
+**Goal:** Check alignment with source text (NOT correctness)
+
+**Alignment Definition (Explicit):**
+- Candidate text matches PDF verbatim (case-insensitive, whitespace-normalized)
+- All cited page numbers exist in source PDF
+- No proviso/exception omitted within 100 chars of extracted text
+- Cross-references (e.g., "as per section X") are intact
+
+**NOT Alignment:**
+- Legal correctness (we don't verify law)
+- Completeness across entire act
+- Interpretation accuracy
 
 | Task | Status | Success Criteria |
 |------|--------|------------------|
-| Define alignment criteria | ⬜ | Clear definition of "aligned" |
-| Compare candidates to source | ⬜ | Detects missing exceptions |
-| Flag conflicts | ⬜ | Conflicting text → "unclear" |
-| Calculate alignment score | ⬜ | Score 0-1 per candidate |
-| Generate issues list | ⬜ | Lists all alignment problems |
+| 3.1 Define alignment criteria | ⬜ | Written spec (above) |
+| 3.2 Text similarity validator | ⬜ | Fuzzy match with threshold 0.95 |
+| 3.3 Detect missing provisos | ⬜ | Regex for "Provided that" within context window |
+| 3.4 Flag cross-ref failures | ⬜ | Extract section refs, verify they exist in PDF |
+| 3.5 Calculate alignment score | ⬜ | Score = (matched_checks / total_checks) |
+| 3.6 Generate issues report | ⬜ | JSON list of misalignments |
 
-**KPI:** Average confidence score
+**KPI:** Average confidence score > 0.8
+- Confidence = alignment_score × (1 - ambiguity_count/total_fields)
 
 ---
 
@@ -173,49 +259,43 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 
 ## 🏗️ MODULES TO BUILD
 
-### Core Infrastructure
-- [ ] `lib/legal-rag/pdf-manager.ts` - PDF hashing, metadata
-- [ ] `lib/legal-rag/parser.ts` - PDF to text extraction
-- [ ] `lib/legal-rag/chunker.ts` - Text chunking strategy
-- [ ] `lib/legal-rag/vector-store.ts` - Vector DB interface
-- [ ] `lib/legal-rag/embedder.ts` - Generate embeddings
+### Core Infrastructure (Stage 0-1)
+- [x] `legal-rag-system/extract-pdf.mjs` - PDF extraction (pdfjs-dist)
+- [x] `legal-rag-system/chunk-text.mjs` - Semantic chunking
+- [ ] `lib/legal-rag/embedder.ts` - Embedding generation (OpenAI)
+- [ ] `lib/legal-rag/vector-store.ts` - ChromaDB wrapper
+- [ ] `lib/legal-rag/retrieval.ts` - Query orchestration
 
 ### Retrieval Layer (Stage 1)
-- [ ] `lib/legal-rag/retrieval/search.ts` - Semantic search
-- [ ] `app/api/legal-rag/search/route.ts` - Search API endpoint
+- [ ] `lib/legal-rag/search/semantic-search.ts` - Vector similarity search
+- [ ] `lib/legal-rag/search/reranker.ts` - (Optional) Re-rank by page proximity
+- [ ] `tests/retrieval/known-queries.json` - Test query bank
+- [ ] `tests/retrieval/test-search.ts` - Automated retrieval tests
 
 ### Rule Extraction (Stage 2-3)
-- [ ] `lib/legal-rag/extraction/prompts.ts` - Extraction prompts
-- [ ] `lib/legal-rag/extraction/candidates.ts` - Candidate extraction
-- [ ] `lib/legal-rag/validation/alignment.ts` - Alignment checker
-- [ ] `lib/legal-rag/validation/confidence.ts` - Confidence scoring
+- [ ] `lib/legal-rag/prompts/extract-tax-slabs.txt` - Slab extraction prompt
+- [ ] `lib/legal-rag/prompts/extract-thresholds.txt` - Threshold extraction
+- [ ] `lib/legal-rag/extraction/candidate-generator.ts` - LLM wrapper (generates candidates, NEVER validates)
+- [ ] `lib/legal-rag/extraction/ambiguity-detector.ts` - Conflict detector
+- [ ] `lib/legal-rag/validation/alignment-checker.ts` - Text alignment
+- [ ] `lib/legal-rag/validation/cross-ref-validator.ts` - Section reference checker
 
 ### Schema & Control (Stage 4)
-- [ ] `lib/legal-rag/schemas/income-tax.ts` - Income tax DSL
-- [ ] `lib/legal-rag/schemas/validator.ts` - Schema validator
-- [ ] `lib/legal-rag/mapping/schema-mapper.ts` - Map to schema
+- [ ] `lib/legal-rag/schemas/income-tax-2024.ts` - FY 2024-25 schema (Zod)
+- [ ] `lib/legal-rag/schemas/validator.ts` - Runtime schema validator
 
 ### Testing (Stage 5)
-- [ ] `lib/legal-rag/testing/boundary-tests.ts` - Edge case tests
-- [ ] `lib/legal-rag/testing/determinism-tests.ts` - Stability tests
-- [ ] `lib/legal-rag/testing/regression-tests.ts` - Version tests
-- [ ] `lib/legal-rag/testing/parity-tests.ts` - Govt calc comparison
+- [ ] `tests/boundary/tax-slabs.test.ts` - Slab boundary tests
+- [ ] `tests/determinism/same-input.test.ts` - Determinism tests
+- [ ] `tests/regression/fy-2023-24-parity.test.ts` - Previous year comparison
 
 ### Governance (Stage 6)
 - [ ] `lib/legal-rag/governance/freeze.ts` - Freeze mechanism
-- [ ] `lib/legal-rag/governance/approval.ts` - Approval workflow
-- [ ] `lib/legal-rag/governance/audit.ts` - Audit logging
+- [ ] `rules_final/income_tax/FY_2024_25/frozen.json` - Frozen rules artifact
 
 ### Production (Stage 7)
-- [ ] `lib/legal-rag/production/calculator.ts` - Frozen rule executor
-- [ ] `lib/legal-rag/production/versioning.ts` - Version management
-- [ ] `app/api/legal-rag/calculate/route.ts` - Calculator API
-
-### UI/Admin
-- [ ] Admin dashboard for reviewing candidates
-- [ ] Test result viewer
-- [ ] Rule freeze interface
-- [ ] Confidence score display
+- [ ] `lib/legal-rag/production/calculator.ts` - Deterministic executor
+- [ ] `app/api/legal-rag/calculate/route.ts` - Production API
 
 ---
 
@@ -228,6 +308,8 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 - ❌ Confidence scores ignored
 - ❌ PDFs are modified
 - ❌ Frozen rules change
+- ❌ LLM called in production API endpoint (Stage 7)
+- ❌ Confidence threshold bypassed
 
 **Stopping early = success, not failure**
 
@@ -237,13 +319,13 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 
 ### Per Stage
 - Stage 0: Hash stability ✅
-- Stage 1: Retrieval accuracy > 90%
+- Stage 1: Retrieval accuracy ≥ 90% (9/10 known queries return correct chunk in top-3)
 - Stage 2: 0% guessed values
 - Stage 3: Average confidence > 0.8
 - Stage 4: Schema pass rate > 95%
 - Stage 5: Zero critical failures
 - Stage 6: Clear approval audit trail
-- Stage 7: 100% determinism
+- Stage 7: Determinism verified (same input → same output, 10k test runs)
 
 ### Overall System
 - 97-99% reliability on test cases
@@ -259,8 +341,18 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 - Finance Act 2024 stored
 - Hash: `61c6ab8909b8fffc735973c0e0188631b4eb3d1d0618c321bdffb0e91737c19b`
 - 26 pages, official source
+- Commits: 31de45d (extraction), 1c344e4 (chunking)
+- Next commit: PROJECT_PLAN audit corrections
 
-**Next:** Stage 1 - Parse PDF and implement retrieval
+**Stage 1: 60% COMPLETE ⚙️**
+- ✅ 1.1-1.3: PDF parsing, chunking (semantic-preserving)
+- ⬜ 1.4-1.9: Vector DB, embeddings, search testing
+
+**Next Immediate Steps:**
+1. Install ChromaDB (`npm install chromadb`)
+2. Generate embeddings for 44 chunks
+3. Test semantic search with 10 known queries
+4. Measure retrieval accuracy before moving to Stage 2
 
 ---
 
@@ -276,11 +368,16 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 
 ## 🎯 IMMEDIATE NEXT STEPS
 
-1. **Stage 1.1:** Choose PDF parsing library
-2. **Stage 1.2:** Extract text from Finance Act 2024
-3. **Stage 1.3:** Implement chunking strategy
-4. **Stage 1.4:** Choose vector DB (local vs cloud)
-5. **Stage 1.5:** Generate embeddings
-6. **Stage 1.6:** Test retrieval
+### Completed:
+- ✅ **Stage 1.1:** PDF parsing (pdfjs-dist)
+- ✅ **Stage 1.2:** Text extraction (26 pages)
+- ✅ **Stage 1.3:** Semantic chunking (44 chunks)
+- ✅ **Stage 1.3.1:** Manual chunk inspection (verified no mid-sentence breaks)
+
+### In Progress:
+- ⚙️ **Stage 1.4:** Install ChromaDB
+- ⬜ **Stage 1.5:** Generate embeddings (OpenAI)
+- ⬜ **Stage 1.6:** Store in vector DB
+- ⬜ **Stage 1.7-1.9:** Test retrieval accuracy
 
 **Each substep will be tested before proceeding.**
