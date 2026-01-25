@@ -3,7 +3,7 @@
   "title": "Rule Candidate Contract",
   "description": "Schema for AI-proposed rule candidates. AI NEVER approves correctness, only proposes with citations. This schema is the brake pedal that prevents hallucination and forces explicit ambiguity handling.",
   "type": "object",
-  "required": ["rule_type", "status", "source_pages", "confidence"],
+  "required": ["rule_type", "status", "source_pages", "confidence", "ambiguity_reason", "conflicting_candidates"],
   "properties": {
     "rule_type": {
       "type": "string",
@@ -86,15 +86,5 @@
       "description": "Version of extraction logic used"
     }
   },
-  "additionalProperties": false,
-  "if": {
-    "properties": {
-      "status": {
-        "const": "unclear"
-      }
-    }
-  },
-  "then": {
-    "required": ["ambiguity_reason"]
-  }
+  "additionalProperties": false
 }
