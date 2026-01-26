@@ -121,6 +121,7 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 | 1.7 Test retrieval - known facts | Validation | ✅ | Query "section 115BAC" returns page 3 ✅ |
 | 1.8 Test retrieval - boundaries | Validation | ✅ | Query "surcharge rates" returns relevant chunks ✅ |
 | 1.9 Measure retrieval precision | Validation | ✅ | 10 test queries, 9/10 top-3 correct (90%) ✅ |
+| 1.10 Deterministic query enhancement | Improvement | ✅ | Pattern-based enhancement, surcharge query fixed FAIL→PASS ✅ |
 
 **KPI Achievement:**
 - **Retrieval Accuracy = 90%** ✅ (9/10 queries return correct chunk in top-3)
@@ -144,6 +145,16 @@ Stage 7: Production Execution (Frozen Rules Only, No AI)
 - ✅ Manual verification essential - revealed 2 wrong test expectations
 - ✅ True holdout validation requires different document (Finance Act 2023), not just different queries from same PDF
 - ⚠️ Chunking strategy may need adaptation for tables/schedules (documented in CHUNKING_STRATEGY_DECISION.md)
+- ✅ **Stage 1.10:** Deterministic query enhancement fixes casual queries (surcharge FAIL→PASS) without AI
+
+**Stage 1.10 Implementation (Retrieval Improvement):**
+- **Problem:** Legal queries 90%, casual queries 40% (semantic embeddings miss legal structure)
+- **Solution:** Pattern-based keyword injection (NO AI, deterministic)
+- **Files:** lib/query-enhancer.mjs (44 lines), lib/search.mjs (integrated)
+- 80c133b: Stage 1 COMPLETE (203 chunks, 90% accuracy, validation)
+- 19200d7: Stage 1.10 COMPLETE (deterministic query enhancement
+- **Principles:** Deterministic, testable, auditable, modular (can disable)
+- **Decision:** LLM enhancement deferred to Phase 2 (only after 80%+ accuracy baseline)
 
 **Commits:**
 - 31de45d: Stage 1.1 PDF extraction
