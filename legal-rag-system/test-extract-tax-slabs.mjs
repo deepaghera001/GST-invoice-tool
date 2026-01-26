@@ -6,13 +6,15 @@
 
 import { LegalSearchEngine } from './lib/search.mjs';
 import { extractCandidates, extractCandidatesOllama } from './lib/extract-candidates.mjs';
+import { extractCandidatesOpenRouter } from './lib/extract-candidates-openrouter.mjs';
+import { extractCandidatesGroq } from './lib/extract-candidates-groq.mjs';
 
 async function main() {
   console.log('Stage 2.2 Test: Tax Slab Extraction\n');
   console.log('=' .repeat(60));
 
   // Query for tax slabs
-  const query = 'income tax slabs and rates for individuals';
+  const query = 'total income exceeds rupees 2,50,000 5,00,000 10,00,000 rates income tax';
   console.log(`\nQuery: "${query}"\n`);
 
   // Stage 1: Retrieve relevant chunks
@@ -37,7 +39,7 @@ async function main() {
   // Choose provider
   const provider = process.env.EXTRACTION_PROVIDER;
   if (!provider) {
-    throw new Error('EXTRACTION_PROVIDER must be explicitly set (claude | ollama)');
+    throw new Error('EXTRACTION_PROVIDER must be explicitly set (claude | ollama | openrouter)');
   }
   console.log(`\n${'='.repeat(60)}`);
   console.log(`Stage 2.2: Extracting with ${provider}...\n`);
@@ -47,6 +49,10 @@ async function main() {
     
     if (provider === 'ollama') {
       result = await extractCandidatesOllama(chunks, 'tax_slab');
+    } else if (provider === 'openrouter') {
+      result = await extractCandidatesOpenRouter(chunks, 'tax_slab');
+    } else if (provider === 'groq') {
+      result = await extractCandidatesGroq(chunks, 'tax_slab');
     } else {
       result = await extractCandidates(chunks, 'tax_slab');
     }
