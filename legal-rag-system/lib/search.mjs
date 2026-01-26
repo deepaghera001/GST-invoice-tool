@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { pipeline } from '@xenova/transformers';
+import { enhanceQuery } from './query-enhancer.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,13 +48,16 @@ class LegalSearchEngine {
     console.log(`   Dimensions: ${this.data.embedding_dimensions}\n`);
   }
   
-  async search(query, topK = 3) {
+  async search(query, topK = 3, options = {}) {
     if (!this.embedder) {
       throw new Error('Search engine not initialized. Call initialize() first.');
     }
     
+    // Stage 1.10: Deterministic query enhancement (optional)
+    const enhancedQuery = options.skipEnhancement ? query : enhanceQuery(query);
+    
     // Generate query embedding
-    const output = await this.embedder(query, { pooling: 'mean', normalize: true });
+    const output = await this.embedder(enhancedQuery, { pooling: 'mean', normalize: true });
     const queryEmbedding = Array.from(output.data);
     
     // Calculate similarities

@@ -180,11 +180,13 @@ export async function extractCandidatesOllama(chunks, ruleType) {
 
   const prompt = buildPromptOllama(chunks, ruleType);
 
+  const model = process.env.OLLAMA_MODEL || 'qwen2.5:3b-instruct-q4_K_M';
+  
   const response = await fetch('http://localhost:11434/api/generate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'llama3.2',
+      model: model,
       prompt: prompt,
       format: 'json',
       stream: false,
@@ -269,39 +271,56 @@ export async function extractCandidatesOllama(chunks, ruleType) {
 }
 
 /**
- * Simplified prompt for smaller models (Ollama)
+ * Simplified prompt for smaller models (Ollama) - optimized for Qwen/Phi
  */
 function buildPromptOllama(chunks, ruleType) {
   const chunksText = chunks
     .map((c, i) => `[Page ${c.page}] ${c.text}`)
     .join('\n\n');
 
-  return `Extract ${ruleType} rules. Return JSON array.
+  return `You are a precise legal text extractor. Extract ONLY ${ruleType} rules from the text below.
 
-TEXT:
+SOURCE TEXT:
 ${chunksText}
 
-Return this EXACT format (array of objects):
+TASK: Return a JSON array where each object represents ONE ${ruleType} rule.
+
+REQUIRED FORMAT (return array directly, NO wrapper):
 [
   {
     "rule_type": "${ruleType}",
     "status": "candidate",
-    "source_pages": [12],
-    "source_text": "single exact quote",
-    "confidence": 0.9,
+    "rule_data": {
+      "value": "5% on income exceeding Rs. 2,50,000",
+      "unit": "percent",
+      "conditions": ["income exceeds Rs. 2,50,000", "does not exceed Rs. 5,00,000"]
+    },
+    "source_pages": [9],
+    "source_text": "where the total income exceeds Rs. 2,50,000 but does not exceed Rs. 5,00,000, 5 per cent. of the amount by which the total income exceeds Rs. 2,50,000",
+    "confidence": 0.95,
     "ambiguity_reason": null,
     "conflicting_candidates": null
   }
 ]
 
-STRICT RULES:
-- rule_type: string "${ruleType}" (not array)
-- status: string "candidate", "unclear", or "blocked"  
-- source_pages: array of numbers like [1,2,3]
-- source_text: string (ONE quote, not array of quotes)
-- confidence: number between 0.0 and 1.0
-- ambiguity_reason: null or string
-- conflicting_candidates: null or array
+SCHEMA RULES:
+- rule_type: must be "${ruleType}"
+- status: "candidate" | "unclear" | "blocked"
+- rule_data.value: description (string or number)
+- rule_data.unit: "INR" | "percent" | "years" | null
+- rule_data.conditions: ARRAY OF STRINGS (simple text, not objects)
+- source_pages: array of integers [9, 10]
+- source_text: EXACT verbatim quote (string)
+- confidence: 0.0 to 1.0 (number)
+- ambiguity_reason: null (or string if status="unclear")
+- conflicting_candidates: null (or array if status="unclear")
 
-Return multiple objects if you find multiple ${ruleType} rules. Each object is ONE rule with ONE quote.`;
+CRITICAL:
+1. Return JSON array DIRECTLY - NO wrapper like {rules:...}
+2. conditions must be array of simple strings, NOT objects
+3. Quote EXACTLY from source text
+4. Do NOT extract provisos or surcharges
+5. Extract ONLY ${ruleType} rules
+
+Return array now:`;
 }
