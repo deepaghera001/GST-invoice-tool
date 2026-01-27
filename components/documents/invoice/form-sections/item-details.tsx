@@ -4,8 +4,6 @@ import type React from "react"
 import { FormSection, type FormFieldConfig } from "@/components/shared/form-section"
 import { Package } from "lucide-react"
 import type { InvoiceData, InvoiceValidationErrors } from "@/lib/invoice"
-import { HSNSACSearch } from "@/components/ui/hsn-sac-search"
-import type { HSNCode } from "@/lib/invoice/data/hsn-sac-codes"
 
 const ITEM_FIELDS: FormFieldConfig[] = [
   {
@@ -25,6 +23,7 @@ const ITEM_FIELDS: FormFieldConfig[] = [
     colSpan: "third",
     min: 0.01,
     step: 0.01,
+    helpText: "For services, keep as 1",
   },
   {
     name: "rate",
@@ -35,14 +34,17 @@ const ITEM_FIELDS: FormFieldConfig[] = [
     colSpan: "third",
     min: 0,
     step: 0.01,
+    helpText: "Total amount for the service",
   },
   {
     name: "hsnCode",
-    label: "HSN/SAC Code",
-    placeholder: "e.g., 998314",
+    label: "HSN/SAC Code (Optional)",
+    type: "text",
+    placeholder: "e.g., 998314 for IT services",
     required: false,
     colSpan: "third",
     maxLength: 8,
+    helpText: "Leave blank if not applicable",
   },
 ]
 
@@ -62,29 +64,8 @@ export function ItemDetails({
   onBlur,
   errors = {},
   shouldShowError = () => false,
-  setFormData,
   isCompleted,
 }: ItemDetailsProps) {
-
-  const handleHSNSelect = (code: string, gstRate: number | null, codeDetails: HSNCode) => {
-    // Update HSN code field
-    const event = {
-      target: { name: "hsnCode", value: code },
-    } as React.ChangeEvent<HTMLInputElement>
-    onChange(event)
-
-    // Auto-fill GST rate if available (SAC codes only)
-    if (gstRate && setFormData) {
-      const halfRate = (gstRate / 2).toString()
-      setFormData((prev) => ({
-        ...prev,
-        hsnCode: code,
-        cgst: halfRate,
-        sgst: halfRate,
-      }))
-    }
-  }
-
   return (
     <FormSection
       title="Item Details"
@@ -97,13 +78,6 @@ export function ItemDetails({
       shouldShowError={shouldShowError}
       isCompleted={isCompleted}
       layout={{ columns: 3, gap: 16 }}
-    >
-      {/* HSN/SAC Code Search Component */}
-      <HSNSACSearch
-        value={formData.hsnCode}
-        onSelect={handleHSNSelect}
-        placeholder="Search HSN/SAC Code (Auto-fills GST for services)"
-      />
-    </FormSection>
+    />
   )
 }

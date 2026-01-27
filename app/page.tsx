@@ -74,7 +74,7 @@ const DOCUMENTS = [
     description: "Professional contracts for brand-influencer collaborations",
     features: ["Legal Clauses", "Payment Terms", "Content Rights"],
     href: "/influencer-contract",
-    badge: "₹199",
+    badge: "₹499",
   },
 ]
 
