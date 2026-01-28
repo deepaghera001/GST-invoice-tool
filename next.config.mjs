@@ -12,9 +12,6 @@ const nextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   
-  // Output optimizations
-  output: 'standalone',
-  
   // Security headers
   async headers() {
     return [
