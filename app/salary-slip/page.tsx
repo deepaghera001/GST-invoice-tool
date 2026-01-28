@@ -7,8 +7,6 @@ import { SalarySlipForm } from "@/components/documents/salary-slip/salary-slip-f
 import Head from "next/head"
 import { PageHeader, Footer } from "@/components/home"
 
-export const dynamic = "force-dynamic"
-
 export default function SalarySlipPage() {
   return (
     <>

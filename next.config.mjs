@@ -7,6 +7,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Performance optimizations
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  
+  // Output optimizations
+  output: 'standalone',
+  
   // Security headers
   async headers() {
     return [

@@ -10,8 +10,6 @@ import { InfluencerContractForm } from "@/components/documents/influencer-contra
 import type { Metadata } from "next"
 import { PageHeader, Footer } from "@/components/home"
 
-export const dynamic = "force-dynamic"
-
 export const metadata: Metadata = {
   title: "Influencer-Brand Contract Generator | Workngin",
   description: "Create professional influencer-brand collaboration agreements in minutes. Protect your content, secure your payments, and establish clear usage rights. ₹499",
