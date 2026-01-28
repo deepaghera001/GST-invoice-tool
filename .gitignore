@@ -25,3 +25,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# dev3000 / MCP files
+.agents/
+.claude/skills/
+.cursor/mcp.json
+.mcp.json
+opencode.json
