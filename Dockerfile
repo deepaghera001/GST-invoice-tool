@@ -2,12 +2,11 @@ FROM mcr.microsoft.com/playwright:v1.57.0-jammy
 
 WORKDIR /app
 
-# Accept build args for Next.js public env vars
+# Build-time env vars
 ARG NEXT_PUBLIC_RAZORPAY_KEY_ID
 ARG NEXT_PUBLIC_TEST_MODE
 ARG NEXT_PUBLIC_AB_SHOW_STICKY
 
-# Set them as env vars for the build
 ENV NEXT_PUBLIC_RAZORPAY_KEY_ID=$NEXT_PUBLIC_RAZORPAY_KEY_ID
 ENV NEXT_PUBLIC_TEST_MODE=$NEXT_PUBLIC_TEST_MODE
 ENV NEXT_PUBLIC_AB_SHOW_STICKY=$NEXT_PUBLIC_AB_SHOW_STICKY
@@ -19,7 +18,10 @@ COPY . .
 RUN npm run build
 
 ENV NODE_ENV=production
-ENV PORT=8080
 
-EXPOSE 8080
-CMD ["npm", "start"]
+# ❌ DO NOT hardcode PORT
+# Railway provides it at runtime
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start"]
