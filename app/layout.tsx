@@ -67,19 +67,11 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
+        url: "/apple-touch-icon.png",
+        type: "image/png",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: "/favicon-we.png",
   },
   verification: {
     // Add these when you set up Google Search Console and other tools
@@ -96,6 +88,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon-we.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/favicon-we.png" />
+      </head>
       <body className={`font-sans antialiased`}>
         {children}
         <Toaster />

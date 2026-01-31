@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Shield } from "lucide-react"
+import { LogoWE } from "@/components/shared/logo-we"
 
 interface FooterLink {
   label: string
@@ -58,9 +58,10 @@ export function Footer() {
         <div className="grid md:grid-cols-5 gap-8 mb-8">
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <div className="p-1.5 bg-slate-800 rounded">
-                <Shield className="h-4 w-4 text-white" />
-              </div>
+              {/* <div className="p-1.5 h-10 w-10 bg-slate-800 rounded"> */}
+                           <LogoWE className="h-8 w-8" />
+
+              {/* </div> */}
               <span className="font-medium text-slate-900">Workngin</span>
             </div>
             <p className="text-sm text-slate-500">

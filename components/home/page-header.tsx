@@ -1,8 +1,10 @@
 "use client"
 
+
 import Link from "next/link"
-import { Shield, ArrowLeft, FileText } from "lucide-react"
+import { ArrowLeft, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { LogoWE } from "@/components/shared/logo-we"
 
 interface PageHeaderProps {
   showBackButton?: boolean
@@ -17,9 +19,11 @@ export function PageHeader({ showBackButton = true, showNav = false }: PageHeade
           href="/"
           className="flex items-center gap-2 hover:opacity-90 transition-opacity"
         >
-          <div className="p-2 bg-slate-800 rounded-lg">
-            <Shield className="h-5 w-5 text-white" />
-          </div>
+          {/* <div className="p-1.5 rounded bg-gradient-to-br from-black to-white animate-gradient-x"> */}
+            {/* <div className="h-18 w-18 rounded bg-white flex items-center justify-center border border-slate-200 shadow-sm overflow-hidden"> */}
+              <LogoWE className="h-12 w-12" />
+            {/* </div> */}
+          {/* </div> */}
           <div>
             <h1 className="text-xl font-semibold text-slate-900">
               Workngin
