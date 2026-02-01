@@ -41,6 +41,12 @@ export function PageHeader({ showBackButton = true, showNav = false }: PageHeade
                 Calculators
               </span>
               <Link
+                href="/income-tax-calculator"
+                className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
+              >
+                Income Tax
+              </Link>
+              <Link
                 href="/gst-calculator"
                 className="text-sm text-slate-700 hover:text-slate-900 hover:bg-white px-2 py-1 rounded transition-colors"
               >

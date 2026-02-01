@@ -315,6 +315,17 @@ export const shareholdersAgreementSchema = baseShareholdersAgreementSchema.refin
       path: ["shareholders"],
     }
   }
+).refine(
+  (data) => {
+    // Validate Board Quorum <= Total Directors
+    const quorum = data.boardManagement.boardQuorum || 0
+    const total = data.boardManagement.totalDirectors || 0
+    return quorum <= total
+  },
+  {
+    message: "Board quorum cannot exceed total number of directors",
+    path: ["boardManagement.boardQuorum"],
+  }
 )
 
 export type ShareholdersAgreementFormData = z.infer<typeof shareholdersAgreementSchema>

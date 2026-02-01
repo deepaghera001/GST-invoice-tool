@@ -30,7 +30,7 @@ export function TrustSection() {
     <section className="py-10 bg-slate-50 border-t border-slate-200">
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 gap-x-4 md:gap-6">
             {TRUST_ITEMS.map((item) => {
               const Icon = item.icon
               return (

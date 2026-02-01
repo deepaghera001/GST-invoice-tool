@@ -19,6 +19,7 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: "GST Penalty Calculator", href: "/gst-calculator" },
       { label: "TDS Fee Calculator", href: "/tds-calculator" },
+      { label: "Age Calculator", href: "/age-calculator" },
     ],
   },
   {
@@ -55,8 +56,8 @@ export function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white mt-auto">
       <div className="container mx-auto px-4 py-10">
-        <div className="grid md:grid-cols-5 gap-8 mb-8">
-          <div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
               {/* <div className="p-1.5 h-10 w-10 bg-slate-800 rounded"> */}
                            <LogoWE className="h-8 w-8" />

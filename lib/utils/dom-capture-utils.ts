@@ -145,6 +145,28 @@ function removeHighlightClasses(element: HTMLElement): void {
 }
 
 /**
+ * Capture the HTML content of the Age Calculator preview
+ */
+export function captureAgeCalculatorPreviewHTML(): string {
+  clearTextSelection();
+  const previewElement = document.getElementById('age-calculator-preview');
+  if (!previewElement) {
+    throw new Error('Age Calculator preview element not found');
+  }
+
+  // Clone the element to avoid modifying the actual DOM
+  const clone = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clone);
+
+  const styles = captureStyles();
+  return wrapHTMLWithStyles(
+    clone.outerHTML,
+    'Age Calculator Report',
+    styles
+  );
+}
+
+/**
  * Capture the HTML content of the invoice preview
  */
 export function captureInvoicePreviewHTML(invoiceNumber: string): string {
@@ -268,4 +290,25 @@ export function captureInfluencerContractPreviewHTML(): string {
   const styles = captureStyles();
 
   return wrapHTMLWithStyles(htmlContent, 'Influencer-Brand Collaboration Agreement', styles);
+}
+
+/**
+ * Capture the HTML content of the income tax comparison preview
+ */
+export function captureIncomeTaxComparisonHTML(): string {
+  clearTextSelection();
+  
+  const previewElement = document.getElementById('income-tax-pdf-content');
+
+  if (!previewElement) {
+    throw new Error('Income tax comparison PDF content element not found');
+  }
+
+  const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
+
+  const htmlContent = clonedElement.outerHTML;
+  const styles = captureStyles();
+
+  return wrapHTMLWithStyles(htmlContent, 'Income Tax Comparison - FY 2024-25', styles);
 }

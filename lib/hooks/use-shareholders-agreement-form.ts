@@ -82,14 +82,14 @@ function getNestedValue(obj: any, path: string): any {
 function setNestedValueHelper(obj: any, path: string, value: any): any {
   const keys = path.split(".")
   const result = JSON.parse(JSON.stringify(obj)) // Deep clone
-  
+
   let current = result
   for (let i = 0; i < keys.length - 1; i++) {
     if (!current[keys[i]]) current[keys[i]] = {}
     current = current[keys[i]]
   }
   current[keys[keys.length - 1]] = value
-  
+
   return result
 }
 
@@ -105,11 +105,11 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
   // Calculate derived data in real-time
   const calculatedData = useMemo<ShareholdersAgreementCalculatedData>(() => {
     const totalShareholding = formData.shareholders.reduce((sum, sh) => sum + (sh.shareholding || 0), 0)
-    
+
     const calculations: ShareholdersAgreementCalculations = {
       totalShareholdingVerified: totalShareholding === 100,
     }
-    
+
     return {
       formData,
       calculations,
@@ -118,16 +118,16 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
 
   // Section completion checks
   const isSectionComplete = useMemo(() => ({
-    company: 
+    company:
       formData.company.companyName.trim().length >= 2 &&
       formData.company.registeredAddress.trim().length >= 10 &&
       formData.company.dateOfAgreement.trim().length > 0 &&
       !!formData.company.companyType, // enum - just check if has value
     shareholders:
       formData.shareholders.length >= 2 &&
-      formData.shareholders.every(sh => 
-        sh.name.trim().length >= 2 && 
-        sh.email.trim().length >= 5 && 
+      formData.shareholders.every(sh =>
+        sh.name.trim().length >= 2 &&
+        sh.email.trim().length >= 5 &&
         sh.shareholding > 0 &&
         sh.noOfShares > 0 &&
         !!sh.role // enum - just check if has value
@@ -140,12 +140,13 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
       formData.shareCapital.issuedShares > 0 &&
       formData.shareCapital.paidUpShareCapital <= formData.shareCapital.authorizedShareCapital &&
       Math.abs(
-        formData.shareCapital.issuedShares * formData.shareCapital.faceValuePerShare - 
+        formData.shareCapital.issuedShares * formData.shareCapital.faceValuePerShare -
         formData.shareCapital.paidUpShareCapital
       ) < 1, // Allow ₹1 tolerance for rounding
     boardManagement:
       formData.boardManagement.totalDirectors > 0 &&
-      !!formData.boardManagement.directorAppointmentBy, // enum - just check if has value
+      !!formData.boardManagement.directorAppointmentBy &&
+      (formData.boardManagement.boardQuorum || 0) <= formData.boardManagement.totalDirectors, // enum - just check if has value
     votingRights:
       !!formData.votingRights.votingBasis && // enum - just check if has value
       !!formData.votingRights.decisionsRequire, // enum - just check if has value
@@ -185,30 +186,30 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const { name, value, type } = e.target
-      
+
       let processedValue: any = value
-      
+
       // Handle number inputs
       if (type === "number") {
         processedValue = value === "" ? 0 : parseFloat(value)
       }
-      
+
       // Handle boolean strings from select dropdowns
       if (value === "true") {
         processedValue = true
       } else if (value === "false") {
         processedValue = false
       }
-      
+
       setFormData((prev) => {
         let updated = setNestedValueHelper(prev, name, processedValue)
-        
+
         // Auto-calculation logic for share capital fields
         // Rule: Issued Shares × Face Value = Paid-up Capital
         if (name.startsWith("shareCapital.")) {
           const field = name.replace("shareCapital.", "")
           const { issuedShares, faceValuePerShare, paidUpShareCapital } = updated.shareCapital
-          
+
           if (field === "issuedShares") {
             // When issued shares changes, recalculate paid-up capital
             updated.shareCapital.paidUpShareCapital = issuedShares * faceValuePerShare
@@ -220,10 +221,10 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
             updated.shareCapital.issuedShares = Math.floor(paidUpShareCapital / faceValuePerShare)
           }
         }
-        
+
         return updated
       })
-      
+
       // Clear error when user starts typing
       if (errors[name]) {
         setErrors((prev) => {
@@ -242,7 +243,7 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
   const handleCheckboxChange = useCallback((path: string, value: string, checked: boolean) => {
     setFormData((prev) => {
       const current = getNestedValue(prev, path) || []
-      const updated = checked 
+      const updated = checked
         ? [...current, value]
         : current.filter((v: string) => v !== value)
       return setNestedValueHelper(prev, path, updated)
@@ -302,7 +303,7 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
       // Create a test object with this field to validate against partial schema
       const testObj = setNestedValueHelper(formData, fieldPath, value)
       const result = shareholdersAgreementSchema.safeParse(testObj)
-      
+
       if (!result.success) {
         // Find error for this specific path
         const error = result.error.errors.find(err => err.path.join(".") === fieldPath)
@@ -345,10 +346,10 @@ export function useShareholdersAgreementForm(): UseShareholdersAgreementFormRetu
   const handleBlur = useCallback(
     (fieldPath: string, value?: any) => {
       setTouchedFields((prev) => new Set(prev).add(fieldPath))
-      
+
       const fieldValue = value ?? getNestedValue(formData, fieldPath)
       const error = validateField(fieldPath, fieldValue)
-      
+
       if (error) {
         setErrors((prev) => ({ ...prev, [fieldPath]: error }))
       } else {
