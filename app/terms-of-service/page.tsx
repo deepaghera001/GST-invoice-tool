@@ -27,7 +27,7 @@ export default function TermsOfServicePage() {
 
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-slate-900 mb-3">Terms of Service</h1>
-            <p className="text-slate-600">Last updated: January 7, 2026</p>
+            <p className="text-slate-600">Last updated: February 2, 2026</p>
           </div>
 
           <Card className="shadow-sm">
@@ -174,7 +174,7 @@ export default function TermsOfServicePage() {
                 <h2 className="text-2xl font-semibold text-slate-900 mb-4">13. Governing Law</h2>
                 <p className="text-slate-700 leading-relaxed">
                   These Terms shall be governed by and construed in accordance with the laws of India. 
-                  Any disputes shall be subject to the exclusive jurisdiction of courts in [Your City], India.
+                  Any disputes shall be subject to the exclusive jurisdiction of courts in India.
                 </p>
               </section>
 
@@ -193,8 +193,8 @@ export default function TermsOfServicePage() {
                 </p>
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <p className="text-slate-700">
-                    <strong>Email:</strong> legal@workngin.com<br />
-                    <strong>Support:</strong> support@workngin.com
+                    <strong>Email:</strong> support@workngin.com<br />
+                    <strong>Website:</strong> workngin.com
                   </p>
                 </div>
               </section>

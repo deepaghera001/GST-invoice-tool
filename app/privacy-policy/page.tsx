@@ -27,7 +27,7 @@ export default function PrivacyPolicyPage() {
 
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-slate-900 mb-3">Privacy Policy</h1>
-            <p className="text-slate-600">Last updated: January 7, 2026</p>
+            <p className="text-slate-600">Last updated: February 2, 2026</p>
           </div>
 
           <Card className="shadow-sm">
@@ -155,8 +155,8 @@ export default function PrivacyPolicyPage() {
                 </p>
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <p className="text-slate-700">
-                    <strong>Email:</strong> privacy@workngin.com<br />
-                    <strong>Address:</strong> [Your Business Address]
+                    <strong>Email:</strong> support@workngin.com<br />
+                    <strong>Website:</strong> workngin.com
                   </p>
                 </div>
               </section>

@@ -42,11 +42,13 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Terms of Service", href: "/terms-of-service" },
+      { label: "Refund Policy", href: "/refund-policy" },
     ],
   },
   {
     title: "Support",
     links: [
+      { label: "Contact Us", href: "/contact" },
       { label: "Request a Document", href: "/request-document" },
     ],
   },
