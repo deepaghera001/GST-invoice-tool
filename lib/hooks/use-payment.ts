@@ -74,18 +74,14 @@ export function usePayment() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: options.currency || 'INR',
-        name: 'Workngin',
         description: options.description,
         order_id: order.orderId,
         handler: function (response: RazorpayResponse) {
           setLoading(false);
           options.onSuccess(response.razorpay_payment_id, response.razorpay_order_id);
         },
-        prefill: {
-          name: '',
-          email: '',
-          contact: '',
-        },
+        // Do not send `name`, `image` or `prefill` to avoid exposing merchant/customer contact.
+        // Razorpay will fall back to dashboard business name where required.
         theme: {
           color: '#1e293b',
         },
