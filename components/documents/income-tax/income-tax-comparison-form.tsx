@@ -14,6 +14,7 @@ import { PaymentCTA } from '@/components/shared/payment-cta'
 import { useToast } from '@/components/ui/use-toast'
 import { formatCurrency } from '@/lib/income-tax/calculator'
 import { generateAndDownloadPDF } from '@/lib/utils/pdf-download-utils'
+import { TestScenarioSelector, isTestMode, incomeTaxScenarios } from '@/lib/testing'
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +29,7 @@ export function IncomeTaxComparisonForm() {
   
   const {
     formData,
+    setFormData,
     errors,
     touched,
     comparisonResult,
@@ -112,14 +114,13 @@ export function IncomeTaxComparisonForm() {
         <div className="space-y-2">
           <div className="flex items-center gap-3 flex-wrap">
             <h2 className="text-3xl font-bold text-foreground text-balance">Income Tax Calculator</h2>
-            <Button
-              onClick={fillTestData}
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              Fill Test Data
-            </Button>
+            {isTestMode && (
+              <TestScenarioSelector
+                scenarios={incomeTaxScenarios}
+                onApply={(data) => setFormData({ ...formData, ...data })}
+                label="Fill Test Data"
+              />
+            )}
           </div>
           <p className="text-muted-foreground text-pretty">
             Compare Old vs New Tax Regime for FY 2024-25 (AY 2025-26). Preview updates in real-time.

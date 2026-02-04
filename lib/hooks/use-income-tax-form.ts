@@ -22,7 +22,8 @@ import {
 } from "@/lib/income-tax/calculator"
 
 export interface UseIncomeTaxFormReturn {
-  formData: typeof DEFAULT_INCOME_TAX_CALCULATOR_DATA
+  formData: IncomeTaxCalculatorFormData
+  setFormData: React.Dispatch<React.SetStateAction<IncomeTaxCalculatorFormData>>
   errors: IncomeTaxCalculatorValidationErrors
   touched: Set<string>
   comparisonResult: ComparisonResult | null
@@ -51,9 +52,9 @@ const SAMPLE_INCOME_TAX_DATA = {
 }
 
 export function useIncomeTaxForm(
-  initialData: Partial<typeof DEFAULT_INCOME_TAX_CALCULATOR_DATA> = {}
+  initialData: Partial<IncomeTaxCalculatorFormData> = {}
 ): UseIncomeTaxFormReturn {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<IncomeTaxCalculatorFormData>({
     ...DEFAULT_INCOME_TAX_CALCULATOR_DATA,
     ...initialData,
   })
@@ -221,6 +222,7 @@ export function useIncomeTaxForm(
 
   return {
     formData,
+    setFormData,
     errors,
     touched,
     comparisonResult,

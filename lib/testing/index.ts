@@ -33,6 +33,7 @@ export {
   rentAgreementScenarios,
   shareholdersAgreementScenarios,
   influencerContractScenarios,
+  incomeTaxScenarios,
 } from './scenarios';
 
 /**
