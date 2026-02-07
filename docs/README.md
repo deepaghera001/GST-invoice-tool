@@ -9,15 +9,15 @@ docs/
 │   ├── README.md                      ← FormSection Overview
 │   ├── INDEX.md                       ← Navigation & Quick Answers
 │   ├── quick-start/
-│   │   └── QUICK_REFERENCE.md         ← Copy-paste guide (start here!)
+│   │   └── FORMSECTION_QUICK_REFERENCE.md         ← Copy-paste guide (start here!)
 │   ├── api-reference/
 │   │   └── FLEXIBILITY.md             ← Complete API documentation
 │   ├── examples/
 │   │   └── COUPLING_EXAMPLES.md       ← Design patterns & examples
 │   └── guides/
-│       ├── BEFORE_AFTER.md            ← Transformation showcase
+│       ├── FORMSECTION_BEFORE_AFTER.md            ← Transformation showcase
 │       ├── REVIEW.md                  ← Comprehensive review
-│       └── FINAL_SUMMARY.md           ← Complete analysis
+│       └── FORMSECTION_FINAL_SUMMARY.md           ← Complete analysis
 ├── architecture/                      ← Architecture & Design Decisions
 │   └── (Add your docs here)
 └── guides/                            ← General Guides
@@ -29,12 +29,12 @@ docs/
 ## 🎯 Where to Start
 
 ### **For Quick Usage**
-1. Read: [`form-section/quick-start/QUICK_REFERENCE.md`](form-section/quick-start/QUICK_REFERENCE.md)
+1. Read: [`form-section/quick-start/FORMSECTION_QUICK_REFERENCE.md`](form-section/quick-start/FORMSECTION_QUICK_REFERENCE.md)
 2. Copy examples and use them
 
 ### **For Understanding the Design**
-1. Read: [`form-section/guides/BEFORE_AFTER.md`](form-section/guides/BEFORE_AFTER.md)
-2. Read: [`form-section/guides/FINAL_SUMMARY.md`](form-section/guides/FINAL_SUMMARY.md)
+1. Read: [`form-section/guides/FORMSECTION_BEFORE_AFTER.md`](form-section/guides/FORMSECTION_BEFORE_AFTER.md)
+2. Read: [`form-section/guides/FORMSECTION_FINAL_SUMMARY.md`](form-section/guides/FORMSECTION_FINAL_SUMMARY.md)
 
 ### **For Learning the API**
 1. Read: [`form-section/api-reference/FLEXIBILITY.md`](form-section/api-reference/FLEXIBILITY.md)

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock, Users, UserCheck, Sparkles, MessageSquarePlus } from "lucide-react"
+import { CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock, Users, UserCheck, Sparkles, MessageSquarePlus, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -87,6 +87,19 @@ const DOCUMENTS = [
   },
 ]
 
+const VALIDATORS = [
+  {
+    id: "ucp-validator",
+    name: "UCP Validator",
+    icon: ShieldCheck,
+    description: "Validate Universal Commerce Protocol manifests for AI shopping agents",
+    features: ["Free Validation", "Instant Results", "Paid PDF Report"],
+    href: "/ucp-validator",
+    badge: "New",
+    highlight: true,
+  },
+]
+
 export default function HomePage() {
   return (
     <>
@@ -110,6 +123,8 @@ export default function HomePage() {
 
         {/* Trust Indicators */}
         <TrustSection />
+
+        {/* Validators removed from top - moved to Tools section below */}
 
         {/* Calculators Section */}
         <section className="py-12 bg-slate-50">
@@ -372,6 +387,50 @@ export default function HomePage() {
         </section>
 
         {/* Quick Reference Section */}
+        {/* Tools Section - moved UCP validator here */}
+        <section className="py-12 bg-white border-t border-slate-200">
+          <div className="container mx-auto px-4 space-y-8">
+            <div className="flex items-center justify-between max-w-4xl mx-auto">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">Tools</h3>
+                <p className="text-sm text-slate-600">Helpful developer and compliance tools</p>
+              </div>
+              <Badge variant="outline" className="text-slate-600 border-slate-200 bg-slate-50">Utilities</Badge>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+              {VALIDATORS.map((tool) => {
+                const Icon = tool.icon
+                return (
+                  <Link key={tool.id} href={tool.href}>
+                    <Card className="border-slate-200 hover:border-slate-300 hover:shadow-md transition-all h-full bg-white group">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="p-2.5 bg-slate-100 rounded-lg group-hover:bg-slate-200 transition-colors">
+                            <Icon className="h-5 w-5 text-slate-700" />
+                          </div>
+                          <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-600">{tool.badge}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <CardTitle className="text-base font-medium text-slate-900">{tool.name}</CardTitle>
+                        <p className="text-sm text-slate-600">{tool.description}</p>
+                        <div className="space-y-1.5 pt-1">
+                          {tool.features.map((feature) => (
+                            <div key={feature} className="flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              <span className="text-xs text-slate-500">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
         <section className="py-12 bg-slate-50 border-t border-slate-200">
           <div className="container mx-auto px-4 space-y-8">
             <div className="max-w-4xl mx-auto text-center">
