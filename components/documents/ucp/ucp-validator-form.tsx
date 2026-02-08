@@ -20,12 +20,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
-  FlaskConical, 
-  FileText, 
-  CheckCircle2, 
-  AlertCircle, 
-  Globe, 
+import {
+  FlaskConical,
+  FileText,
+  CheckCircle2,
+  AlertCircle,
+  Globe,
   Loader2,
   ExternalLink,
   Copy,
@@ -58,7 +58,7 @@ export function UCPValidatorForm() {
   // Track completion
   const currentInput = inputMode === 'json' ? manifestInput : urlInput
   const isInputComplete = currentInput.trim().length > 0
-  const isValidationComplete = validationResult !== null && validationResult.valid
+  const isValidationComplete = validationResult !== null // Changed: any result (pass or fail) is a completion
   const isFormComplete = isInputComplete && isValidationComplete
 
   // Section completion tracking
@@ -92,10 +92,10 @@ export function UCPValidatorForm() {
     }
 
     setIsValidating(true)
-    
+
     try {
       // Prepare request body based on mode
-      const requestBody = inputMode === 'url' 
+      const requestBody = inputMode === 'url'
         ? { mode: 'url', url: urlInput.trim(), manifest: '' }
         : { mode: 'json', manifest: manifestInput }
 
@@ -118,7 +118,7 @@ export function UCPValidatorForm() {
 
       toast({
         title: data.valid ? "✅ Valid UCP Manifest" : "❌ Invalid UCP Manifest",
-        description: data.valid 
+        description: data.valid
           ? "All validation checks passed!"
           : `Found ${data.errorCount || 0} error(s)`,
         variant: data.valid ? "default" : "destructive",
@@ -132,8 +132,8 @@ export function UCPValidatorForm() {
       })
       setValidationResult({
         valid: false,
-        checks: [{ 
-          id: "system", 
+        checks: [{
+          id: "system",
           title: inputMode === 'url' ? "URL Fetch Error" : "System Error",
           status: "fail" as const,
           message,
@@ -190,14 +190,8 @@ export function UCPValidatorForm() {
       throw new Error("No validation result available")
     }
 
-    if (!validationResult.valid) {
-      toast({
-        title: "Invalid Manifest",
-        description: "Cannot generate report for invalid manifest",
-        variant: "destructive",
-      })
-      throw new Error("Manifest validation failed")
-    }
+    // Allow download even if invalid, as requested by user
+    // (A report of why it failed is also valuable)
 
     try {
       // Capture HTML from preview
@@ -315,11 +309,10 @@ export function UCPValidatorForm() {
               <div className="flex border-b">
                 <button
                   type="button"
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-colors ${
-                    inputMode === 'json' 
-                      ? 'bg-primary text-primary-foreground' 
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-colors ${inputMode === 'json'
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                  }`}
+                    }`}
                   onClick={() => handleModeSwitch('json')}
                 >
                   <FileText className="h-4 w-4" />
@@ -327,11 +320,10 @@ export function UCPValidatorForm() {
                 </button>
                 <button
                   type="button"
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-colors ${
-                    inputMode === 'url' 
-                      ? 'bg-primary text-primary-foreground' 
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-colors ${inputMode === 'url'
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-muted/50 text-muted-foreground hover:bg-muted'
-                  }`}
+                    }`}
                   onClick={() => handleModeSwitch('url')}
                 >
                   <Globe className="h-4 w-4" />
@@ -459,7 +451,7 @@ export function UCPValidatorForm() {
                   {/* URL Mode Info */}
                   <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                     <p className="text-xs text-blue-700">
-                      <strong>Note:</strong> We fetch the URL server-side to avoid CORS issues. 
+                      <strong>Note:</strong> We fetch the URL server-side to avoid CORS issues.
                       Make sure the URL is publicly accessible.
                     </p>
                   </div>
@@ -475,7 +467,7 @@ export function UCPValidatorForm() {
                   icon={validationResult.valid ? CheckCircle2 : AlertCircle}
                   fields={[]}
                   data={{}}
-                  onChange={() => {}}
+                  onChange={() => { }}
                   isCompleted={validationResult.valid}
                 >
                   <div className="space-y-3">

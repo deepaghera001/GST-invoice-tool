@@ -107,11 +107,11 @@ export default function HomePage() {
         <title>Workngin - GST & TDS Calculators, Invoice & Document Generators</title>
         <meta
           name="description"
-          content="Workngin offers free GST penalty calculators, TDS late fee calculators, and professional document generators like invoices, salary slips, rent agreements and contracts for Indian businesses."
+          content="Workngin offers free GST penalty calculators, TDS late fee calculators, and professional document generators like invoices, salary slips, and Universal Commerce Protocol (UCP) manifest validators for AI agents."
         />
         <meta
           name="keywords"
-          content="GST calculator, TDS calculator, invoice generator, salary slip generator, rent agreement, compliance tools India"
+          content="GST calculator, TDS calculator, invoice generator, salary slip generator, rent agreement, compliance tools India, UCP validator, Universal Commerce Protocol, AI shopping agent"
         />
       </Head>
       <div className="min-h-screen bg-slate-50 flex flex-col">
