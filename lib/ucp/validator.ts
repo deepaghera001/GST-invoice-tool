@@ -24,7 +24,7 @@ export class UCPValidator {
     if (!parseResult.valid || !parseResult.data) {
       return this.buildResult(false, manifest);
     }
-    
+
     manifest = parseResult.data;
 
     // Step 2: Validate top-level structure
@@ -46,8 +46,12 @@ export class UCPValidator {
     }
 
     // Step 6: Validate payment handlers
+    // Payment handlers may appear under `ucp.payment_handlers` (legacy) or
+    // under top-level `payment.handlers` (canonical per spec). Accept both.
     if (manifest.ucp.payment_handlers) {
       this.validatePaymentHandlers(manifest.ucp.payment_handlers);
+    } else if ((manifest as any).payment?.handlers) {
+      this.validatePaymentHandlers((manifest as any).payment.handlers);
     }
 
     // Step 7: Validate signing keys
@@ -112,7 +116,7 @@ export class UCPValidator {
 
     // Check for required UCP fields
     const missingFields = requiredUCPFields.filter(field => !manifest.ucp[field as keyof typeof manifest.ucp]);
-    
+
     if (missingFields.length > 0) {
       this.checks.push({
         id: 'ucp-required-fields',
@@ -134,7 +138,7 @@ export class UCPValidator {
     // Warn if optional but recommended fields are missing
     const optionalFields = ['services', 'capabilities'];
     const missingOptional = optionalFields.filter(field => !manifest.ucp[field as keyof typeof manifest.ucp]);
-    
+
     if (missingOptional.length > 0) {
       this.checks.push({
         id: 'ucp-optional-fields',
@@ -150,7 +154,7 @@ export class UCPValidator {
   private validateVersion(version: string) {
     // Version must be in YYYY-MM-DD format
     const versionRegex = /^\d{4}-\d{2}-\d{2}$/;
-    
+
     if (!versionRegex.test(version)) {
       this.checks.push({
         id: 'version-format',
@@ -186,7 +190,7 @@ export class UCPValidator {
 
   private validateServices(services: Record<string, any[]>) {
     const serviceCount = Object.keys(services).length;
-    
+
     if (serviceCount === 0) {
       this.checks.push({
         id: 'services-present',
@@ -223,7 +227,7 @@ export class UCPValidator {
       serviceList.forEach((service, index) => {
         const required = ['version', 'spec'];
         const missing = required.filter(field => !service[field]);
-        
+
         if (missing.length > 0) {
           this.checks.push({
             id: `service-${serviceName}-${index}`,
@@ -235,6 +239,44 @@ export class UCPValidator {
           invalidServices++;
         } else {
           validServices++;
+        }
+
+        // If transport bindings are present, enforce transport-specific required fields
+        if (service.rest) {
+          if (!service.rest.schema || !service.rest.endpoint) {
+            this.checks.push({
+              id: `service-${serviceName}-${index}-rest`,
+              title: `Service REST binding: ${serviceName}[${index}]`,
+              status: 'fail',
+              message: 'REST transport requires both rest.schema and rest.endpoint',
+              severity: 'error'
+            });
+            invalidServices++;
+          }
+        }
+        if (service.mcp) {
+          if (!service.mcp.schema || !service.mcp.endpoint) {
+            this.checks.push({
+              id: `service-${serviceName}-${index}-mcp`,
+              title: `Service MCP binding: ${serviceName}[${index}]`,
+              status: 'fail',
+              message: 'MCP transport requires both mcp.schema and mcp.endpoint',
+              severity: 'error'
+            });
+            invalidServices++;
+          }
+        }
+
+        // Ensure at least one endpoint is defined (legacy, rest, or mcp)
+        if (!service.endpoint && !service.rest?.endpoint && !service.mcp?.endpoint) {
+          this.checks.push({
+            id: `service-${serviceName}-${index}-endpoint`,
+            title: `Service Endpoint: ${serviceName}[${index}]`,
+            status: 'fail',
+            message: 'Service must define at least one endpoint (legacy endpoint, rest.endpoint, or mcp.endpoint)',
+            severity: 'error'
+          });
+          invalidServices++;
         }
       });
     });
@@ -250,7 +292,7 @@ export class UCPValidator {
 
   private validateCapabilities(capabilities: Record<string, any[]>) {
     const capabilityCount = Object.keys(capabilities).length;
-    
+
     if (capabilityCount === 0) {
       this.checks.push({
         id: 'capabilities-present',
@@ -285,9 +327,10 @@ export class UCPValidator {
 
       // Validate each capability definition
       capabilityList.forEach((capability, index) => {
-        const required = ['version', 'spec'];
+        // Per spec, capabilities MUST include version, spec and schema
+        const required = ['version', 'spec', 'schema'];
         const missing = required.filter(field => !capability[field]);
-        
+
         if (missing.length > 0) {
           this.checks.push({
             id: `capability-${capabilityName}-${index}`,
@@ -304,6 +347,10 @@ export class UCPValidator {
         // Validate spec URL origin matches namespace
         if (capability.spec) {
           this.validateSpecURLBinding(capabilityName, capability.spec);
+        }
+        // Also validate schema binding if provided
+        if (capability.schema) {
+          this.validateSpecURLBinding(capabilityName, capability.schema);
         }
       });
     });
@@ -328,7 +375,7 @@ export class UCPValidator {
       handlerList.forEach((handler, index) => {
         const required = ['id', 'version'];
         const missing = required.filter(field => !handler[field]);
-        
+
         if (missing.length > 0) {
           this.checks.push({
             id: `handler-${handlerName}-${index}`,
@@ -340,6 +387,10 @@ export class UCPValidator {
           invalidHandlers++;
         } else {
           validHandlers++;
+        }
+        // If a spec URL is present, ensure origin matches reverse-domain of handler name
+        if (handler.spec) {
+          this.validateSpecURLBinding(handlerName, handler.spec);
         }
       });
     });
@@ -360,7 +411,7 @@ export class UCPValidator {
     keys.forEach((key, index) => {
       const required = ['kid', 'kty'];
       const missing = required.filter(field => !key[field]);
-      
+
       if (missing.length > 0) {
         this.checks.push({
           id: `signing-key-${index}`,
@@ -395,6 +446,16 @@ export class UCPValidator {
           if (service.spec) urls.push(service.spec);
           if (service.endpoint) urls.push(service.endpoint);
           if (service.schema) urls.push(service.schema);
+
+          // Check nested transport URLs
+          if (service.rest) {
+            if (service.rest.endpoint) urls.push(service.rest.endpoint);
+            if (service.rest.schema) urls.push(service.rest.schema);
+          }
+          if (service.mcp) {
+            if (service.mcp.endpoint) urls.push(service.mcp.endpoint);
+            if (service.mcp.schema) urls.push(service.mcp.schema);
+          }
         });
       });
     }
@@ -417,6 +478,19 @@ export class UCPValidator {
         handlerList.forEach(handler => {
           if (handler.spec) urls.push(handler.spec);
           if (handler.schema) urls.push(handler.schema);
+          if (handler.config_schema) urls.push(handler.config_schema);
+          if (handler.instrument_schemas) {
+            handler.instrument_schemas.forEach((s: string) => urls.push(s));
+          }
+        });
+      });
+    } else if ((manifest as any).payment?.handlers) {
+      Object.values((manifest as any).payment.handlers).forEach(handlerData => {
+        const handlerList = normalizeToArray(handlerData as any);
+        handlerList.forEach((handler: any) => {
+          if (handler.spec) urls.push(handler.spec);
+          if (handler.schema) urls.push(handler.schema);
+          if (handler.config_schema) urls.push(handler.config_schema);
         });
       });
     }
@@ -474,27 +548,36 @@ export class UCPValidator {
     // Must match format: {reverse-domain}.{service}.{capability}
     // Or at minimum: {reverse-domain}.{service}
     const parts = namespace.split('.');
-    return parts.length >= 2;
+    if (parts.length < 2) return false;
+
+    // Determine reverse-domain parts (everything before service/capability parts)
+    const reverseDomainParts = parts.length >= 4 ? parts.slice(0, parts.length - 2) : parts.slice(0, parts.length - 1);
+
+    // Require at least two reverse-domain parts (e.g., ['com','example'] or ['dev','ucp'])
+    return reverseDomainParts.length >= 2;
   }
 
   private validateSpecURLBinding(namespace: string, specURL: string) {
     try {
       const url = new URL(specURL);
       const namespaceParts = namespace.split('.');
-      const reverseDomain = namespaceParts.slice(0, 2).reverse().join('.');
-      
-      // For dev.ucp.* namespace, origin must match ucp.dev
-      if (namespace.startsWith('dev.ucp.')) {
-        if (!url.origin.includes('ucp.dev')) {
-          this.checks.push({
-            id: `spec-binding-${namespace}`,
-            title: 'Spec URL Binding',
-            status: 'fail',
-            message: `Spec URL origin mismatch for ${namespace}`,
-            severity: 'error',
-            details: `dev.ucp.* namespace requires spec URL from ucp.dev, got ${url.origin}`
-          });
-        }
+
+      // Derive expected authority from reverse-domain portion of namespace
+      const reverseDomainParts = namespaceParts.length >= 4 ? namespaceParts.slice(0, namespaceParts.length - 2) : namespaceParts.slice(0, namespaceParts.length - 1);
+      if (reverseDomainParts.length < 2) return; // cannot derive authority
+
+      const expectedAuthority = reverseDomainParts.slice().reverse().join('.');
+
+      // Allow subdomains of expected authority (e.g., shop.ucp.dev)
+      if (!url.hostname.endsWith(expectedAuthority)) {
+        this.checks.push({
+          id: `spec-binding-${namespace}`,
+          title: 'Spec URL Binding',
+          status: 'fail',
+          message: `Spec URL origin mismatch for ${namespace}`,
+          severity: 'error',
+          details: `Namespace authority expects origin matching ${expectedAuthority}, got ${url.origin}`
+        });
       }
     } catch {
       // URL validation handled elsewhere

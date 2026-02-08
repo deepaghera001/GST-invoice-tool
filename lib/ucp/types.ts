@@ -7,20 +7,34 @@ export interface UCPManifest {
     payment_handlers?: Record<string, PaymentHandlerDefinition[]>;
   };
   signing_keys?: SigningKey[];
+
+  // Per spec the canonical location for payment handlers is a top-level `payment.handlers`.
+  // Keep types flexible to accept either shape so validator can support both forms.
+  payment?: {
+    handlers?: Record<string, PaymentHandlerDefinition[]>;
+  };
 }
 
 export interface ServiceDefinition {
   version: string;
   spec: string;
-  transport?: string;
+  transport?: 'rest' | 'mcp' | string;
   endpoint?: string;
   schema?: string;
+  rest?: {
+    endpoint: string;
+    schema: string;
+  };
+  mcp?: {
+    endpoint: string;
+    schema: string;
+  };
 }
 
 export interface CapabilityDefinition {
   version: string;
   spec: string;
-  schema?: string;
+  schema: string; // Required per spec
   extends?: string;
   config?: Record<string, any>;
 }
@@ -28,8 +42,11 @@ export interface CapabilityDefinition {
 export interface PaymentHandlerDefinition {
   id: string;
   version: string;
+  name?: string;
   spec?: string;
   schema?: string;
+  config_schema?: string;
+  instrument_schemas?: string[];
   config?: Record<string, any>;
 }
 

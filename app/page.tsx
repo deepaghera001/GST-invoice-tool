@@ -95,7 +95,7 @@ const VALIDATORS = [
     description: "Validate Universal Commerce Protocol manifests for AI shopping agents",
     features: ["Free Validation", "Instant Results", "Paid PDF Report"],
     href: "/ucp-validator",
-    badge: "New",
+    badge: "₹99",
     highlight: true,
   },
 ]
@@ -313,8 +313,8 @@ export default function HomePage() {
                           <span className="text-xs text-slate-600">Multi-founder & investor friendly</span>
                         </div>
                       </div>
-                      
-                     
+
+
 
                       <Button className="w-full bg-slate-800 hover:bg-slate-900 text-white gap-2">
                         View Draft Template
@@ -339,7 +339,7 @@ export default function HomePage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
                       <MessageSquarePlus className="h-8 w-8 text-white" />
                     </div>
-                    
+
                     <div className="space-y-3">
                       <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
                         Can't Find What You Need?
@@ -366,8 +366,8 @@ export default function HomePage() {
 
                     <div className="pt-4">
                       <Link href="/request-document" className="inline-block w-full sm:w-auto">
-                        <Button 
-                          size="lg" 
+                        <Button
+                          size="lg"
                           className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-4 sm:px-8 h-12 text-[13px] sm:text-base group"
                         >
                           <Sparkles className="mr-1.5 h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
