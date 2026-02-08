@@ -34,10 +34,10 @@ import {
 import { FormSection } from "@/components/shared/form-section"
 import { PaymentCTA } from "@/components/shared/payment-cta"
 import { UCPValidationPreview } from "./ucp-validation-preview"
+import { TestScenarioSelector, ucpScenarios, isTestMode } from "@/lib/testing"
 import type { UCPManifest, ValidationResult } from "@/lib/ucp/types"
 
 const PDF_PRICE = 99 // ₹99
-const isTestMode = process.env.NODE_ENV === "development"
 
 // Example URLs for testing
 const EXAMPLE_URLS = [
@@ -180,6 +180,24 @@ export function UCPValidatorForm() {
   /**
    * Generate and download validation report PDF
    */
+  /**
+   * Handle applying a test scenario
+   */
+  const handleApplyScenario = useCallback((data: any) => {
+    if (data.inputMode) setInputMode(data.inputMode)
+    if (data.manifestInput !== undefined) setManifestInput(data.manifestInput)
+    if (data.urlInput !== undefined) setUrlInput(data.urlInput)
+
+    // Clear previous results when applying new scenario
+    setValidationResult(null)
+    setManifest(null)
+
+    toast({
+      title: "Scenario Applied",
+      description: "Test data has been loaded. Click Validate to test.",
+    })
+  }, [toast])
+
   const handleGenerateAndDownloadPDF = useCallback(async () => {
     if (!validationResult) {
       toast({
@@ -297,10 +315,18 @@ export function UCPValidatorForm() {
                 </Badge>
               )}
             </div>
-            <p className="text-muted-foreground text-pretty">
-              Validate Universal Commerce Protocol (UCP) manifests for AI shopping agents.
-              Supports UCP Protocol 2026-01-23.
+            <p className="text-sm text-muted-foreground">
+              Validate Universal Commerce Protocol (UCP) manifests for AI shopping agents. Supports UCP Protocol 2026-01-23.
             </p>
+            {isTestMode && (
+              <div className="pt-1">
+                <TestScenarioSelector
+                  scenarios={ucpScenarios.scenarios}
+                  onApply={handleApplyScenario}
+                  label="UCP Test Scenarios"
+                />
+              </div>
+            )}
           </div>
 
           <form className="space-y-6">
@@ -310,8 +336,8 @@ export function UCPValidatorForm() {
                 <button
                   type="button"
                   className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-colors ${inputMode === 'json'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                     }`}
                   onClick={() => handleModeSwitch('json')}
                 >
@@ -321,8 +347,8 @@ export function UCPValidatorForm() {
                 <button
                   type="button"
                   className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 text-sm font-medium transition-colors ${inputMode === 'url'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted/50 text-muted-foreground hover:bg-muted'
                     }`}
                   onClick={() => handleModeSwitch('url')}
                 >

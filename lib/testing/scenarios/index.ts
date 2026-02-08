@@ -11,3 +11,4 @@ export { rentAgreementScenarios } from './rent-agreement';
 export { shareholdersAgreementScenarios } from './shareholders-agreement';
 export { influencerContractScenarios } from './influencer-contract';
 export { incomeTaxScenarios } from './income-tax';
+export { ucpScenarios } from './ucp';
