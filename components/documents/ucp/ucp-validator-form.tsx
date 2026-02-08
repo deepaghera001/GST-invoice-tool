@@ -39,11 +39,7 @@ import type { UCPManifest, ValidationResult } from "@/lib/ucp/types"
 
 const PDF_PRICE = 99 // ₹99
 
-// Example URLs for testing
-const EXAMPLE_URLS = [
-  "https://oniricapps.com/.well-known/ucp",
-  "https://example.com/.well-known/ucp.json",
-]
+// NOTE: Example URLs removed — use test scenarios when in test mode
 
 export function UCPValidatorForm() {
   const { toast } = useToast()
@@ -286,15 +282,7 @@ export function UCPValidatorForm() {
   /**
    * Load example URL
    */
-  const loadExampleURL = useCallback(() => {
-    setUrlInput(EXAMPLE_URLS[0])
-    setValidationResult(null)
-    setManifest(null)
-    toast({
-      title: "Example URL Loaded",
-      description: "You can click 'Fetch & Validate' to test with this URL",
-    })
-  }, [toast])
+  // Example URL loader removed; use TestScenarioSelector to apply test URL data
 
   return (
     <>
@@ -420,16 +408,15 @@ export function UCPValidatorForm() {
                       <Label htmlFor="urlInput" className="text-sm font-medium">
                         UCP Manifest URL <span className="text-destructive">*</span>
                       </Label>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={loadExampleURL}
-                        className="h-7 text-xs"
-                      >
-                        <ExternalLink className="h-3 w-3 mr-1" />
-                        Try Example URL
-                      </Button>
+                      {isTestMode ? (
+                        <div className="h-7">
+                          <TestScenarioSelector
+                            scenarios={ucpScenarios.scenarios}
+                            onApply={handleApplyScenario}
+                            label="UCP URL Test"
+                          />
+                        </div>
+                      ) : null}
                     </div>
                     <Input
                       id="urlInput"
