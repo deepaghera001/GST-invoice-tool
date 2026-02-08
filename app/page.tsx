@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock, Users, UserCheck, Sparkles, MessageSquarePlus } from "lucide-react"
+import { CheckCircle2, ArrowRight, Calculator, IndianRupee, Home, Receipt, Clock, Users, UserCheck, Sparkles, MessageSquarePlus, ShieldCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -87,6 +87,19 @@ const DOCUMENTS = [
   },
 ]
 
+const VALIDATORS = [
+  {
+    id: "ucp-validator",
+    name: "UCP Validator",
+    icon: ShieldCheck,
+    description: "Validate Universal Commerce Protocol manifests for AI shopping agents",
+    features: ["Free Validation", "Instant Results", "Paid PDF Report"],
+    href: "/ucp-validator",
+    badge: "₹99",
+    highlight: true,
+  },
+]
+
 export default function HomePage() {
   return (
     <>
@@ -94,11 +107,11 @@ export default function HomePage() {
         <title>Workngin - GST & TDS Calculators, Invoice & Document Generators</title>
         <meta
           name="description"
-          content="Workngin offers free GST penalty calculators, TDS late fee calculators, and professional document generators like invoices, salary slips, rent agreements and contracts for Indian businesses."
+          content="Workngin offers free GST penalty calculators, TDS late fee calculators, and professional document generators like invoices, salary slips, and Universal Commerce Protocol (UCP) manifest validators for AI agents."
         />
         <meta
           name="keywords"
-          content="GST calculator, TDS calculator, invoice generator, salary slip generator, rent agreement, compliance tools India"
+          content="GST calculator, TDS calculator, invoice generator, salary slip generator, rent agreement, compliance tools India, UCP validator, Universal Commerce Protocol, AI shopping agent"
         />
       </Head>
       <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -110,6 +123,8 @@ export default function HomePage() {
 
         {/* Trust Indicators */}
         <TrustSection />
+
+        {/* Validators removed from top - moved to Tools section below */}
 
         {/* Calculators Section */}
         <section className="py-12 bg-slate-50">
@@ -298,8 +313,8 @@ export default function HomePage() {
                           <span className="text-xs text-slate-600">Multi-founder & investor friendly</span>
                         </div>
                       </div>
-                      
-                     
+
+
 
                       <Button className="w-full bg-slate-800 hover:bg-slate-900 text-white gap-2">
                         View Draft Template
@@ -324,7 +339,7 @@ export default function HomePage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
                       <MessageSquarePlus className="h-8 w-8 text-white" />
                     </div>
-                    
+
                     <div className="space-y-3">
                       <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
                         Can't Find What You Need?
@@ -351,8 +366,8 @@ export default function HomePage() {
 
                     <div className="pt-4">
                       <Link href="/request-document" className="inline-block w-full sm:w-auto">
-                        <Button 
-                          size="lg" 
+                        <Button
+                          size="lg"
                           className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-4 sm:px-8 h-12 text-[13px] sm:text-base group"
                         >
                           <Sparkles className="mr-1.5 h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
@@ -372,6 +387,50 @@ export default function HomePage() {
         </section>
 
         {/* Quick Reference Section */}
+        {/* Tools Section - moved UCP validator here */}
+        <section className="py-12 bg-white border-t border-slate-200">
+          <div className="container mx-auto px-4 space-y-8">
+            <div className="flex items-center justify-between max-w-4xl mx-auto">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">Tools</h3>
+                <p className="text-sm text-slate-600">Helpful developer and compliance tools</p>
+              </div>
+              <Badge variant="outline" className="text-slate-600 border-slate-200 bg-slate-50">Utilities</Badge>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+              {VALIDATORS.map((tool) => {
+                const Icon = tool.icon
+                return (
+                  <Link key={tool.id} href={tool.href}>
+                    <Card className="border-slate-200 hover:border-slate-300 hover:shadow-md transition-all h-full bg-white group">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="p-2.5 bg-slate-100 rounded-lg group-hover:bg-slate-200 transition-colors">
+                            <Icon className="h-5 w-5 text-slate-700" />
+                          </div>
+                          <Badge variant="secondary" className="text-xs bg-slate-100 text-slate-600">{tool.badge}</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <CardTitle className="text-base font-medium text-slate-900">{tool.name}</CardTitle>
+                        <p className="text-sm text-slate-600">{tool.description}</p>
+                        <div className="space-y-1.5 pt-1">
+                          {tool.features.map((feature) => (
+                            <div key={feature} className="flex items-center gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              <span className="text-xs text-slate-500">{feature}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
         <section className="py-12 bg-slate-50 border-t border-slate-200">
           <div className="container mx-auto px-4 space-y-8">
             <div className="max-w-4xl mx-auto text-center">

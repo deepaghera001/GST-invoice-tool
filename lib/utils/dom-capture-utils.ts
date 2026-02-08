@@ -209,6 +209,32 @@ export function captureSalarySlipPreviewHTML(): string {
 }
 
 /**
+ * Capture the HTML content of the UCP validation preview
+ */
+export function captureUCPValidationPreviewHTML(): string {
+  clearTextSelection();
+  
+  // Try pdfContentId first (PreviewWrapper pattern), fall back to previewId
+  let previewElement = document.getElementById('ucp-pdf-content');
+  
+  if (!previewElement) {
+    previewElement = document.getElementById('ucp-validation-preview');
+  }
+  
+  if (!previewElement) {
+    throw new Error('UCP validation preview element not found');
+  }
+  
+  const clonedElement = previewElement.cloneNode(true) as HTMLElement;
+  removeHighlightClasses(clonedElement);
+  
+  const htmlContent = clonedElement.outerHTML;
+  const styles = captureStyles();
+  
+  return wrapHTMLWithStyles(htmlContent, 'UCP Validation Report', styles);
+}
+
+/**
  * Capture the HTML content of the rent agreement preview
  */
 export function captureRentAgreementPreviewHTML(): string {

@@ -34,6 +34,7 @@ export {
   shareholdersAgreementScenarios,
   influencerContractScenarios,
   incomeTaxScenarios,
+  ucpScenarios,
 } from './scenarios';
 
 /**
