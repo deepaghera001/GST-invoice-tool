@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "@/components/ui/toaster"
+import Script from "next/script"
 import "./globals.css"
 
 const _geist = Geist({ subsets: ["latin"] })
@@ -91,6 +92,16 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon-we.png" type="image/png" />
         <link rel="apple-touch-icon" href="/favicon-we.png" />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-DELSNW5CF8"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);} 
+gtag('js', new Date());
+gtag('config', 'G-DELSNW5CF8');`}
+        </Script>
       </head>
       <body className={`font-sans antialiased`}>
         {children}
