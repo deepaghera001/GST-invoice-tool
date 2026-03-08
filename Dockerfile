@@ -22,6 +22,6 @@ ENV NODE_ENV=production
 # ❌ DO NOT hardcode PORT
 # Railway provides it at runtime
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["npm", "run", "start"]
